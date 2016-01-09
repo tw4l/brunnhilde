@@ -1,9 +1,10 @@
-## Brunnhilde - A companion to Richard Lehane's Seigfried  
-(www.itforarchivists.com/siegfried)  
+## Brunnhilde - A companion to Seigfried  
+
+Generates aggregate reports of a directory based on input from Richard Lehane's Siegfried (www.itforarchivists.com/siegfried).  
 
 Brunnhilde runs Siegfried against a specified directory, loads the results into a sqlite3 database, and queries the database to generate aggregate reports to aid in triage, arrangement, and description of digital archives.  
 
-Reports:  
+### Reports:  
 
 1. Sorted format list with count  
 2. Sorted format and version list with count  
@@ -22,11 +23,11 @@ Brunnhilde takes two arguments:
 
 'python brunnhilde.py directory basename'  
 
-## Dependencies  
+### Dependencies  
 
 Brunnhilde was written for Python 2.7. It has yet to be tested with Python 3.x but should be (at least mostly) compatible.  
 
-## Licensing  
+### Licensing  
 
 The MIT License (MIT)  
 
