@@ -16,6 +16,8 @@ Brunnhilde runs Siegfried against a specified directory, loads the results into 
 
 Reports are written as CSV files to a new 'reports' directory created in the directory from which Brunnhilde is run.  
 
+### Running Brunnhilde  
+
 Brunnhilde takes two arguments:  
 
 1. path of directory to scan  
