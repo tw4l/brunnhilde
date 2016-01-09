@@ -181,4 +181,4 @@ with open(path, 'wb') as duplicates_report:
 
 cursor.close()
 conn.close()
-print("Reports complete.")
+print("Process complete. Reports in %s" % report_dir)
