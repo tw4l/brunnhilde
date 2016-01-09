@@ -3,15 +3,34 @@
 
 """
 
-Runs Siegfried against a directory, imports CSV into sqlite3 db, and queries
-out reports as CSV files.
+Brunnhilde - A companion to Richard Lehane's Seigfried 
+(www.itforarchivists.com/siegfried)
 
-Run with two arguments:
+Brunnhilde runs Siegfried against a specified directory, loads the results
+into a sqlite3 database, and queries the database to generate aggregate
+reports to aid in triage, arrangement, and description of digital archives.
+
+Reports:
+
+1. Sorted format list with count
+2. Sorted format and version list with count
+3. Sorted mimetype list with count
+4. All files with Siegfried errors
+5. All files with Siegfried warnings
+6. All unidentified files
+7. All duplicates (based on Siegfried-generated md5 hash) 
+
+Reports are written as CSV files to a new 'reports' directory created in
+the directory from which Brunnhilde is run.
+
+Brunnhilde takes two arguments:
 
 1. path of directory to scan
-2. basename for reports
+2. basename for reports (e.g. accession number or other identifier)
 
-e.g. 'python brunnhilde.py directory reportbasename'
+'python brunnhilde.py directory basename'
+
+Python 2.7
 
 The MIT License (MIT)
 
@@ -93,7 +112,7 @@ print("Processing complete. Generating reports...")
 
 # create directory for reports
 current_dir = os.getcwd()
-report_dir = os.path.join(current_dir, 'reports')
+report_dir = os.path.join(current_dir, '%s_reports' % tablename)
 try:
 	os.makedirs(report_dir)
 except OSError as exception:
