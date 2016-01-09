@@ -10,19 +10,6 @@ Brunnhilde runs Siegfried against a specified directory, loads the results
 into a sqlite3 database, and queries the database to generate aggregate
 reports to aid in triage, arrangement, and description of digital archives.
 
-Reports:
-
-1. Sorted format list with count
-2. Sorted format and version list with count
-3. Sorted mimetype list with count
-4. All files with Siegfried errors
-5. All files with Siegfried warnings
-6. All unidentified files
-7. All duplicates (based on Siegfried-generated md5 hash) 
-
-Reports are written as CSV files to a new 'reports' directory created in
-the directory from which Brunnhilde is run.
-
 Brunnhilde takes two arguments:
 
 1. path of directory to scan
@@ -30,10 +17,9 @@ Brunnhilde takes two arguments:
 
 'python brunnhilde.py directory basename'
 
-Python 2.7
+Tested with Python 2.7
 
 The MIT License (MIT)
-
 Copyright (c) 2016 Tim Walsh
 
 """
