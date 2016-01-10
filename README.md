@@ -1,6 +1,6 @@
 ## Brunnhilde - A companion to Seigfried  
 
-Generates aggregate reports of files in a directory based on input from Richard Lehane's [Siegfried](www.itforarchivists.com/siegfried).  
+Generates aggregate reports of files in a directory based on input from Richard Lehane's [Siegfried](http://www.itforarchivists.com/siegfried).  
 
 Brunnhilde runs Siegfried against a specified directory, loads the results into a sqlite3 database, and queries the database to generate reports to aid in triage, arrangement, and description of digital archives.  
 
