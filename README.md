@@ -27,7 +27,8 @@ Brunnhilde takes two arguments:
 
 ### Dependencies  
 
-Brunnhilde was written for Python 2.7. It has yet to be tested with Python 3.x but should be (at least mostly) compatible.  
+* Brunnhilde was written for Python 2.7. It has yet to be tested with Python 3.x but should be (at least mostly) compatible.  
+* [Siegfried](http://www.itforarchivists.com/siegfried) must be installed on your machine.  
 
 ### Licensing  
 
