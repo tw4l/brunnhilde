@@ -9,10 +9,11 @@ Brunnhilde runs Siegfried against a specified directory, loads the results into 
 1. Sorted format list with count  
 2. Sorted format and version list with count  
 3. Sorted mimetype list with count  
-4. All files with Siegfried errors  
-5. All files with Siegfried warnings  
-6. All unidentified files  
-7. All duplicates (based on Siegfried-generated md5 hash)  
+4. Sorted list of last modified dates, by year, with count
+5. Files with Siegfried errors  
+6. Files with Siegfried warnings  
+7. Fnidentified files  
+8. Duplicates (based on Siegfried-generated md5 hash)  
 
 Reports are written as CSV files to a new 'reports' directory created in the directory from which Brunnhilde is run.  
 
