@@ -52,6 +52,8 @@ with open(filename, 'rb') as inFile, open(new_filename, "wb") as outFile:
 				'version', 'mimetype', 'basis', 'warning'])
 
 	for row in r:
+		modified_date = row[2][:4]
+		row[2] = modified_date
 		w.writerow(row)
 
 	inFile.close()
@@ -176,6 +178,16 @@ with open(path, 'wb') as duplicates_report:
 	w = csv.writer(duplicates_report)
 	w.writerow(['Filename', 'Filesize', 'Date Modified', 'Errors', 'Checksum', 'Identifier', 'PRONOM ID', 
 		'Format', 'Format Version', 'MIME Type', 'Basis for ID', 'Warning'])
+	for row in cursor.execute(sql):
+		w.writerow(row)
+
+# Dates report
+sql = "SELECT modified, COUNT(*) as 'num' FROM %s GROUP BY modified ORDER BY num DESC" % tablename
+report_filename = '%s_dates.csv' % tablename
+path = os.path.join(report_dir, report_filename)
+with open(path, 'wb') as date_report:
+	w = csv.writer(date_report)
+	w.writerow(['Year Last Modified', 'Count'])
 	for row in cursor.execute(sql):
 		w.writerow(row)
 
