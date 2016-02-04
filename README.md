@@ -12,7 +12,7 @@ Brunnhilde runs Siegfried against a specified directory, loads the results into 
 4. Sorted list of last modified dates, by year, with count
 5. Files with Siegfried errors  
 6. Files with Siegfried warnings  
-7. Fnidentified files  
+7. Unidentified files  
 8. Duplicates (based on Siegfried-generated md5 hash)  
 
 Reports are written as CSV files to a new 'reports' directory created in the directory from which Brunnhilde is run.  
