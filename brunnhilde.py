@@ -25,6 +25,7 @@ Copyright (c) 2016 Tim Walsh
 """
 
 import csv
+import errno
 import os
 import sqlite3
 import subprocess
