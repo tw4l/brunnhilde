@@ -45,6 +45,19 @@ def openHTML(in_name):
 	html_file.write("<body max>")
 	html_file.write('<h1>Brunnhilde report</h1>')
 	html_file.write('<h2>Content scanned: %s</h2>' % in_name)
+	html_file.write('<h2>Aggregate stats</h2>')
+	html_file.write('<ul>')
+	html_file.write('<li>Total files: %s</li>' % num_files)
+	html_file.write('<li>Unique files: %s</li>' % unique_files)
+	html_file.write('<li>Duplicate files: %s</li>' % dupe_files)
+	html_file.write('<li>Unidentified files: %s</li>' % unidentified_files)
+	#html_file.write('<li>Years represented: </li>') FIRST AND LAST? ALL?
+	html_file.write('<li>Total file formats: %s</li>' % num_formats)
+	html_file.write('<li>Siegfried errors: %s</li>' % num_errors)
+	html_file.write('<li>Siegfried warnings: %s</li>' % num_warnings)
+	html_file.write('</ul>')
+
+	# WRITE AGGREGATE STATS
 
 def writeHTML(header):
 	with open(path, 'rb') as csv_report:
@@ -143,6 +156,33 @@ with open(os.path.join(report_dir, filename), 'rb') as f:
 
 	conn.commit()
 
+
+# Get aggregate stats
+cursor.execute("SELECT COUNT(*) from siegfried;")
+num_files = cursor.fetchone()[0]
+
+cursor.execute("SELECT COUNT(DISTINCT md5) from siegfried;")
+unique_files = cursor.fetchone()[0]
+
+cursor.execute("SELECT COUNT(*) FROM siegfried t1 WHERE EXISTS (SELECT 1 from siegfried t2 WHERE t2.md5 = t1.md5 AND t1.filename != t2.filename)")
+dupe_files = cursor.fetchone()[0]
+
+cursor.execute("SELECT COUNT(*) FROM siegfried WHERE puid='UNKNOWN';")
+unidentified_files = cursor.fetchone()[0]
+
+#cursor.execute("SELECT DISTINCT SUBSTR(modified, 1, 4) as 'year'FROM siegfried;")
+#years = THIS ONE IS DIFFERENT
+
+cursor.execute("SELECT COUNT(DISTINCT format) as formats from siegfried;")
+num_formats = cursor.fetchone()[0]
+
+cursor.execute("SELECT COUNT(*) FROM siegfried WHERE errors <> '';")
+num_errors = cursor.fetchone()[0]
+
+cursor.execute("SELECT COUNT(*) FROM siegfried WHERE warning <> '';")
+num_warnings = cursor.fetchone()[0]
+
+
 # create html file
 html_file = open(os.path.join(report_dir, '%s.html' % basename), 'wb')
 openHTML(basename)
@@ -151,7 +191,6 @@ full_header = ['Filename', 'Filesize', 'Date modified', 'Errors', 'Checksum',
 				'Identifier', 'PRONOM ID', 'Format', 'Format Version', 'MIME type', 
 				'Basis for ID', 'Warning']
 
-# ADD IN AGGREGATE REPORTS
 
 # Sorted format list report
 sql = "SELECT format, COUNT(*) as 'num' FROM siegfried GROUP BY format ORDER BY num DESC"
