@@ -164,7 +164,7 @@ num_files = cursor.fetchone()[0]
 cursor.execute("SELECT COUNT(DISTINCT md5) from siegfried;")
 unique_files = cursor.fetchone()[0]
 
-cursor.execute("SELECT COUNT(*) FROM siegfried t1 WHERE EXISTS (SELECT 1 from siegfried t2 WHERE t2.md5 = t1.md5 AND t1.filename != t2.filename)")
+cursor.execute("SELECT COUNT(DISTINCT md5) FROM siegfried t1 WHERE EXISTS (SELECT 1 from siegfried t2 WHERE t2.md5 = t1.md5 AND t1.filename != t2.filename)")
 dupe_files = cursor.fetchone()[0]
 
 cursor.execute("SELECT COUNT(*) FROM siegfried WHERE puid='UNKNOWN';")
