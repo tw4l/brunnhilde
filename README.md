@@ -29,7 +29,7 @@ Brunnhilde takes two arguments:
 ### Dependencies  
 
 * Brunnhilde was written for Python 2.7. It has yet to be tested with Python 3.x but should be (at least mostly) compatible.  
-* [Siegfried](http://www.itforarchivists.com/siegfried) versions 1.0.0-1.4.5 must be installed on your machine. Brunnhilde is not yet compatible with Siegfried 1.5.*, which introduces major changes including the ability to use multiple file identification tools.  
+* [Siegfried](http://www.itforarchivists.com/siegfried) (any version between 1.0.0 and 1.4.5) must be installed on your machine. Brunnhilde is not yet compatible with Siegfried 1.5.*, which introduces major changes including the ability to use multiple file identification tools.  
 
 ### Licensing  
 
