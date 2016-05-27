@@ -113,7 +113,7 @@ conn.text_factory = str  # allows utf-8 data to be stored
 
 cursor = conn.cursor()
 
-# import modified csv file into sqlite db
+# import csv file into sqlite db
 # https://tentacles666.wordpress.com/2014/11/14/python-creating-a-sqlite3-database-from-csv-files/
 with open(os.path.join(report_dir, filename), 'rb') as f:
 	reader = csv.reader(f)
