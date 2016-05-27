@@ -52,7 +52,7 @@ def openHTML(in_name):
 	html_file.write('<li>Duplicate files: %s</li>' % dupe_files)
 	html_file.write('<li>Unidentified files: %s</li>' % unidentified_files)
 	#html_file.write('<li>Years represented: </li>') FIRST AND LAST? ALL?
-	html_file.write('<li>Total file formats: %s</li>' % num_formats)
+	html_file.write('<li>File formats: %s</li>' % num_formats)
 	html_file.write('<li>Siegfried errors: %s</li>' % num_errors)
 	html_file.write('<li>Siegfried warnings: %s</li>' % num_warnings)
 	html_file.write('</ul>')
