@@ -18,6 +18,7 @@ Brunnhilde takes two arguments:
 'python brunnhilde.py directory basename'
 
 Tested with Python 2.7
+Works with Siegfried versions 1.0.0 to 1.4.5 (not yet 1.5.*)
 
 The MIT License (MIT)
 Copyright (c) 2016 Tim Walsh
@@ -76,17 +77,18 @@ def closeHTML():
 	html_file.write("</html>")
 
 def sqlite_to_csv(sql, path, header):
-	with open(path, 'wb') as format_report:
-		w = csv.writer(format_report)
+	with open(path, 'wb') as report:
+		w = csv.writer(report)
 		w.writerow(header)
 		for row in cursor.execute(sql):
 			w.writerow(row)
 
 # create directories
 current_dir = os.getcwd()
-tablename = os.path.splitext(filename)[0]
+basename = os.path.splitext(filename)[0]
+
 # create directory for reports
-report_dir = os.path.join(current_dir, '%s' % tablename)
+report_dir = os.path.join(current_dir, '%s' % basename)
 try:
 	os.makedirs(report_dir)
 except OSError as exception:
@@ -124,13 +126,12 @@ with open(os.path.join(report_dir, filename), 'rb') as f:
 			# gather column names from first row of csv
 			header = False
 
-			sql = "DROP TABLE IF EXISTS %s" % tablename
+			sql = "DROP TABLE IF EXISTS siegfried"
 			cursor.execute(sql)
-			sql = "CREATE TABLE %s (%s)" % (tablename,
-                          ", ".join([ "%s text" % column for column in row ]))
+			sql = "CREATE TABLE siegfried (filename text, filesize text, modified text, errors text, md5 text, id text, puid text, format text, version text, mime text, basis text, warning text)"
 			cursor.execute(sql)
 
-			insertsql = "INSERT INTO %s VALUES (%s)" % (tablename,
+			insertsql = "INSERT INTO siegfried VALUES (%s)" % (
                             ", ".join([ "?" for column in row ]))
 
 			rowlen = len(row)
@@ -143,8 +144,8 @@ with open(os.path.join(report_dir, filename), 'rb') as f:
 	conn.commit()
 
 # create html file
-html_file = open(os.path.join(report_dir, '%s.html' % tablename), 'wb')
-openHTML(tablename)
+html_file = open(os.path.join(report_dir, '%s.html' % basename), 'wb')
+openHTML(basename)
 
 full_header = ['Filename', 'Filesize', 'Date modified', 'Errors', 'Checksum', 
 				'Identifier', 'PRONOM ID', 'Format', 'Format Version', 'MIME type', 
@@ -153,54 +154,54 @@ full_header = ['Filename', 'Filesize', 'Date modified', 'Errors', 'Checksum',
 # ADD IN AGGREGATE REPORTS
 
 # Sorted format list report
-sql = "SELECT format, COUNT(*) as 'num' FROM %s GROUP BY format ORDER BY num DESC" % tablename
-path = os.path.join(csv_dir, '%s_formats.csv' % tablename)
+sql = "SELECT format, COUNT(*) as 'num' FROM siegfried GROUP BY format ORDER BY num DESC"
+path = os.path.join(csv_dir, '%s_formats.csv' % basename)
 format_header = ['Format', 'Count']
 sqlite_to_csv(sql, path, format_header)
 writeHTML('File format')
 
 # Sorted format and version list report
-sql = "SELECT format, version, COUNT(*) as 'num' FROM %s GROUP BY format, version ORDER BY num DESC" % tablename
-path = os.path.join(csv_dir, '%s_formatVersion.csv' % tablename)
+sql = "SELECT format, version, COUNT(*) as 'num' FROM siegfried GROUP BY format, version ORDER BY num DESC"
+path = os.path.join(csv_dir, '%s_formatVersion.csv' % basename)
 version_header = ['Format', 'Version', 'Count']
 sqlite_to_csv(sql, path, version_header)
 writeHTML('File format and version')
 
 # Sorted MIMETYPE list report
-sql = "SELECT mime, COUNT(*) as 'num' FROM %s GROUP BY mime ORDER BY num DESC" % tablename
-path = os.path.join(csv_dir, '%s_mimetypes.csv' % tablename)
+sql = "SELECT mime, COUNT(*) as 'num' FROM siegfried GROUP BY mime ORDER BY num DESC"
+path = os.path.join(csv_dir, '%s_mimetypes.csv' % basename)
 mime_header = ['mimetype', 'Count']
 sqlite_to_csv(sql, path, mime_header)
 writeHTML('Mimetype')
 
 # Dates report
-sql = "SELECT SUBSTR(modified, 1, 4) as 'year', COUNT(*) as 'num' FROM %s GROUP BY year ORDER BY num DESC" % tablename
-path = os.path.join(csv_dir, '%s_years.csv' % tablename)
+sql = "SELECT SUBSTR(modified, 1, 4) as 'year', COUNT(*) as 'num' FROM siegfried GROUP BY year ORDER BY num DESC"
+path = os.path.join(csv_dir, '%s_years.csv' % basename)
 year_header = ['Year Last Modified', 'Count']
 sqlite_to_csv(sql, path, year_header)
 writeHTML('Last modified date by year')
 
 # Unidentified files report
-sql = "SELECT * FROM %s WHERE puid='UNKNOWN';" % tablename
-path = os.path.join(csv_dir, '%s_unidentified.csv' % tablename)
+sql = "SELECT * FROM siegfried WHERE puid='UNKNOWN';"
+path = os.path.join(csv_dir, '%s_unidentified.csv' % basename)
 sqlite_to_csv(sql, path, full_header)
 writeHTML('Unidentified')
 
 # Errors report
-sql = "SELECT * FROM %s WHERE errors <> '';" % tablename
-path = os.path.join(csv_dir, '%s_errors.csv' % tablename)
+sql = "SELECT * FROM siegfried WHERE errors <> '';"
+path = os.path.join(csv_dir, '%s_errors.csv' % basename)
 sqlite_to_csv(sql, path, full_header)
 writeHTML('Errors')
 
 # Warnings report
-sql = "SELECT * FROM %s WHERE warning <> '';" % tablename
-path = os.path.join(csv_dir, '%s_warnings.csv' % tablename)
+sql = "SELECT * FROM siegfried WHERE warning <> '';"
+path = os.path.join(csv_dir, '%s_warnings.csv' % basename)
 sqlite_to_csv(sql, path, full_header)
 writeHTML('Warnings')
 
 # Duplicates report
-sql = "SELECT * FROM %s t1 WHERE EXISTS (SELECT 1 from %s t2 WHERE t2.md5 = t1.md5 AND t1.filename != t2.filename) ORDER BY md5;" % (tablename, tablename)
-path = os.path.join(csv_dir, '%s_duplicates.csv' % tablename)
+sql = "SELECT * FROM siegfried t1 WHERE EXISTS (SELECT 1 from siegfried t2 WHERE t2.md5 = t1.md5 AND t1.filename != t2.filename) ORDER BY md5;"
+path = os.path.join(csv_dir, '%s_duplicates.csv' % basename)
 sqlite_to_csv(sql, path, full_header)
 writeHTML('Duplicates')
 
