@@ -3,7 +3,7 @@
 
 """
 
-Brunnhilde - A companion to Richard Lehane's Seigfried 
+Brunnhilde - A companion to Richard Lehane's Siegfried 
 (www.itforarchivists.com/siegfried)
 
 Brunnhilde runs Siegfried against a specified directory, loads the results
@@ -13,12 +13,16 @@ reports (HTML and CSV) to aid in triage, arrangement, and description of digital
 Brunnhilde takes two arguments:
 
 1. path of directory to scan
-2. basename for reports (e.g. accession number or other identifier)
+2. name of siegfried csv file to create (this file name will be used as a basename
+	for the sqlite db and reports generated - recommended practice is to use an accession
+	number or other identifier as the name for this )
 
-'python brunnhilde.py directory basename'
+'python brunnhilde.py directory siegfried_output.csv'
+
+e.g. 'python brunnhilde.py /Users/fakeuser/Desktop/testfiles accession001.csv'
 
 Tested with Python 2.7
-Works with Siegfried versions 1.0.0 to 1.4.5 (not yet 1.5.*)
+Works with Siegfried versions 1.0.0 to 1.4.5 (not yet 1.5.0+)
 
 The MIT License (MIT)
 Copyright (c) 2016 Tim Walsh
@@ -34,7 +38,8 @@ import sys
 
 walk_dir = sys.argv[1]
 filename = sys.argv[2]
-brunnhilde_version = 'v0.2.4'
+brunnhilde_version = 'v0.2.5'
+siegfried_version = subprocess.check_output(["sf", "-version"])
 
 def openHTML(in_name):
 	html_file.write("<!DOCTYPE html>")
@@ -45,24 +50,27 @@ def openHTML(in_name):
 	html_file.write("</head>")
 	html_file.write("<body max>")
 	html_file.write('<h1>Brunnhilde %s report</h1>' % brunnhilde_version)
-	html_file.write('<h2>Source of files: %s</h2>' % walk_dir)
-	html_file.write('<h2>Accession/Identifier: %s</h2>' % in_name)
-	html_file.write('<h2>Aggregate stats</h2>')
+	html_file.write('<h2>Provenance information</h2>')
+	html_file.write('<h3>Siegfried version used</h3>')
+	html_file.write('<p>%s</p>' % siegfried_version)
+	html_file.write('<h3>Source of files</h3>')
+	html_file.write('<p>%s</p>' % walk_dir)
+	html_file.write('<h3>Accession/Identifier</h3>')
+	html_file.write('<p>%s</p>' % in_name)
+	html_file.write('<h2>Aggregate statistics</h2>')
 	html_file.write('<ul>')
 	html_file.write('<li>Total files: %s</li>' % num_files)
+	html_file.write('<li>Years (last modified date): %s - %s</li>' % (begin_date, end_date))
 	html_file.write('<li>Unique files: %s</li>' % unique_files)
 	html_file.write('<li>Empty files: %s</li>' % empty_files)
 	html_file.write('<li>Total duplicate files: %s</li>' % all_dupe_files)
 	html_file.write('<li>Unique duplicate files: %s</li>' % unique_dupe_files)
 	html_file.write('<li>Unidentified files: %s</li>' % unidentified_files)
-	#html_file.write('<li>Years represented: </li>') FIRST AND LAST? ALL?
 	html_file.write('<li>Identified file formats: %s</li>' % num_formats)
 	html_file.write('<li>Siegfried errors: %s</li>' % num_errors)
 	html_file.write('<li>Siegfried warnings: %s</li>' % num_warnings)
-	html_file.write('<p><em>Note: As Siegfried scans both archive packages (e.g. Zip files) and their contents, numbers of unique, empty, and duplicate files may appear not to perfectly add up.</em></p>')
 	html_file.write('</ul>')
-
-	# WRITE AGGREGATE STATS
+	html_file.write('<p><em>Note: As Siegfried scans both archive packages (e.g. Zip files) and their contents, numbers of unique, empty, and duplicate files may appear not to perfectly add up.</em></p>')
 
 def writeHTML(header):
 	with open(path, 'rb') as csv_report:
@@ -162,7 +170,7 @@ with open(os.path.join(report_dir, filename), 'rb') as f:
 	conn.commit()
 
 
-# Get aggregate stats
+# get aggregate stats
 cursor.execute("SELECT COUNT(*) from siegfried;")
 num_files = cursor.fetchone()[0]
 
@@ -181,8 +189,19 @@ unique_dupe_files = cursor.fetchone()[0]
 cursor.execute("SELECT COUNT(*) FROM siegfried WHERE puid='UNKNOWN';")
 unidentified_files = cursor.fetchone()[0]
 
-#cursor.execute("SELECT DISTINCT SUBSTR(modified, 1, 4) as 'year'FROM siegfried;")
-#years = THIS ONE IS DIFFERENT
+year_sql = "SELECT DISTINCT SUBSTR(modified, 1, 4) as 'year' FROM siegfried;"
+year_path = os.path.join(csv_dir, '%s_uniqueyears.csv' % basename)
+with open(year_path, 'wb') as year_report:
+	w = csv.writer(year_report)
+	for row in cursor.execute(year_sql):
+		w.writerow(row)
+with open(year_path, 'rb') as year_report:
+	r = csv.reader(year_report)
+	years = []
+	for row in r:
+		years.append(row[0])
+	begin_date = min(years, key=float)
+	end_date = max(years, key=float)
 
 cursor.execute("SELECT COUNT(DISTINCT format) as formats from siegfried WHERE format <> '';")
 num_formats = cursor.fetchone()[0]
@@ -203,57 +222,57 @@ full_header = ['Filename', 'Filesize', 'Date modified', 'Errors', 'Checksum',
 				'Basis for ID', 'Warning']
 
 
-# Sorted format list report
+# sorted format list report
 sql = "SELECT format, COUNT(*) as 'num' FROM siegfried GROUP BY format ORDER BY num DESC"
 path = os.path.join(csv_dir, '%s_formats.csv' % basename)
 format_header = ['Format', 'Count']
 sqlite_to_csv(sql, path, format_header)
-writeHTML('File format')
+writeHTML('File formats')
 
-# Sorted format and version list report
+# sorted format and version list report
 sql = "SELECT format, version, COUNT(*) as 'num' FROM siegfried GROUP BY format, version ORDER BY num DESC"
 path = os.path.join(csv_dir, '%s_formatVersion.csv' % basename)
 version_header = ['Format', 'Version', 'Count']
 sqlite_to_csv(sql, path, version_header)
-writeHTML('File format and version')
+writeHTML('File formats and versions')
 
-# Sorted MIMETYPE list report
+# sorted MIMETYPE list report
 sql = "SELECT mime, COUNT(*) as 'num' FROM siegfried GROUP BY mime ORDER BY num DESC"
 path = os.path.join(csv_dir, '%s_mimetypes.csv' % basename)
 mime_header = ['mimetype', 'Count']
 sqlite_to_csv(sql, path, mime_header)
-writeHTML('Mimetype')
+writeHTML('Mimetypes')
 
-# Dates report
+# dates report
 sql = "SELECT SUBSTR(modified, 1, 4) as 'year', COUNT(*) as 'num' FROM siegfried GROUP BY year ORDER BY num DESC"
 path = os.path.join(csv_dir, '%s_years.csv' % basename)
 year_header = ['Year Last Modified', 'Count']
 sqlite_to_csv(sql, path, year_header)
-writeHTML('Last modified date by year')
+writeHTML('Last modified dates by year')
 
-# Unidentified files report
+# unidentified files report
 sql = "SELECT * FROM siegfried WHERE puid='UNKNOWN';"
 path = os.path.join(csv_dir, '%s_unidentified.csv' % basename)
 sqlite_to_csv(sql, path, full_header)
 writeHTML('Unidentified')
 
-# Errors report
+# errors report
 sql = "SELECT * FROM siegfried WHERE errors <> '';"
 path = os.path.join(csv_dir, '%s_errors.csv' % basename)
 sqlite_to_csv(sql, path, full_header)
 writeHTML('Errors')
 
-# Warnings report
+# warnings report
 sql = "SELECT * FROM siegfried WHERE warning <> '';"
 path = os.path.join(csv_dir, '%s_warnings.csv' % basename)
 sqlite_to_csv(sql, path, full_header)
 writeHTML('Warnings')
 
-# Duplicates report
+# duplicates report
 sql = "SELECT * FROM siegfried t1 WHERE EXISTS (SELECT 1 from siegfried t2 WHERE t2.md5 = t1.md5 AND t1.filename != t2.filename) ORDER BY md5;"
 path = os.path.join(csv_dir, '%s_duplicates.csv' % basename)
 sqlite_to_csv(sql, path, full_header)
-writeHTML('Duplicates')
+writeHTML('Duplicates (md5 hash)')
 
 # close HTML file tags
 closeHTML()
