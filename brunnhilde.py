@@ -34,6 +34,7 @@ import sys
 
 walk_dir = sys.argv[1]
 filename = sys.argv[2]
+brunnhilde_version = 'v0.2.4'
 
 def openHTML(in_name):
 	html_file.write("<!DOCTYPE html>")
@@ -43,18 +44,22 @@ def openHTML(in_name):
 	html_file.write("<meta http-equiv='Content-Type' content='text/html; charset=utf-8'>")
 	html_file.write("</head>")
 	html_file.write("<body max>")
-	html_file.write('<h1>Brunnhilde report</h1>')
-	html_file.write('<h2>Content scanned: %s</h2>' % in_name)
+	html_file.write('<h1>Brunnhilde %s report</h1>' % brunnhilde_version)
+	html_file.write('<h2>Source of files: %s</h2>' % walk_dir)
+	html_file.write('<h2>Accession/Identifier: %s</h2>' % in_name)
 	html_file.write('<h2>Aggregate stats</h2>')
 	html_file.write('<ul>')
 	html_file.write('<li>Total files: %s</li>' % num_files)
 	html_file.write('<li>Unique files: %s</li>' % unique_files)
-	html_file.write('<li>Duplicate files: %s</li>' % dupe_files)
+	html_file.write('<li>Empty files: %s</li>' % empty_files)
+	html_file.write('<li>Total duplicate files: %s</li>' % all_dupe_files)
+	html_file.write('<li>Unique duplicate files: %s</li>' % unique_dupe_files)
 	html_file.write('<li>Unidentified files: %s</li>' % unidentified_files)
 	#html_file.write('<li>Years represented: </li>') FIRST AND LAST? ALL?
-	html_file.write('<li>File formats: %s</li>' % num_formats)
+	html_file.write('<li>Identified file formats: %s</li>' % num_formats)
 	html_file.write('<li>Siegfried errors: %s</li>' % num_errors)
 	html_file.write('<li>Siegfried warnings: %s</li>' % num_warnings)
+	html_file.write('<p><em>Note: As Siegfried scans both archive packages (e.g. Zip files) and their contents, numbers of unique, empty, and duplicate files may appear not to perfectly add up.</em></p>')
 	html_file.write('</ul>')
 
 	# WRITE AGGREGATE STATS
@@ -164,8 +169,14 @@ num_files = cursor.fetchone()[0]
 cursor.execute("SELECT COUNT(DISTINCT md5) from siegfried;")
 unique_files = cursor.fetchone()[0]
 
+cursor.execute("SELECT COUNT(*) from siegfried where filesize='0';")
+empty_files = cursor.fetchone()[0]
+
+cursor.execute("SELECT COUNT(md5) FROM siegfried t1 WHERE EXISTS (SELECT 1 from siegfried t2 WHERE t2.md5 = t1.md5 AND t1.filename != t2.filename)")
+all_dupe_files = cursor.fetchone()[0]
+
 cursor.execute("SELECT COUNT(DISTINCT md5) FROM siegfried t1 WHERE EXISTS (SELECT 1 from siegfried t2 WHERE t2.md5 = t1.md5 AND t1.filename != t2.filename)")
-dupe_files = cursor.fetchone()[0]
+unique_dupe_files = cursor.fetchone()[0]
 
 cursor.execute("SELECT COUNT(*) FROM siegfried WHERE puid='UNKNOWN';")
 unidentified_files = cursor.fetchone()[0]
@@ -173,7 +184,7 @@ unidentified_files = cursor.fetchone()[0]
 #cursor.execute("SELECT DISTINCT SUBSTR(modified, 1, 4) as 'year'FROM siegfried;")
 #years = THIS ONE IS DIFFERENT
 
-cursor.execute("SELECT COUNT(DISTINCT format) as formats from siegfried;")
+cursor.execute("SELECT COUNT(DISTINCT format) as formats from siegfried WHERE format <> '';")
 num_formats = cursor.fetchone()[0]
 
 cursor.execute("SELECT COUNT(*) FROM siegfried WHERE errors <> '';")
