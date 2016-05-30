@@ -2,29 +2,27 @@
 
 Generates aggregate reports of files in a directory based on input from Richard Lehane's [Siegfried](http://www.itforarchivists.com/siegfried).  
 
-Brunnhilde runs Siegfried against a specified directory, loads the results into a sqlite3 database, and queries the database to generate reports to aid in triage, arrangement, and description of digital archives.  
+Brunnhilde runs Siegfried against a specified directory, loads the results into a sqlite3 database, and queries the database to generate reports to aid in triage, arrangement, and description of digital archives. Reports include information on:
 
-### Reports  
+* File formats  
+* File format versions  
+* Mimetypes  
+* Last modified dates  
+* Unidentified files  
+* Siegfried warnings (e.g. file extension mismatches)  
+* Siegfried errors (e.g. empty files)  
+* Duplicates
 
-1. Sorted format list with count  
-2. Sorted format and version list with count  
-3. Sorted mimetype list with count  
-4. Sorted list of last modified dates, by year, with count
-5. Files with Siegfried errors  
-6. Files with Siegfried warnings  
-7. Unidentified files  
-8. Duplicates (based on Siegfried-generated md5 hash)  
-
-Reports are written as a single HTML file and as separate CSV files and put into a new directory named after the CSV filename passed to Brunnhilde in the second argument.    
+Reports are written as a single HTML report and as separate CSV files. All outputs are placed into a new directory named after the filename passed to Brunnhilde as the second argument.  
 
 ### Running Brunnhilde  
 
 Brunnhilde takes two arguments:  
 
 1. path of directory to scan  
-2. basename for reports (e.g. accession number or other identifier)  
+2. csv output filename (recommended practice: use accession number or other identifier)  
 
-'python brunnhilde.py directory basename'  
+'python brunnhilde.py directory filename.csv'  
 
 ### Dependencies  
 
