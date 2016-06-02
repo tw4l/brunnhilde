@@ -202,6 +202,7 @@ with open(year_path, 'rb') as year_report:
 		years.append(row[0])
 	begin_date = min(years, key=float)
 	end_date = max(years, key=float)
+os.remove(year_path) # delete temporary "uniqueyear" file from csv directory
 
 cursor.execute("SELECT COUNT(DISTINCT format) as formats from siegfried WHERE format <> '';")
 num_formats = cursor.fetchone()[0]
