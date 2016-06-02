@@ -38,7 +38,7 @@ import sys
 
 walk_dir = sys.argv[1]
 filename = sys.argv[2]
-brunnhilde_version = 'v0.2.5'
+brunnhilde_version = 'v0.2.6'
 siegfried_version = subprocess.check_output(["sf", "-version"])
 
 def openHTML(in_name):
@@ -276,6 +276,10 @@ writeHTML('Duplicates (md5 hash)')
 
 # close HTML file tags
 closeHTML()
+
+# create tree report
+tree_command = "tree -tDhR %s > %s" % (walk_dir, os.path.join(report_dir, '%s_tree.txt' % basename))
+subprocess.call(tree_command, shell=True)
 
 html_file.close()
 cursor.close()
