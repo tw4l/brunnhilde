@@ -38,7 +38,7 @@ import sys
 
 walk_dir = sys.argv[1]
 filename = sys.argv[2]
-brunnhilde_version = 'v0.2.6'
+brunnhilde_version = 'v0.3.0'
 siegfried_version = subprocess.check_output(["sf", "-version"])
 
 def openHTML(in_name):
