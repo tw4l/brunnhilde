@@ -2,18 +2,14 @@
 
 Generates aggregate reports of files in a directory based on input from Richard Lehane's [Siegfried](http://www.itforarchivists.com/siegfried).  
 
-Brunnhilde runs Siegfried against a specified directory, loads the results into a sqlite3 database, and queries the database to generate reports to aid in triage, arrangement, and description of digital archives. Reports include information on:
+Brunnhilde runs Siegfried against a specified directory, loads the results into a sqlite3 database, and queries the database to generate reports to aid in triage, arrangement, and description of digital archives. Outputs include:  
 
-* File formats  
-* File format versions  
-* Mimetypes  
-* Last modified dates  
-* Unidentified files  
-* Siegfried warnings (e.g. file extension mismatches)  
-* Siegfried errors (e.g. empty files)  
-* Duplicates
+* A human-readable HTML report  
+* A tree report of the directory structure  
+* The full Siegfried CSV output  
+* A folder of more focused CSV reports on file formats and versions, mimetypes, last modified dates, unidentified files, Siegfried warnings and errors, and duplicate files (by md5 hash).  
 
-Reports are written as a single HTML report and as separate CSV files. All outputs are placed into a new directory named after the filename passed to Brunnhilde as the second argument.  
+All outputs are placed into a new directory named after the filename passed to Brunnhilde as the second argument.  
 
 ### Running Brunnhilde  
 
@@ -28,6 +24,7 @@ Brunnhilde takes two arguments:
 
 * Python 2.7
 * [Siegfried](http://www.itforarchivists.com/siegfried) (any version between 1.0.0 and 1.4.5) must be installed on your machine. Brunnhilde is not yet compatible with Siegfried 1.5.*, which introduces major changes including the ability to use multiple file identification tools.  
+* tree  
 
 ### Licensing  
 
