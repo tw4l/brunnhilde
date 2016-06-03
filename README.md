@@ -4,10 +4,10 @@ Generates aggregate reports of files in a directory based on input from Richard 
 
 Brunnhilde runs Siegfried against a specified directory, loads the results into a sqlite3 database, and queries the database to generate reports to aid in triage, arrangement, and description of digital archives. Outputs include:  
 
-* A human-readable HTML report  
+* A folder of more focused CSV reports on file formats and versions, mimetypes, last modified dates, unidentified files, Siegfried warnings and errors, and duplicate files (by md5 hash).  
 * A tree report of the directory structure  
 * The full Siegfried CSV output  
-* A folder of more focused CSV reports on file formats and versions, mimetypes, last modified dates, unidentified files, Siegfried warnings and errors, and duplicate files (by md5 hash).  
+* A human-readable HTML report, presenting the information from the CSV outputs in a single place alongside some aggregate statistics about the material as a whole (number of files, number of identified file formats, begin and end dates, number of unique files vs. duplicate files, and so on)  
 
 All outputs are placed into a new directory named after the filename passed to Brunnhilde as the second argument.  
 
