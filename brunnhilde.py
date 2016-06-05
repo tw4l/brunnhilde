@@ -6,29 +6,40 @@
 Brunnhilde - A companion to Richard Lehane's Siegfried 
 (www.itforarchivists.com/siegfried)
 
-Brunnhilde runs Siegfried against a specified directory, loads the results
+Brunnhilde runs Siegfried against a specified directory or disk image, loads the results
 into a sqlite3 database, and queries the database to generate aggregate
 reports (HTML and CSV) to aid in triage, arrangement, and description of digital archives.
 
-Brunnhilde takes two arguments:
+usage: brunnhilde-0-4-0.py [-h] [-d] [--hfs] source filename
 
-1. path of directory to scan
-2. name of siegfried csv file to create (this file name will be used as a basename
-	for the sqlite db and reports generated - recommended practice is to use an accession
-	number or other identifier as the name for this )
+positional arguments:
+  source           Path to source directory or disk image
+  filename         Name of csv file to create
 
-'python brunnhilde.py directory siegfried_output.csv'
+optional arguments:
+  -h, --help       show this help message and exit
+  -d, --diskimage  Use disk image instead of dir as input
+  --hfs            Use for disk images with HFS file system
 
-e.g. 'python brunnhilde.py /Users/fakeuser/Desktop/testfiles accession001.csv'
+NOTE: Uses tsk_recover to process disk images. Will read raw (dd) images by default. For 
+Brunnhilde to work with Encase (E01) disk images, libewf must be compiled into tsk_recover.
 
-Tested with Python 2.7
-Works with Siegfried versions 1.0.0 to 1.4.5 (not yet 1.5.0+)
+Disk images of HFS disks must be in raw form, as hfsexplorer is unable to process E01 images.
+
+Python 2.7
+
+Dependencies:
+- Siegfried (version 1.0.0 to 1.4.5; versions 1.5.0+ not yet supported)
+- tree
+- SleuthKit (brew install sleuthkit)
+- libewf (brew install libewf) - for reading encase ewf disk images
 
 The MIT License (MIT)
 Copyright (c) 2016 Tim Walsh
 
 """
 
+import argparse
 import csv
 import errno
 import os
@@ -36,16 +47,98 @@ import sqlite3
 import subprocess
 import sys
 
-walk_dir = sys.argv[1]
-filename = sys.argv[2]
-brunnhilde_version = 'v0.3.0'
-siegfried_version = subprocess.check_output(["sf", "-version"])
 
-def openHTML(in_name):
+def sqlite_to_csv(sql, path, header):
+	'''Write sql query result to csv'''
+	with open(path, 'wb') as report:
+		w = csv.writer(report)
+		w.writerow(header)
+		for row in cursor.execute(sql):
+			w.writerow(row)
+
+def run_siegfried(source_dir):
+	'''Run siegfried on directory'''
+	# run siegfried against specified directory
+	print("Running Siegfried against %s. This may take a few minutes." % source_dir)
+	siegfried_command = "sf -z -csv -hash md5 %s > %s" % (source_dir, sf_file)
+	subprocess.call(siegfried_command, shell=True)
+	print("Characterization complete. Processing results.")
+
+def import_csv():
+	'''Import csv file into sqlite db'''
+	with open(sf_file, 'rb') as f:
+		reader = csv.reader(f)
+		header = True
+		for row in reader:
+			if header:
+				# gather column names from first row of csv
+				header = False
+
+				sql = "DROP TABLE IF EXISTS siegfried"
+				cursor.execute(sql)
+				sql = "CREATE TABLE siegfried (filename text, filesize text, modified text, errors text, md5 text, id text, puid text, format text, version text, mime text, basis text, warning text)"
+				cursor.execute(sql)
+
+				insertsql = "INSERT INTO siegfried VALUES (%s)" % (
+                            ", ".join([ "?" for column in row ]))
+
+				rowlen = len(row)
+		
+			else:
+				# skip lines that don't have right number of columns
+				if len(row) == rowlen:
+					cursor.execute(insertsql, row)
+
+		conn.commit()
+
+def get_stats(source_dir):
+	'''Get aggregate statistics and write to html report'''
+	cursor.execute("SELECT COUNT(*) from siegfried;")
+	num_files = cursor.fetchone()[0]
+
+	cursor.execute("SELECT COUNT(DISTINCT md5) from siegfried;")
+	unique_files = cursor.fetchone()[0]
+
+	cursor.execute("SELECT COUNT(*) from siegfried where filesize='0';")
+	empty_files = cursor.fetchone()[0]
+
+	cursor.execute("SELECT COUNT(md5) FROM siegfried t1 WHERE EXISTS (SELECT 1 from siegfried t2 WHERE t2.md5 = t1.md5 AND t1.filename != t2.filename)")
+	all_dupe_files = cursor.fetchone()[0]
+
+	cursor.execute("SELECT COUNT(DISTINCT md5) FROM siegfried t1 WHERE EXISTS (SELECT 1 from siegfried t2 WHERE t2.md5 = t1.md5 AND t1.filename != t2.filename)")
+	unique_dupe_files = cursor.fetchone()[0]
+
+	cursor.execute("SELECT COUNT(*) FROM siegfried WHERE puid='UNKNOWN';")
+	unidentified_files = cursor.fetchone()[0]
+
+	year_sql = "SELECT DISTINCT SUBSTR(modified, 1, 4) as 'year' FROM siegfried;"
+	year_path = os.path.join(csv_dir, '%s_uniqueyears.csv' % basename)
+	with open(year_path, 'wb') as year_report:
+		w = csv.writer(year_report)
+		for row in cursor.execute(year_sql):
+			w.writerow(row)
+	with open(year_path, 'rb') as year_report:
+		r = csv.reader(year_report)
+		years = []
+		for row in r:
+			years.append(row[0])
+		begin_date = min(years, key=float)
+		end_date = max(years, key=float)
+	os.remove(year_path) # delete temporary "uniqueyear" file from csv directory
+
+	cursor.execute("SELECT COUNT(DISTINCT format) as formats from siegfried WHERE format <> '';")
+	num_formats = cursor.fetchone()[0]
+
+	cursor.execute("SELECT COUNT(*) FROM siegfried WHERE errors <> '';")
+	num_errors = cursor.fetchone()[0]
+
+	cursor.execute("SELECT COUNT(*) FROM siegfried WHERE warning <> '';")
+	num_warnings = cursor.fetchone()[0]
+
 	html_file.write("<!DOCTYPE html>")
 	html_file.write("<html lang='en'>")
 	html_file.write("<head>")
-	html_file.write("<title>Brunnhilde report for: %s</title>" % in_name)
+	html_file.write("<title>Brunnhilde report for: %s</title>" % basename)
 	html_file.write("<meta http-equiv='Content-Type' content='text/html; charset=utf-8'>")
 	html_file.write("</head>")
 	html_file.write("<body max>")
@@ -54,9 +147,9 @@ def openHTML(in_name):
 	html_file.write('<h3>Siegfried version used</h3>')
 	html_file.write('<p>%s</p>' % siegfried_version)
 	html_file.write('<h3>Source of files</h3>')
-	html_file.write('<p>%s</p>' % walk_dir)
+	html_file.write('<p>%s</p>' % source_dir)
 	html_file.write('<h3>Accession/Identifier</h3>')
-	html_file.write('<p>%s</p>' % in_name)
+	html_file.write('<p>%s</p>' % basename)
 	html_file.write('<h2>Aggregate statistics</h2>')
 	html_file.write('<ul>')
 	html_file.write('<li>Total files: %s</li>' % num_files)
@@ -72,7 +165,66 @@ def openHTML(in_name):
 	html_file.write('</ul>')
 	html_file.write('<p><em>Note: As Siegfried scans both archive packages (e.g. Zip files) and their contents, numbers of unique, empty, and duplicate files may appear not to perfectly add up.</em></p>')
 
-def writeHTML(header):
+def generate_reports():
+	'''Run sql queries on db to generate reports'''
+	full_header = ['Filename', 'Filesize', 'Date modified', 'Errors', 'Checksum', 
+				'Identifier', 'PRONOM ID', 'Format', 'Format Version', 'MIME type', 
+				'Basis for ID', 'Warning']
+
+	# sorted format list report
+	sql = "SELECT format, COUNT(*) as 'num' FROM siegfried GROUP BY format ORDER BY num DESC"
+	path = os.path.join(csv_dir, '%s_formats.csv' % basename)
+	format_header = ['Format', 'Count']
+	sqlite_to_csv(sql, path, format_header)
+	writeHTML('File formats', path)
+
+	# sorted format and version list report
+	sql = "SELECT format, version, COUNT(*) as 'num' FROM siegfried GROUP BY format, version ORDER BY num DESC"
+	path = os.path.join(csv_dir, '%s_formatVersion.csv' % basename)
+	version_header = ['Format', 'Version', 'Count']
+	sqlite_to_csv(sql, path, version_header)
+	writeHTML('File formats and versions', path)
+
+	# sorted MIMETYPE list report
+	sql = "SELECT mime, COUNT(*) as 'num' FROM siegfried GROUP BY mime ORDER BY num DESC"
+	path = os.path.join(csv_dir, '%s_mimetypes.csv' % basename)
+	mime_header = ['mimetype', 'Count']
+	sqlite_to_csv(sql, path, mime_header)
+	writeHTML('Mimetypes', path)
+
+	# dates report
+	sql = "SELECT SUBSTR(modified, 1, 4) as 'year', COUNT(*) as 'num' FROM siegfried GROUP BY year ORDER BY num DESC"
+	path = os.path.join(csv_dir, '%s_years.csv' % basename)
+	year_header = ['Year Last Modified', 'Count']
+	sqlite_to_csv(sql, path, year_header)
+	writeHTML('Last modified dates by year', path)
+
+	# unidentified files report
+	sql = "SELECT * FROM siegfried WHERE puid='UNKNOWN';"
+	path = os.path.join(csv_dir, '%s_unidentified.csv' % basename)
+	sqlite_to_csv(sql, path, full_header)
+	writeHTML('Unidentified', path)
+
+	# errors report
+	sql = "SELECT * FROM siegfried WHERE errors <> '';"
+	path = os.path.join(csv_dir, '%s_errors.csv' % basename)
+	sqlite_to_csv(sql, path, full_header)
+	writeHTML('Errors', path)
+
+	# warnings report
+	sql = "SELECT * FROM siegfried WHERE warning <> '';"
+	path = os.path.join(csv_dir, '%s_warnings.csv' % basename)
+	sqlite_to_csv(sql, path, full_header)
+	writeHTML('Warnings', path)
+
+	# duplicates report
+	sql = "SELECT * FROM siegfried t1 WHERE EXISTS (SELECT 1 from siegfried t2 WHERE t2.md5 = t1.md5 AND t1.filename != t2.filename) ORDER BY md5;"
+	path = os.path.join(csv_dir, '%s_duplicates.csv' % basename)
+	sqlite_to_csv(sql, path, full_header)
+	writeHTML('Duplicates (md5 hash)', path)
+
+def writeHTML(header, path):
+	'''Write csv file to html table'''
 	with open(path, 'rb') as csv_report:
 		# count lines and then return to start of file
 		numline = len(csv_report.readlines())
@@ -99,18 +251,45 @@ def writeHTML(header):
 			html_file.write('None found.')
 
 def closeHTML():
+	'''Write html closing tags'''
 	html_file.write("</body>")
 	html_file.write("</html>")
 
-def sqlite_to_csv(sql, path, header):
-	with open(path, 'wb') as report:
-		w = csv.writer(report)
-		w.writerow(header)
-		for row in cursor.execute(sql):
-			w.writerow(row)
+def make_tree(source_dir):
+	'''Call tree on source directory and save output to tree.txt'''
+	# create tree report
+	tree_command = "tree -tDhR %s > %s" % (source_dir, os.path.join(report_dir, '%s_tree.txt' % basename))
+	subprocess.call(tree_command, shell=True)
 
-# create directories
+def main_process(source_dir):
+	'''Run through main processing flow on specified directory'''
+	run_siegfried(source_dir) # run siegfried
+	import_csv() # load csv into sqlite db
+	get_stats(source_dir) # get aggregate stats and write to html file
+	generate_reports() # run sql queries, print to html and csv
+	closeHTML() # close HTML file tags
+	make_tree(source_dir) # create tree.txt
+
+
+""" 
+MAIN FLOW 
+"""
+
+# parse arguments
+parser = argparse.ArgumentParser()
+parser.add_argument("-d", "--diskimage", help="Use disk image instead of dir as input", action="store_true")
+parser.add_argument ("--hfs", help="Use for disk images with HFS file system", action="store_true")
+parser.add_argument("source", help="Path to source directory or disk image")
+parser.add_argument("filename", help="Name of csv file to create")
+args = parser.parse_args()
+
+# system info
+brunnhilde_version = 'v0.4.0'
+siegfried_version = subprocess.check_output(["sf", "-version"])
+
+# global variables
 current_dir = os.getcwd()
+filename = args.filename
 basename = os.path.splitext(filename)[0]
 
 # create directory for reports
@@ -128,162 +307,64 @@ except OSError as exception:
 	if exception.errno != errno.EEXIST:
 		raise
 
-# run siegfried against specified directory
-print("Running Siegfried against %s. This may take a few minutes." % walk_dir)
-siegfried_command = "sf -z -csv -hash md5 %s > %s" % (walk_dir, os.path.join(report_dir, filename))
-subprocess.call(siegfried_command, shell=True)
-print("Characterization complete. Processing results.")
+sf_file = os.path.join(report_dir, filename)
+html_file = open(os.path.join(report_dir, '%s.html' % basename), 'wb')
 
-# open sqlite db and start processing
+# open sqlite db
 db = os.path.join(report_dir, os.path.splitext(filename)[0]) + '.sqlite'
 conn = sqlite3.connect(db)
 conn.text_factory = str  # allows utf-8 data to be stored
-
 cursor = conn.cursor()
 
-# import csv file into sqlite db
-# https://tentacles666.wordpress.com/2014/11/14/python-creating-a-sqlite3-database-from-csv-files/
-with open(os.path.join(report_dir, filename), 'rb') as f:
-	reader = csv.reader(f)
+# flows
+if args.diskimage == False: # source is a directory
+	# process as directory
+	main_process(args.source)
 
-	header = True
-	for row in reader:
-		if header:
-			# gather column names from first row of csv
-			header = False
+elif args.diskimage == True and args.hfs == True: # source is a disk image of an HFS disk
 
-			sql = "DROP TABLE IF EXISTS siegfried"
-			cursor.execute(sql)
-			sql = "CREATE TABLE siegfried (filename text, filesize text, modified text, errors text, md5 text, id text, puid text, format text, version text, mime text, basis text, warning text)"
-			cursor.execute(sql)
+	# make tempdir	
+	#tempdir = os.path.join(report_dir, 'tempdir')
+	#os.mkdir(tempdir)
 
-			insertsql = "INSERT INTO siegfried VALUES (%s)" % (
-                            ", ".join([ "?" for column in row ]))
+	# export hfs contents into tempdir
+	#see https://github.com/wsampson/disk-image-timeline/blob/master/timeline.py
+	#hfs_extract = ['unhfs', ]
+	#subprocess.check_call(hfs_extract)
 
-			rowlen = len(row)
-		
-		else:
-			# skip lines that don't have right number of columns
-			if len(row) == rowlen:
-				cursor.execute(insertsql, row)
+	# process as directory
+	#main_process(tempdir)
 
-	conn.commit()
+	print("CAN'T YET DEAL WITH HFS DISKS")
+	sys.exit()
 
+else: #source is a disk image of a non-HFS disk
 
-# get aggregate stats
-cursor.execute("SELECT COUNT(*) from siegfried;")
-num_files = cursor.fetchone()[0]
+	# make tempdir
+	tempdir = os.path.join(report_dir, 'carved_files')
+	os.mkdir(tempdir)
 
-cursor.execute("SELECT COUNT(DISTINCT md5) from siegfried;")
-unique_files = cursor.fetchone()[0]
+	# export disk image contents to tempdir
+	carvefiles = ['tsk_recover', '-v', '-a', args.source, tempdir]
 
-cursor.execute("SELECT COUNT(*) from siegfried where filesize='0';")
-empty_files = cursor.fetchone()[0]
+	try:
+		subprocess.check_call(carvefiles)
+	except subprocess.CalledProcessError as e:
+		print(e.output)
+		sys.exit()
 
-cursor.execute("SELECT COUNT(md5) FROM siegfried t1 WHERE EXISTS (SELECT 1 from siegfried t2 WHERE t2.md5 = t1.md5 AND t1.filename != t2.filename)")
-all_dupe_files = cursor.fetchone()[0]
+	# process tempdir
+	main_process(tempdir)
 
-cursor.execute("SELECT COUNT(DISTINCT md5) FROM siegfried t1 WHERE EXISTS (SELECT 1 from siegfried t2 WHERE t2.md5 = t1.md5 AND t1.filename != t2.filename)")
-unique_dupe_files = cursor.fetchone()[0]
-
-cursor.execute("SELECT COUNT(*) FROM siegfried WHERE puid='UNKNOWN';")
-unidentified_files = cursor.fetchone()[0]
-
-year_sql = "SELECT DISTINCT SUBSTR(modified, 1, 4) as 'year' FROM siegfried;"
-year_path = os.path.join(csv_dir, '%s_uniqueyears.csv' % basename)
-with open(year_path, 'wb') as year_report:
-	w = csv.writer(year_report)
-	for row in cursor.execute(year_sql):
-		w.writerow(row)
-with open(year_path, 'rb') as year_report:
-	r = csv.reader(year_report)
-	years = []
-	for row in r:
-		years.append(row[0])
-	begin_date = min(years, key=float)
-	end_date = max(years, key=float)
-os.remove(year_path) # delete temporary "uniqueyear" file from csv directory
-
-cursor.execute("SELECT COUNT(DISTINCT format) as formats from siegfried WHERE format <> '';")
-num_formats = cursor.fetchone()[0]
-
-cursor.execute("SELECT COUNT(*) FROM siegfried WHERE errors <> '';")
-num_errors = cursor.fetchone()[0]
-
-cursor.execute("SELECT COUNT(*) FROM siegfried WHERE warning <> '';")
-num_warnings = cursor.fetchone()[0]
-
-
-# create html file
-html_file = open(os.path.join(report_dir, '%s.html' % basename), 'wb')
-openHTML(basename)
-
-full_header = ['Filename', 'Filesize', 'Date modified', 'Errors', 'Checksum', 
-				'Identifier', 'PRONOM ID', 'Format', 'Format Version', 'MIME type', 
-				'Basis for ID', 'Warning']
-
-
-# sorted format list report
-sql = "SELECT format, COUNT(*) as 'num' FROM siegfried GROUP BY format ORDER BY num DESC"
-path = os.path.join(csv_dir, '%s_formats.csv' % basename)
-format_header = ['Format', 'Count']
-sqlite_to_csv(sql, path, format_header)
-writeHTML('File formats')
-
-# sorted format and version list report
-sql = "SELECT format, version, COUNT(*) as 'num' FROM siegfried GROUP BY format, version ORDER BY num DESC"
-path = os.path.join(csv_dir, '%s_formatVersion.csv' % basename)
-version_header = ['Format', 'Version', 'Count']
-sqlite_to_csv(sql, path, version_header)
-writeHTML('File formats and versions')
-
-# sorted MIMETYPE list report
-sql = "SELECT mime, COUNT(*) as 'num' FROM siegfried GROUP BY mime ORDER BY num DESC"
-path = os.path.join(csv_dir, '%s_mimetypes.csv' % basename)
-mime_header = ['mimetype', 'Count']
-sqlite_to_csv(sql, path, mime_header)
-writeHTML('Mimetypes')
-
-# dates report
-sql = "SELECT SUBSTR(modified, 1, 4) as 'year', COUNT(*) as 'num' FROM siegfried GROUP BY year ORDER BY num DESC"
-path = os.path.join(csv_dir, '%s_years.csv' % basename)
-year_header = ['Year Last Modified', 'Count']
-sqlite_to_csv(sql, path, year_header)
-writeHTML('Last modified dates by year')
-
-# unidentified files report
-sql = "SELECT * FROM siegfried WHERE puid='UNKNOWN';"
-path = os.path.join(csv_dir, '%s_unidentified.csv' % basename)
-sqlite_to_csv(sql, path, full_header)
-writeHTML('Unidentified')
-
-# errors report
-sql = "SELECT * FROM siegfried WHERE errors <> '';"
-path = os.path.join(csv_dir, '%s_errors.csv' % basename)
-sqlite_to_csv(sql, path, full_header)
-writeHTML('Errors')
-
-# warnings report
-sql = "SELECT * FROM siegfried WHERE warning <> '';"
-path = os.path.join(csv_dir, '%s_warnings.csv' % basename)
-sqlite_to_csv(sql, path, full_header)
-writeHTML('Warnings')
-
-# duplicates report
-sql = "SELECT * FROM siegfried t1 WHERE EXISTS (SELECT 1 from siegfried t2 WHERE t2.md5 = t1.md5 AND t1.filename != t2.filename) ORDER BY md5;"
-path = os.path.join(csv_dir, '%s_duplicates.csv' % basename)
-sqlite_to_csv(sql, path, full_header)
-writeHTML('Duplicates (md5 hash)')
-
-# close HTML file tags
-closeHTML()
-
-# create tree report
-tree_command = "tree -tDhR %s > %s" % (walk_dir, os.path.join(report_dir, '%s_tree.txt' % basename))
-subprocess.call(tree_command, shell=True)
 
 html_file.close()
 cursor.close()
 conn.close()
 
 print("Process complete. Reports in %s." % report_dir)
+
+
+
+
+
+
