@@ -15,7 +15,7 @@ All outputs are placed into a new directory named after the filename passed to B
 
 ### Running Brunnhilde  
 
-usage: brunnhilde-0-4-0.py [-h] [-d] [--hfs] source filename  
+usage: brunnhilde.py [-h] [-d] [--hfs] source filename  
 
 positional arguments:  
   source           Path to source directory or disk image  
