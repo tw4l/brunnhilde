@@ -250,24 +250,24 @@ siegfried_version = subprocess.check_output(["sf", "-version"])
 current_dir = os.getcwd()
 filename = args.filename
 basename = os.path.splitext(filename)[0]
+report_dir = os.path.join(current_dir, '%s' % basename)
+csv_dir = os.path.join(report_dir, 'CSVs')
+sf_file = os.path.join(report_dir, filename)
+html_file = open(os.path.join(report_dir, '%s.html' % basename), 'wb')
 
 # create directory for reports
-report_dir = os.path.join(current_dir, '%s' % basename)
 try:
 	os.makedirs(report_dir)
 except OSError as exception:
 	if exception.errno != errno.EEXIST:
 		raise
+	
 # create subdirectory for CSV reports
-csv_dir = os.path.join(report_dir, 'CSVs')
 try:
 	os.makedirs(csv_dir)
 except OSError as exception:
 	if exception.errno != errno.EEXIST:
 		raise
-
-sf_file = os.path.join(report_dir, filename)
-html_file = open(os.path.join(report_dir, '%s.html' % basename), 'wb')
 
 # open sqlite db
 db = os.path.join(report_dir, os.path.splitext(filename)[0]) + '.sqlite'
@@ -275,6 +275,7 @@ conn = sqlite3.connect(db)
 conn.text_factory = str  # allows utf-8 data to be stored
 cursor = conn.cursor()
 
+# characterize source
 if args.diskimage == False: # source is a directory
 	# process as directory
 	process_content(args.source)
@@ -300,6 +301,7 @@ else: #source is a disk image
 	# process tempdir
 	process_content(tempdir)
 
+# close files, connections
 html_file.close()
 cursor.close()
 conn.close()
