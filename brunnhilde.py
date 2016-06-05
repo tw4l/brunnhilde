@@ -238,7 +238,6 @@ MAIN FLOW
 # parse arguments
 parser = argparse.ArgumentParser()
 parser.add_argument("-d", "--diskimage", help="Use disk image instead of dir as input", action="store_true")
-parser.add_argument ("--hfs", help="Use for disk images with HFS file system", action="store_true")
 parser.add_argument("source", help="Path to source directory or disk image")
 parser.add_argument("filename", help="Name of csv file to create")
 args = parser.parse_args()
@@ -276,30 +275,11 @@ conn = sqlite3.connect(db)
 conn.text_factory = str  # allows utf-8 data to be stored
 cursor = conn.cursor()
 
-# flows
 if args.diskimage == False: # source is a directory
 	# process as directory
 	process_content(args.source)
 
-elif args.diskimage == True and args.hfs == True: # source is a disk image of an HFS disk
-
-	# make tempdir	
-	#tempdir = os.path.join(report_dir, 'tempdir')
-	#os.mkdir(tempdir)
-
-	# export hfs contents into tempdir
-	#see https://github.com/wsampson/disk-image-timeline/blob/master/timeline.py
-	#hfs_extract = ['unhfs', ]
-	#subprocess.check_call(hfs_extract)
-
-	# process as directory
-	#process_content(tempdir)
-
-	print("CAN'T YET DEAL WITH HFS DISKS")
-	sys.exit()
-
-else: #source is a disk image of a non-HFS disk
-
+else: #source is a disk image
 	# make tempdir
 	tempdir = os.path.join(report_dir, 'carved_files')
 	try:
@@ -320,15 +300,8 @@ else: #source is a disk image of a non-HFS disk
 	# process tempdir
 	process_content(tempdir)
 
-
 html_file.close()
 cursor.close()
 conn.close()
 
 print("Process complete. Reports in %s." % report_dir)
-
-
-
-
-
-
