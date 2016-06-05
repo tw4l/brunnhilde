@@ -1,8 +1,10 @@
 ## Brunnhilde - A companion to Seigfried  
 
+**Please note, this is the development branch of Brunnhilde. Code found in this branch has likely not been tested. For the latest stable release, please consult the master branch.**
+
 Generates aggregate reports of files in a directory based on input from Richard Lehane's [Siegfried](http://www.itforarchivists.com/siegfried).  
 
-Brunnhilde runs Siegfried against a specified directory, loads the results into a sqlite3 database, and queries the database to generate reports to aid in triage, arrangement, and description of digital archives. Outputs include:  
+Brunnhilde runs Siegfried against a specified directory or disk image, loads the results into a sqlite3 database, and queries the database to generate reports to aid in triage, arrangement, and description of digital archives. Outputs include:  
 
 * A folder of CSV reports on file formats and versions, mimetypes, last modified dates, unidentified files, Siegfried warnings and errors, and duplicate files (by md5 hash)  
 * A tree report of the directory structure  
@@ -13,18 +15,23 @@ All outputs are placed into a new directory named after the filename passed to B
 
 ### Running Brunnhilde  
 
-Brunnhilde takes two arguments:  
+usage: brunnhilde-0-4-0.py [-h] [-d] [--hfs] source filename  
 
-1. path of directory to scan  
-2. csv output filename (recommended practice: use accession number or other identifier)  
+positional arguments:  
+  source           Path to source directory or disk image  
+  filename         Name of csv file to create  
 
-'python brunnhilde.py directory filename.csv'  
+optional arguments:  
+  -h, --help       show this help message and exit  
+  -d, --diskimage  Use disk image instead of dir as input  
+  --hfs            Use for disk images with HFS file system (NOT CURRENTLY WORKING)  
 
 ### Dependencies  
 
 * Python 2.7
 * [Siegfried](http://www.itforarchivists.com/siegfried) (any version between 1.0.0 and 1.4.5) must be installed on your machine. Brunnhilde is not yet compatible with Siegfried 1.5.*, which introduces major changes including the ability to use multiple file identification tools.  
 * tree (Installed by default in most Linux distros. On OS X, install using [Homebrew](http://brewformulas.org/tree). If tree is not installed on your machine, a blank tree.txt file will be created instead).  
+* SleuthKit (brew install sleuthkit)
 
 ### Licensing  
 
