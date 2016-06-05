@@ -18,13 +18,17 @@ All outputs are placed into a new directory named after the filename passed to B
 usage: brunnhilde.py [-h] [-d] [--hfs] source filename  
 
 positional arguments:  
-  source           Path to source directory or disk image  
-  filename         Name of csv file to create  
+* source : Path to source directory or disk image  
+* filename : Name of csv file to create  
 
 optional arguments:  
-  -h, --help       show this help message and exit  
-  -d, --diskimage  Use disk image instead of dir as input  
-  --hfs            Use for disk images with HFS file system (NOT CURRENTLY WORKING)  
+* -h, --help : show this help message and exit  
+* -d, --diskimage : Use disk image instead of dir as input  
+* --hfs : Use for disk images with HFS file system (NOT CURRENTLY WORKING)  
+
+This new version of Brunnhilde uses SleuthKit's tsk_recover to carve files from disk images for processing. This works with raw (dd) images by default, but will also support other file formats (such as E01 and AFF) if libewf is compiled into Sleuthkit.  
+
+Analysis of HFS disks is not yet supported, but is in development.  
 
 ### Dependencies  
 
