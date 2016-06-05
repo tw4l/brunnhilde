@@ -118,14 +118,6 @@ def get_stats(source_dir):
 	html_file.write('</ul>')
 	html_file.write('<p><em>Note: As Siegfried scans both archive packages (e.g. Zip files) and their contents, numbers of unique, empty, and duplicate files may appear not to perfectly add up.</em></p>')
 
-def sqlite_to_csv(sql, path, header):
-	'''Write sql query result to csv'''
-	with open(path, 'wb') as report:
-		w = csv.writer(report)
-		w.writerow(header)
-		for row in cursor.execute(sql):
-			w.writerow(row)
-
 def generate_reports():
 	'''Run sql queries on db to generate reports, write to csv and html'''
 	full_header = ['Filename', 'Filesize', 'Date modified', 'Errors', 'Checksum', 
@@ -184,6 +176,14 @@ def generate_reports():
 	sqlite_to_csv(sql, path, full_header)
 	writeHTML('Duplicates (md5 hash)', path)
 
+def sqlite_to_csv(sql, path, header):
+	'''Write sql query result to csv'''
+	with open(path, 'wb') as report:
+		w = csv.writer(report)
+		w.writerow(header)
+		for row in cursor.execute(sql):
+			w.writerow(row)
+
 def writeHTML(header, path):
 	'''Write csv file to html table'''
 	with open(path, 'rb') as csv_report:
@@ -204,9 +204,8 @@ def writeHTML(header, path):
 				for column in row:
 					html_file.write('<td>' + column + '</td>')
 				html_file.write('</tr>')
-
+				
 			html_file.write('</table>')
-
 		else:
 			html_file.write('<h2>%s</h2>' % header)
 			html_file.write('None found.')
