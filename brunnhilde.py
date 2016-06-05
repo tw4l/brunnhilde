@@ -100,7 +100,7 @@ def get_stats(source_dir):
 	html_file.write('<h3>Siegfried version used</h3>')
 	html_file.write('<p>%s</p>' % siegfried_version)
 	html_file.write('<h3>Source of files</h3>')
-	html_file.write('<p>%s</p>' % source_dir)
+	html_file.write('<p>%s</p>' % args.source)
 	html_file.write('<h3>Accession/Identifier</h3>')
 	html_file.write('<p>%s</p>' % basename)
 	html_file.write('<h2>Aggregate statistics</h2>')
