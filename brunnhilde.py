@@ -302,7 +302,11 @@ else: #source is a disk image of a non-HFS disk
 
 	# make tempdir
 	tempdir = os.path.join(report_dir, 'carved_files')
-	os.mkdir(tempdir)
+	try:
+		os.makedirs(tempdir)
+	except OSError as exception:
+		if exception.errno != errno.EEXIST:
+			raise
 
 	# export disk image contents to tempdir
 	carvefiles = ['tsk_recover', '-v', '-a', args.source, tempdir]
