@@ -253,7 +253,6 @@ basename = os.path.splitext(filename)[0]
 report_dir = os.path.join(current_dir, '%s' % basename)
 csv_dir = os.path.join(report_dir, 'CSVs')
 sf_file = os.path.join(report_dir, filename)
-html_file = open(os.path.join(report_dir, '%s.html' % basename), 'wb')
 
 # create directory for reports
 try:
@@ -268,6 +267,9 @@ try:
 except OSError as exception:
 	if exception.errno != errno.EEXIST:
 		raise
+
+# create html report
+html_file = open(os.path.join(report_dir, '%s.html' % basename), 'wb')
 
 # open sqlite db
 db = os.path.join(report_dir, os.path.splitext(filename)[0]) + '.sqlite'
