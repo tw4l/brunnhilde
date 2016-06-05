@@ -9,14 +9,6 @@ import sqlite3
 import subprocess
 import sys
 
-def sqlite_to_csv(sql, path, header):
-	'''Write sql query result to csv'''
-	with open(path, 'wb') as report:
-		w = csv.writer(report)
-		w.writerow(header)
-		for row in cursor.execute(sql):
-			w.writerow(row)
-
 def run_siegfried(source_dir):
 	'''Run siegfried on directory'''
 	# run siegfried against specified directory
@@ -183,6 +175,14 @@ def generate_reports():
 	path = os.path.join(csv_dir, '%s_duplicates.csv' % basename)
 	sqlite_to_csv(sql, path, full_header)
 	writeHTML('Duplicates (md5 hash)', path)
+
+def sqlite_to_csv(sql, path, header):
+	'''Write sql query result to csv'''
+	with open(path, 'wb') as report:
+		w = csv.writer(report)
+		w.writerow(header)
+		for row in cursor.execute(sql):
+			w.writerow(row)
 
 def writeHTML(header, path):
 	'''Write csv file to html table'''
