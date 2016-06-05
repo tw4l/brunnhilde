@@ -221,7 +221,7 @@ def make_tree(source_dir):
 	tree_command = "tree -tDhR %s > %s" % (source_dir, os.path.join(report_dir, '%s_tree.txt' % basename))
 	subprocess.call(tree_command, shell=True)
 
-def main_process(source_dir):
+def process_content(source_dir):
 	'''Run through main processing flow on specified directory'''
 	run_siegfried(source_dir) # run siegfried
 	import_csv() # load csv into sqlite db
@@ -279,7 +279,7 @@ cursor = conn.cursor()
 # flows
 if args.diskimage == False: # source is a directory
 	# process as directory
-	main_process(args.source)
+	process_content(args.source)
 
 elif args.diskimage == True and args.hfs == True: # source is a disk image of an HFS disk
 
@@ -293,7 +293,7 @@ elif args.diskimage == True and args.hfs == True: # source is a disk image of an
 	#subprocess.check_call(hfs_extract)
 
 	# process as directory
-	#main_process(tempdir)
+	#process_content(tempdir)
 
 	print("CAN'T YET DEAL WITH HFS DISKS")
 	sys.exit()
@@ -318,7 +318,7 @@ else: #source is a disk image of a non-HFS disk
 		sys.exit()
 
 	# process tempdir
-	main_process(tempdir)
+	process_content(tempdir)
 
 
 html_file.close()
