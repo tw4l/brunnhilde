@@ -1,44 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""
-
-Brunnhilde - A companion to Richard Lehane's Siegfried 
-(www.itforarchivists.com/siegfried)
-
-Brunnhilde runs Siegfried against a specified directory or disk image, loads the results
-into a sqlite3 database, and queries the database to generate aggregate
-reports (HTML and CSV) to aid in triage, arrangement, and description of digital archives.
-
-usage: brunnhilde-0-4-0.py [-h] [-d] [--hfs] source filename
-
-positional arguments:
-  source           Path to source directory or disk image
-  filename         Name of csv file to create
-
-optional arguments:
-  -h, --help       show this help message and exit
-  -d, --diskimage  Use disk image instead of dir as input
-  --hfs            Use for disk images with HFS file system
-
-NOTE: Uses tsk_recover to process disk images. Will read raw (dd) images by default. For 
-Brunnhilde to work with Encase (E01) disk images, libewf must be compiled into tsk_recover.
-
-Disk images of HFS disks must be in raw form, as hfsexplorer is unable to process E01 images.
-
-Python 2.7
-
-Dependencies:
-- Siegfried (version 1.0.0 to 1.4.5; versions 1.5.0+ not yet supported)
-- tree
-- SleuthKit (brew install sleuthkit)
-- libewf (brew install libewf) - for reading encase ewf disk images
-
-The MIT License (MIT)
-Copyright (c) 2016 Tim Walsh
-
-"""
-
 import argparse
 import csv
 import errno
@@ -46,7 +8,6 @@ import os
 import sqlite3
 import subprocess
 import sys
-
 
 def sqlite_to_csv(sql, path, header):
 	'''Write sql query result to csv'''
