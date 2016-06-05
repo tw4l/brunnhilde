@@ -239,8 +239,8 @@ MAIN FLOW
 parser = argparse.ArgumentParser()
 parser.add_argument("-d", "--diskimage", help="Use disk image instead of dir as input", action="store_true")
 parser.add_argument ("--hfs", help="Use for disk images with HFS file system", action="store_true")
-parser.add_argument("source", help="Path to source directory or disk image", required=True)
-parser.add_argument("filename", help="Name of csv file to create", required=True)
+parser.add_argument("source", help="Path to source directory or disk image")
+parser.add_argument("filename", help="Name of csv file to create")
 args = parser.parse_args()
 
 # system info
