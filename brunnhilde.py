@@ -278,11 +278,7 @@ conn.text_factory = str  # allows utf-8 data to be stored
 cursor = conn.cursor()
 
 # characterize source
-if args.diskimage == False: # source is a directory
-	# process as directory
-	process_content(args.source)
-
-else: #source is a disk image
+if args.diskimage == True: # source is a disk image
 	# make tempdir
 	tempdir = os.path.join(report_dir, 'carved_files')
 	try:
@@ -302,6 +298,9 @@ else: #source is a disk image
 
 	# process tempdir
 	process_content(tempdir)
+
+else: #source is a directory
+	process_content(args.source)
 
 # close files, connections
 html_file.close()
