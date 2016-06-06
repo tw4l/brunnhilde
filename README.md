@@ -25,7 +25,7 @@ optional arguments:
 * -h, --help : show this help message and exit  
 * -d, --diskimage : Use disk image instead of dir as input   
 
-This new version of Brunnhilde uses SleuthKit's tsk_recover to carve files from disk images for processing. This works with raw (dd) images by default, but will also support other file formats (such as E01 and AFF) if libewf is compiled into Sleuthkit (note to self: see if this is already true in Bitcurator).  
+This new version of Brunnhilde uses SleuthKit's tsk_recover to carve files from disk images for processing. This works with raw (dd) images by default. In Bitcurator or any other environment where libewf has been compiled into SleuthKit, Brunnhilde's -d mode will also support forensic disk image formats, including aff and ewf (E01).  
 
 ### Dependencies  
 
