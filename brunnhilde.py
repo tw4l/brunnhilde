@@ -288,7 +288,7 @@ if args.diskimage == True: # source is a disk image
 			raise
 
 	# export disk image contents to tempdir
-	carvefiles = ['tsk_recover', '-v', '-a', args.source, tempdir]
+	carvefiles = ['tsk_recover', '-a', args.source, tempdir]
 
 	try:
 		subprocess.check_call(carvefiles)
