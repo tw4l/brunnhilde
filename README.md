@@ -24,7 +24,7 @@ positional arguments:
 optional arguments:  
 * -h, --help : show this help message and exit  
 * -d, --diskimage : Use disk image instead of dir as input   
-* --hfs: Use disk image of HFS-formatted disk (requires raw disk image as input)  
+* --hfs : Use disk image of HFS-formatted disk (requires raw disk image as input)  
 
 In -d mode, Brunnhilde uses SleuthKit's tsk_recover to export files from a disk image into a "carved files" directory for analysis. This works with raw (dd) images by default. In Bitcurator or any other environment where libewf has been compiled into SleuthKit, Brunnhilde's -d mode also supports forensic disk image formats, including aff and ewf (E01).  
 
