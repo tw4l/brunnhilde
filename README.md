@@ -15,7 +15,7 @@ All outputs are placed into a new directory named after the filename passed to B
 
 ### Running Brunnhilde  
 
-usage: brunnhilde.py [-h] [-d] source filename  
+usage: brunnhilde.py [-h] [-d] [--hfs] source filename  
 
 positional arguments:  
 * source : Path to source directory or disk image  
@@ -24,6 +24,7 @@ positional arguments:
 optional arguments:  
 * -h, --help : show this help message and exit  
 * -d, --diskimage : Use disk image instead of dir as input   
+* --hfs: Use disk image of HFS-formatted disk (requires raw disk image as input)  
 
 In -d mode, Brunnhilde uses SleuthKit's tsk_recover to export files from a disk image into a "carved files" directory for analysis. This works with raw (dd) images by default. In Bitcurator or any other environment where libewf has been compiled into SleuthKit, Brunnhilde's -d mode also supports forensic disk image formats, including aff and ewf (E01).  
 
@@ -33,6 +34,7 @@ In -d mode, Brunnhilde uses SleuthKit's tsk_recover to export files from a disk 
 * [Siegfried](http://www.itforarchivists.com/siegfried) (any version between 1.0.0 and 1.4.5) must be installed on your machine. Brunnhilde is not yet compatible with Siegfried 1.5.*, which introduces major changes including the ability to use multiple file identification tools.  
 * tree (Installed by default in most Linux distros. On OS X, install using [Homebrew](http://brewformulas.org/tree). If tree is not installed on your machine, a blank tree.txt file will be created instead).  
 * SleuthKit (brew install sleuthkit)
+* unhfs (Commandline implementation of HFSExplorer; included in Bitcurator suite)  
 
 ### Licensing  
 
