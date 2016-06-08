@@ -26,7 +26,9 @@ optional arguments:
 * -d, --diskimage : Use disk image instead of dir as input   
 * --hfs : Use disk image of HFS-formatted disk (requires raw disk image as input)  
 
-In -d mode, Brunnhilde uses SleuthKit's tsk_recover to export files from a disk image into a "carved files" directory for analysis. This works with raw (dd) images by default. In Bitcurator or any other environment where libewf has been compiled into SleuthKit, Brunnhilde's -d mode also supports forensic disk image formats, including aff and ewf (E01).  
+In -d mode, Brunnhilde uses SleuthKit's tsk_recover to export files from a disk image into a "carved files" directory for analysis. This works with raw (dd) images by default. In Bitcurator or any other environment where libewf has been compiled into SleuthKit, Brunnhilde's -d mode also supports forensic disk image formats, including aff and ewf (E01). 
+
+To characterize HFS formatted disks, use both the "-d" and "--hfs" flags, and be sure to use a raw disk image as the source (HFSExplorer is unable to process forensically packaged disk images). This functionality is intended to be run inside of Bitcurator, which prepackages the additional dependencies (HFSExplorer and Java). To use the --hfs flag in non-Bitcurator *nix machines, you may need to alter the path to "unhfs.sh" in line 357 of brunnhilde.py. To use the --hfs flag on Windows machines, you will need to provide the path to "unhfs.bat" in line 357 instead and potentially modify the options being passed.  
 
 ### Dependencies  
 
