@@ -288,13 +288,21 @@ if args.diskimage == True: # source is a disk image
 			raise
 
 	# export disk image contents to tempdir
-	carvefiles = ['tsk_recover', '-a', args.source, tempdir]
+	if args.hfs == True: # hfs disks
+		carvefiles = ['bash', '/usr/share/hfsexplorer/bin/unhfs.sh', '-o', tempdir, '-resforks', 'APPLEDOUBLE']
+		try:
+			subprocess.check_call(carvefiles)
+		except subprocess.CalledProcessError as e:
+			print(e.output)
+			sys.exit()
 
-	try:
-		subprocess.check_call(carvefiles)
-	except subprocess.CalledProcessError as e:
-		print(e.output)
-		sys.exit()
+	else: # non-hfs disks (note: no UDF support yet)
+		carvefiles = ['tsk_recover', '-a', args.source, tempdir]
+		try:
+			subprocess.check_call(carvefiles)
+		except subprocess.CalledProcessError as e:
+			print(e.output)
+			sys.exit()
 
 	# process tempdir
 	process_content(tempdir)
