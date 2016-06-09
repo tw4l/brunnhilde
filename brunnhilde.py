@@ -297,9 +297,9 @@ if args.diskimage == True: # source is a disk image
 
 	# export disk image contents to tempdir
 	if args.hfs == True: # hfs disks
-		carvefiles = ['bash', '/usr/share/hfsexplorer/bin/unhfs.sh', '-o', tempdir, '-resforks', 'APPLEDOUBLE']
+		carvefiles = "bash /usr/share/hfsexplorer/bin/unhfs.sh -o %s %s" % (tempdir, args.source)
 		try:
-			subprocess.check_call(carvefiles)
+			subprocess.call(carvefiles, shell=True)
 		except subprocess.CalledProcessError as e:
 			print(e.output)
 			sys.exit()
