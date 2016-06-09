@@ -39,24 +39,18 @@ def import_csv():
 		header = True
 		for row in reader:
 			if header:
-				# gather column names from first row of csv
-				header = False
-
+				header = False # gather column names from first row of csv
 				sql = "DROP TABLE IF EXISTS siegfried"
 				cursor.execute(sql)
 				sql = "CREATE TABLE siegfried (filename text, filesize text, modified text, errors text, md5 text, namespace text, id text, format text, version text, mime text, basis text, warning text)"
 				cursor.execute(sql)
-
 				insertsql = "INSERT INTO siegfried VALUES (%s)" % (
                             ", ".join([ "?" for column in row ]))
-
 				rowlen = len(row)
-		
 			else:
 				# skip lines that don't have right number of columns
 				if len(row) == rowlen:
 					cursor.execute(insertsql, row)
-
 		conn.commit()
 
 def get_stats(source_dir, scan_started):
