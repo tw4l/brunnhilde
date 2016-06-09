@@ -247,6 +247,7 @@ MAIN FLOW
 parser = argparse.ArgumentParser()
 parser.add_argument("-d", "--diskimage", help="Use disk image instead of dir as input", action="store_true")
 parser.add_argument("--hfs", help="Use for raw disk images of HFS disks", action="store_true")
+parser.add_argument("-r", "--removefiles", help="Delete 'carved_files' directory when done", action="store_true")
 parser.add_argument("source", help="Path to source directory or disk image")
 parser.add_argument("filename", help="Name of csv file to create")
 args = parser.parse_args()
@@ -319,6 +320,8 @@ if args.diskimage == True: # source is a disk image
 
 	# process tempdir
 	process_content(tempdir)
+	if args.removefiles == True:
+		shutil.rmtree(tempdir)
 
 else: #source is a directory
 	process_content(args.source)
