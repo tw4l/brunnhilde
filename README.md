@@ -37,7 +37,7 @@ By default, Brunnhilde will keep a copy of the files exported from disk images i
 
 #### General  
 * Python 2.7
-* [Siegfried](http://www.itforarchivists.com/siegfried): Brunnhilde is now compatible with all version of Siegfried, including 1.5.0. It does not yet have support for MIME-Info signatures: for Brunnhilde to work, Siegfried must be using the PRONOM signature file only. If you have been using the MIME_Info signatures as a replacement for or alongside PRONOM, entering "roy build" in the terminal should return you to Siegfried's default PRONOM-only identification mode and allow Brunnhilde to work properly.  
+* [Siegfried](http://www.itforarchivists.com/siegfried): Brunnhilde is now compatible with all version of Siegfried, including 1.5.0. It does not yet have support for MIME-Info signatures: for Brunnhilde to work, Siegfried must be using the PRONOM signature file only. If you have been using the MIME-Info signatures as a replacement for or alongside PRONOM with Siegfried 1.5.0 on your machine, entering "roy build" in the terminal should return you to Siegfried's default PRONOM-only identification mode and allow Brunnhilde to work properly.  
 * tree: Installed by default in most Linux distros. On OS X, install using [Homebrew](http://brewformulas.org/tree). If tree is not installed on your machine, a blank tree.txt file will be created instead.  
 
 #### To process disk images  
