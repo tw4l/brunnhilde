@@ -303,6 +303,7 @@ if args.diskimage == True: # source is a disk image
 			subprocess.call(carvefiles, shell=True)
 		except subprocess.CalledProcessError as e:
 			print(e.output)
+			print("Brunnhilde was unable to export files from disk image. Ending process.")
 			shutil.rmtree(report_dir)
 			sys.exit()
 
@@ -312,6 +313,7 @@ if args.diskimage == True: # source is a disk image
 			subprocess.check_call(carvefiles)
 		except subprocess.CalledProcessError as e:
 			print(e.output)
+			print("Brunnhilde was unable to export files from disk image. Ending process.")
 			shutil.rmtree(report_dir)
 			sys.exit()
 
