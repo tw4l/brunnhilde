@@ -139,52 +139,52 @@ def generate_reports():
 	path = os.path.join(csv_dir, '%s_formats.csv' % basename)
 	format_header = ['Format', 'ID', 'Count']
 	sqlite_to_csv(sql, path, format_header)
-	writeHTML('File formats', path)
+	write_html('File formats', path)
 
 	# sorted format and version list report
 	sql = "SELECT format, id, version, COUNT(*) as 'num' FROM siegfried GROUP BY format, version ORDER BY num DESC"
 	path = os.path.join(csv_dir, '%s_formatVersion.csv' % basename)
 	version_header = ['Format', 'ID', 'Version', 'Count']
 	sqlite_to_csv(sql, path, version_header)
-	writeHTML('File formats and versions', path)
+	write_html('File formats and versions', path)
 
 	# sorted MIMETYPE list report
 	sql = "SELECT mime, COUNT(*) as 'num' FROM siegfried GROUP BY mime ORDER BY num DESC"
 	path = os.path.join(csv_dir, '%s_mimetypes.csv' % basename)
 	mime_header = ['mimetype', 'Count']
 	sqlite_to_csv(sql, path, mime_header)
-	writeHTML('Mimetypes', path)
+	write_html('Mimetypes', path)
 
 	# dates report
 	sql = "SELECT SUBSTR(modified, 1, 4) as 'year', COUNT(*) as 'num' FROM siegfried GROUP BY year ORDER BY num DESC"
 	path = os.path.join(csv_dir, '%s_years.csv' % basename)
 	year_header = ['Year Last Modified', 'Count']
 	sqlite_to_csv(sql, path, year_header)
-	writeHTML('Last modified dates by year', path)
+	write_html('Last modified dates by year', path)
 
 	# unidentified files report
 	sql = "SELECT * FROM siegfried WHERE id='UNKNOWN';"
 	path = os.path.join(csv_dir, '%s_unidentified.csv' % basename)
 	sqlite_to_csv(sql, path, full_header)
-	writeHTML('Unidentified', path)
+	write_html('Unidentified', path)
 
 	# errors report
 	sql = "SELECT * FROM siegfried WHERE errors <> '';"
 	path = os.path.join(csv_dir, '%s_errors.csv' % basename)
 	sqlite_to_csv(sql, path, full_header)
-	writeHTML('Errors', path)
+	write_html('Errors', path)
 
 	# warnings report
 	sql = "SELECT * FROM siegfried WHERE warning <> '';"
 	path = os.path.join(csv_dir, '%s_warnings.csv' % basename)
 	sqlite_to_csv(sql, path, full_header)
-	writeHTML('Warnings', path)
+	write_html('Warnings', path)
 
 	# duplicates report
 	sql = "SELECT * FROM siegfried t1 WHERE EXISTS (SELECT 1 from siegfried t2 WHERE t2.md5 = t1.md5 AND t1.filename != t2.filename) ORDER BY md5;"
 	path = os.path.join(csv_dir, '%s_duplicates.csv' % basename)
 	sqlite_to_csv(sql, path, full_header)
-	writeHTML('Duplicates (md5 hash)', path)
+	write_html('Duplicates (md5 hash)', path)
 
 def sqlite_to_csv(sql, path, header):
 	'''Write sql query result to csv'''
@@ -194,19 +194,16 @@ def sqlite_to_csv(sql, path, header):
 		for row in cursor.execute(sql):
 			w.writerow(row)
 
-def writeHTML(header, path):
+def write_html(header, path):
 	'''Write csv file to html table'''
 	with open(path, 'rb') as csv_report:
 		# count lines and then return to start of file
 		numline = len(csv_report.readlines())
 		csv_report.seek(0)
-
 		r = csv.reader(csv_report)
-
 		if numline > 1: #aka more rows than just header
 			html_file.write('<h2>%s</h2>' % header)
 			html_file.write('<table border=".5">')
-
 			# generate table
 			for row in r:
 				# write data
@@ -214,13 +211,12 @@ def writeHTML(header, path):
 				for column in row:
 					html_file.write('<td>' + column + '</td>')
 				html_file.write('</tr>')
-				
 			html_file.write('</table>')
 		else:
 			html_file.write('<h2>%s</h2>' % header)
 			html_file.write('None found.')
 
-def closeHTML():
+def close_html():
 	'''Write html closing tags'''
 	html_file.write("</body>")
 	html_file.write("</html>")
@@ -238,7 +234,7 @@ def process_content(source_dir):
 	import_csv() # load csv into sqlite db
 	get_stats(source_dir, scan_started) # get aggregate stats and write to html file
 	generate_reports() # run sql queries, print to html and csv
-	closeHTML() # close HTML file tags
+	close_html() # close HTML file tags
 	make_tree(source_dir) # create tree.txt
 
 
@@ -249,6 +245,7 @@ MAIN FLOW
 # parse arguments
 parser = argparse.ArgumentParser()
 parser.add_argument("-d", "--diskimage", help="Use disk image instead of dir as input", action="store_true")
+parser.add_argument("--hfs", help="Use for raw disk images of HFS disks", action="store_true")
 parser.add_argument("source", help="Path to source directory or disk image")
 parser.add_argument("filename", help="Name of csv file to create")
 args = parser.parse_args()
