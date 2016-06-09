@@ -1,42 +1,55 @@
 ## Brunnhilde - A companion to Seigfried  
 
-**Please note, this is the development branch of Brunnhilde. Code found in this branch has likely not been tested. For the latest stable release, please consult the master branch.**
-
 Generates aggregate reports of files in a directory based on input from Richard Lehane's [Siegfried](http://www.itforarchivists.com/siegfried).  
 
 Brunnhilde runs Siegfried against a specified directory or disk image, loads the results into a sqlite3 database, and queries the database to generate reports to aid in triage, arrangement, and description of digital archives. Outputs include:  
 
 * A folder of CSV reports on file formats and versions, mimetypes, last modified dates, unidentified files, Siegfried warnings and errors, and duplicate files (by md5 hash)  
+* An HTML report, which includes some information on the scan itself, aggregate statistics for the material as a whole (number of files, begin and end dates, number of unique vs. duplicate files), and prints any of the CSV reports containing data has HTML tables.
 * A tree report of the directory structure  
 * The full Siegfried CSV output  
-* A human-readable HTML report, presenting the information from the CSV outputs in a single place alongside some aggregate statistics about the material as a whole (number of files, number of identified file formats, begin and end dates, number of unique files vs. duplicate files, and so on)  
 
 All outputs are placed into a new directory named after the filename passed to Brunnhilde as the second argument.  
 
 ### Running Brunnhilde  
 
-usage: brunnhilde.py [-h] [-d] [--hfs] source filename  
+usage: brunnhilde.py [-h] [-d] [--hfs] [-r] source filename  
 
-positional arguments:  
-* source : Path to source directory or disk image  
-* filename : Name of csv file to create  
+positional arguments:
+  source             Path to source directory or disk image  
+  filename           Name of csv file to create  
 
 optional arguments:  
-* -h, --help : show this help message and exit  
-* -d, --diskimage : Use disk image instead of dir as input   
-* --hfs : Use disk image of HFS-formatted disk (requires raw disk image as input)  
+  -h, --help         show this help message and exit  
+  -d, --diskimage    Use disk image instead of dir as input  
+  --hfs              Use for raw disk images of HFS disks  
+  -r, --removefiles  Delete 'carved_files' directory when done  
 
-In -d mode, Brunnhilde uses SleuthKit's tsk_recover to export files from a disk image into a "carved files" directory for analysis. This works with raw (dd) images by default. In Bitcurator or any other environment where libewf has been compiled into SleuthKit, Brunnhilde's -d mode also supports forensic disk image formats, including aff and ewf (E01). 
+### Using disk images as input  
 
-To characterize HFS formatted disks, use both the "-d" and "--hfs" flags, and be sure to use a raw disk image as the source (HFSExplorer is unable to process forensically packaged disk images). This functionality is intended to be run inside of Bitcurator, which prepackages the additional dependencies (HFSExplorer and Java). To use the --hfs flag in non-Bitcurator *nix machines, you may need to alter the path to "unhfs.sh" in line 357 of brunnhilde.py. To use the --hfs flag on Windows machines, you will need to provide the path to "unhfs.bat" in line 357 instead and potentially modify the options being passed.  
+In -d mode, Brunnhilde uses SleuthKit's tsk_recover to export files from a disk image into a "carved files" directory for analysis. This works with raw (dd) images by default. In Bitcurator or any other environment where libewf has been compiled into SleuthKit, Brunnhilde's -d mode also supports forensic disk image formats, including aff and ewf (E01). Due to the limitations of SleuthKit, Brunnhilde does not yet support characterizing disks that use the UDF filesystem.  
+
+To characterize HFS formatted disks, use both the "-d" and "--hfs" flags, and be sure to use a raw disk image as the source (HFSExplorer is unable to process forensically packaged disk images). This functionality works best in Bitcurator. Non-Bitcurator environments will require you to install additional dependencies (HFSExplorer and Java) and to configure some Brunnhilde settings, such as the path to the "unhfs.sh" script and potentially the options being passed to it.  
+
+By default, Brunnhilde will keep a copy of the files exported from disk images in a "carved_files" directory. If you do not wish to keep a copy of these files after reporting is finished, you can pass the "-r" or "--removefiles" flag to have Brunnhilde delete the directory when it is finished characterizing the files.  
 
 ### Dependencies  
 
+#### General  
 * Python 2.7
-* [Siegfried](http://www.itforarchivists.com/siegfried) (any version between 1.0.0 and 1.4.5) must be installed on your machine. Brunnhilde is not yet compatible with Siegfried 1.5.*, which introduces major changes including the ability to use multiple file identification tools.  
-* tree (Installed by default in most Linux distros. On OS X, install using [Homebrew](http://brewformulas.org/tree). If tree is not installed on your machine, a blank tree.txt file will be created instead).  
-* SleuthKit (brew install sleuthkit)
-* unhfs (Commandline implementation of HFSExplorer; included in Bitcurator suite)  
+* [Siegfried](http://www.itforarchivists.com/siegfried): Brunnhilde is now compatible with all version of Siegfried, including 1.5.0. It does not yet have support for MIME-Info signatures: for Brunnhilde to work, Siegfried must be using the PRONOM signature file only. If you have been using the MIME_Info signatures as a replacement for or alongside PRONOM, entering "roy build" in the terminal should return you to Siegfried's default PRONOM-only identification mode and allow Brunnhilde to work properly.  
+* tree: Installed by default in most Linux distros. On OS X, install using [Homebrew](http://brewformulas.org/tree). If tree is not installed on your machine, a blank tree.txt file will be created instead.  
+
+#### To process disk images  
+* [SleuthKit](http://www.sleuthkit.org/): Installed by default in Bitcurator. On OS X, can be installed using Homebrew with "brew install sleuthkit".
+* [HFSExplorer](http://www.catacombae.org/hfsexplorer/): Installed by default in Bitcurator. Brunnhilde uses unhfs, the included command-line implementation of HFSExplorer.  
+
+### Development To-dos
+
+* Add ability to use MIME-Info signature files (alone or alongside PRONOM) with Siegfried 1.5.0  
+* Add support for UDF disk images  
+* More and better testing  
+* Move from raw SQL to ORM?  
 
 ### Licensing  
 
