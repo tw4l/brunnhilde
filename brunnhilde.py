@@ -1,6 +1,19 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+"""
+Brunnhilde
+A Siegfried-based digital archives reporting tool
+
+For information on usage and dependencies, see:
+github.com/timothyryanwalsh/brunnhilde
+
+Python 2.7
+
+The MIT License (MIT)
+Copyright (c) 2016 Tim Walsh
+"""
+
 import argparse
 import csv
 import errno
