@@ -42,7 +42,7 @@ def import_csv():
 
 				sql = "DROP TABLE IF EXISTS siegfried"
 				cursor.execute(sql)
-				sql = "CREATE TABLE siegfried (filename text, filesize text, modified text, errors text, md5 text, id text, puid text, format text, version text, mime text, basis text, warning text)"
+				sql = "CREATE TABLE siegfried (filename text, filesize text, modified text, errors text, md5 text, namespace text, id text, format text, version text, mime text, basis text, warning text)"
 				cursor.execute(sql)
 
 				insertsql = "INSERT INTO siegfried VALUES (%s)" % (
@@ -74,7 +74,7 @@ def get_stats(source_dir):
 	cursor.execute("SELECT COUNT(DISTINCT md5) FROM siegfried t1 WHERE EXISTS (SELECT 1 from siegfried t2 WHERE t2.md5 = t1.md5 AND t1.filename != t2.filename)")
 	unique_dupe_files = cursor.fetchone()[0]
 
-	cursor.execute("SELECT COUNT(*) FROM siegfried WHERE puid='UNKNOWN';")
+	cursor.execute("SELECT COUNT(*) FROM siegfried WHERE id='UNKNOWN';")
 	unidentified_files = cursor.fetchone()[0]
 
 	year_sql = "SELECT DISTINCT SUBSTR(modified, 1, 4) as 'year' FROM siegfried;"
@@ -166,7 +166,7 @@ def generate_reports():
 	writeHTML('Last modified dates by year', path)
 
 	# unidentified files report
-	sql = "SELECT * FROM siegfried WHERE puid='UNKNOWN';"
+	sql = "SELECT * FROM siegfried WHERE id='UNKNOWN';"
 	path = os.path.join(csv_dir, '%s_unidentified.csv' % basename)
 	sqlite_to_csv(sql, path, full_header)
 	writeHTML('Unidentified', path)
