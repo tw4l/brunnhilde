@@ -9,7 +9,7 @@ Brunnhilde runs Siegfried against a specified directory or disk image, loads the
 * A tree report of the directory structure  
 * The full Siegfried CSV output  
 
-All outputs are placed into a new directory named after the filename passed to Brunnhilde as the second argument.  
+All outputs are placed into a new directory named after the filename passed to Brunnhilde as the last argument.  
 
 ### Running Brunnhilde  
 
