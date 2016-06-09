@@ -111,7 +111,7 @@ def get_stats(source_dir, scan_started):
 	html_file.write('<h3>Time of scan</h3>')
 	html_file.write('<p>%s</p>' % scan_started)
 	html_file.write('<h3>Source of files</h3>')
-	html_file.write('<p>%s</p>' % args.source)
+	html_file.write('<p>%s</p>' % os.path.abspath(args.source))
 	html_file.write('<h3>Accession/Identifier</h3>')
 	html_file.write('<p>%s</p>' % basename)
 	html_file.write('<h2>Aggregate statistics</h2>')
