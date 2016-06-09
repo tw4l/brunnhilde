@@ -17,6 +17,7 @@ Copyright (c) 2016 Tim Walsh
 
 import argparse
 import csv
+import datetime
 import errno
 import os
 import sqlite3
@@ -58,7 +59,7 @@ def import_csv():
 
 		conn.commit()
 
-def get_stats(source_dir):
+def get_stats(source_dir, scan_started):
 	'''Get aggregate statistics and write to html report'''
 	cursor.execute("SELECT COUNT(*) from siegfried;")
 	num_files = cursor.fetchone()[0]
@@ -113,6 +114,8 @@ def get_stats(source_dir):
 	html_file.write('<h2>Provenance information</h2>')
 	html_file.write('<h3>Siegfried version used</h3>')
 	html_file.write('<p>%s</p>' % siegfried_version)
+	html_file.write('<h3>Time of scan</h3>')
+	html_file.write('<p>%s</p>' % scan_started)
 	html_file.write('<h3>Source of files</h3>')
 	html_file.write('<p>%s</p>' % args.source)
 	html_file.write('<h3>Accession/Identifier</h3>')
@@ -237,9 +240,10 @@ def make_tree(source_dir):
 
 def process_content(source_dir):
 	'''Run through main processing flow on specified directory'''
+	scan_started = str(datetime.datetime.now()) # get time
 	run_siegfried(source_dir) # run siegfried
 	import_csv() # load csv into sqlite db
-	get_stats(source_dir) # get aggregate stats and write to html file
+	get_stats(source_dir, scan_started) # get aggregate stats and write to html file
 	generate_reports() # run sql queries, print to html and csv
 	closeHTML() # close HTML file tags
 	make_tree(source_dir) # create tree.txt
