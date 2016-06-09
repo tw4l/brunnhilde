@@ -15,15 +15,15 @@ All outputs are placed into a new directory named after the filename passed to B
 
 usage: brunnhilde.py [-h] [-d] [--hfs] [-r] source filename  
 
-positional arguments:
-  source             Path to source directory or disk image  
-  filename           Name of csv file to create  
+positional arguments:  
+  source : Path to source directory or disk image  
+  filename : Name of csv file to create  
 
 optional arguments:  
-  -h, --help         show this help message and exit  
-  -d, --diskimage    Use disk image instead of dir as input  
-  --hfs              Use for raw disk images of HFS disks  
-  -r, --removefiles  Delete 'carved_files' directory when done  
+  -h, --help : show this help message and exit  
+  -d, --diskimage : Use disk image instead of dir as input  
+  --hfs : Use for raw disk images of HFS disks  
+  -r, --removefiles : Delete 'carved_files' directory when done  
 
 ### Using disk images as input  
 
