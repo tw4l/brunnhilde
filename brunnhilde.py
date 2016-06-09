@@ -302,6 +302,7 @@ if args.diskimage == True: # source is a disk image
 			subprocess.call(carvefiles, shell=True)
 		except subprocess.CalledProcessError as e:
 			print(e.output)
+			os.remove(report_dir)
 			sys.exit()
 
 	else: # non-hfs disks (note: no UDF support yet)
@@ -310,6 +311,7 @@ if args.diskimage == True: # source is a disk image
 			subprocess.check_call(carvefiles)
 		except subprocess.CalledProcessError as e:
 			print(e.output)
+			os.remove(report_dir)
 			sys.exit()
 
 	# process tempdir
