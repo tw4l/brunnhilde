@@ -135,20 +135,20 @@ def get_stats(source_dir):
 def generate_reports():
 	'''Run sql queries on db to generate reports, write to csv and html'''
 	full_header = ['Filename', 'Filesize', 'Date modified', 'Errors', 'Checksum', 
-				'Identifier', 'PRONOM ID', 'Format', 'Format Version', 'MIME type', 
+				'Namespace', 'PRONOM ID', 'Format', 'Format Version', 'MIME type', 
 				'Basis for ID', 'Warning']
 
 	# sorted format list report
-	sql = "SELECT format, COUNT(*) as 'num' FROM siegfried GROUP BY format ORDER BY num DESC"
+	sql = "SELECT format, id, COUNT(*) as 'num' FROM siegfried GROUP BY format ORDER BY num DESC"
 	path = os.path.join(csv_dir, '%s_formats.csv' % basename)
-	format_header = ['Format', 'Count']
+	format_header = ['Format', 'PRONOM ID', 'Count']
 	sqlite_to_csv(sql, path, format_header)
 	writeHTML('File formats', path)
 
 	# sorted format and version list report
-	sql = "SELECT format, version, COUNT(*) as 'num' FROM siegfried GROUP BY format, version ORDER BY num DESC"
+	sql = "SELECT format, id, version, COUNT(*) as 'num' FROM siegfried GROUP BY format, version ORDER BY num DESC"
 	path = os.path.join(csv_dir, '%s_formatVersion.csv' % basename)
-	version_header = ['Format', 'Version', 'Count']
+	version_header = ['Format', 'PRONOM ID', 'Version', 'Count']
 	sqlite_to_csv(sql, path, version_header)
 	writeHTML('File formats and versions', path)
 
