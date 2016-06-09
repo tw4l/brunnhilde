@@ -44,7 +44,7 @@ By default, Brunnhilde will keep a copy of the files exported from disk images i
 * [SleuthKit](http://www.sleuthkit.org/): Installed by default in Bitcurator. On OS X, can be installed using Homebrew with "brew install sleuthkit".
 * [HFSExplorer](http://www.catacombae.org/hfsexplorer/): Installed by default in Bitcurator. Brunnhilde uses unhfs, the included command-line implementation of HFSExplorer.  
 
-### Development To-dos
+### Future development to-dos
 
 * Add ability to use MIME-Info signature files (alone or alongside PRONOM) with Siegfried 1.5.0  
 * Add support for UDF disk images  
