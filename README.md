@@ -46,7 +46,8 @@ By default, Brunnhilde will keep a copy of the files exported from disk images i
 
 ### Future development to-dos
 
-* Add ability to use MIME-Info signature files (alone or alongside PRONOM) with Siegfried 1.5.0  
+* Add ability to use MIME-Info signature files (alone or alongside PRONOM) with Siegfried 1.5+  
+* Add ability to use FDD signature files (alone or alongside PRONOM) with Siegfried 1.6+  
 * Add support for UDF disk images  
 * More and better testing  
 * Move from raw SQL to ORM?  
