@@ -11,6 +11,14 @@ Brunnhilde runs Siegfried against a specified directory or disk image, loads the
 
 All outputs are placed into a new directory named after the filename passed to Brunnhilde as the last argument.  
 
+For the most accurate statistics with Siegfried 1.6+, it is advised to force Siegfried to make single identifications for files with multiple filetypes. This can be accomplished with roy using the following command:  
+
+```
+roy build -multi 0
+```  
+
+For a more detailed explanation of how mutliple identifications are handled by Siegfried, see [https://github.com/richardlehane/siegfried/issues/75](https://github.com/richardlehane/siegfried/issues/75).  
+
 ### Running Brunnhilde  
 
 usage: brunnhilde.py [-h] [-d] [--hfs] [-r] source filename  
