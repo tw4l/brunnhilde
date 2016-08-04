@@ -253,7 +253,7 @@ parser.add_argument("filename", help="Name of csv file to create")
 args = parser.parse_args()
 
 # system info
-brunnhilde_version = 'v0.4.0'
+brunnhilde_version = 'v0.4.1'
 siegfried_version = subprocess.check_output(["sf", "-version"])
 
 # global variables
