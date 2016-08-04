@@ -1,6 +1,6 @@
 ## Brunnhilde - A companion to Seigfried  
 
-Generates aggregate reports of files in a directory based on input from Richard Lehane's [Siegfried](http://www.itforarchivists.com/siegfried).  
+Generates aggregate reports of files in a directory or disk image based on input from Richard Lehane's [Siegfried](http://www.itforarchivists.com/siegfried).  
 
 Brunnhilde runs Siegfried against a specified directory or disk image, loads the results into a sqlite3 database, and queries the database to generate reports to aid in triage, arrangement, and description of digital archives. Outputs include:  
 
@@ -32,6 +32,8 @@ optional arguments:
   -d, --diskimage : Use disk image instead of dir as input  
   --hfs : Use for raw disk images of HFS disks  
   -r, --removefiles : Delete 'carved_files' directory when done  
+  
+For file paths containing spaces in directory names, enclose the entire path in '' or "" quotes.  
 
 ### Using disk images as input  
 
