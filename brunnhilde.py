@@ -29,7 +29,7 @@ def run_siegfried(source_dir):
 	'''Run siegfried on directory'''
 	# run siegfried against specified directory
 	print("Running Siegfried against %s. This may take a few minutes." % source_dir)
-	siegfried_command = "sf -z -csv -hash md5 %s > %s" % (source_dir, sf_file)
+	siegfried_command = "sf -z -csv -hash md5 '%s' > %s" % (source_dir, sf_file)
 	subprocess.call(siegfried_command, shell=True)
 	print("Characterization complete. Processing results.")
 
