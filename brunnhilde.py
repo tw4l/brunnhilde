@@ -3,7 +3,7 @@
 
 """
 Brunnhilde
----
+"""
 A Siegfried-based digital archives reporting tool
 
 For information on usage and dependencies, see:
