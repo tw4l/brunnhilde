@@ -2,12 +2,14 @@
 
 Generates aggregate reports of files in a directory or disk image based on input from Richard Lehane's [Siegfried](http://www.itforarchivists.com/siegfried).  
 
-Brunnhilde runs Siegfried against a specified directory or disk image, loads the results into a sqlite3 database, and queries the database to generate reports to aid in triage, arrangement, and description of digital archives. Outputs include:  
+Brunnhilde runs Siegfried against a specified directory or disk image, loads the results into a sqlite3 database, and queries the database to generate reports to aid in triage, arrangement, and description of digital archives. Brunnhilde also checks for viruses unless otherwise specified and is able to run an optional Bulk Extractor scan. Outputs include:  
 
 * A folder of CSV reports on file formats and versions, mimetypes, last modified dates, unidentified files, Siegfried warnings and errors, and duplicate files (by md5 hash)  
 * An HTML report which includes some provenance information on the scan itself, aggregate statistics for the material as a whole (number of files, begin and end dates, number of unique vs. duplicate files, etc.), and all non-blank CSV reports printed as HTML tables
 * A tree report of the directory structure  
 * The full Siegfried CSV output  
+* Timestamped log of ClamScan virus check
+* Optional Bulk Extractor output
 
 All outputs are placed into a new directory named after the filename passed to Brunnhilde as the last argument.  
 
@@ -17,7 +19,7 @@ For the most accurate statistics with Siegfried 1.6+, it is advised to force Sie
 roy build -multi 0
 ```  
 
-For a more detailed explanation of how mutliple identifications are handled by Siegfried, see [https://github.com/richardlehane/siegfried/issues/75](https://github.com/richardlehane/siegfried/issues/75).  
+For a more detailed explanation of how multiple identifications are handled by Siegfried, see [https://github.com/richardlehane/siegfried/issues/75](https://github.com/richardlehane/siegfried/issues/75).  
 
 ### Running Brunnhilde  
 
@@ -28,10 +30,12 @@ positional arguments:
   filename : Name of csv file to create  
 
 optional arguments:  
-  -h, --help : show this help message and exit  
-  -d, --diskimage : Use disk image instead of dir as input  
-  --hfs : Use for raw disk images of HFS disks  
-  -r, --removefiles : Delete 'carved_files' directory when done  
+  -h, --help           show this help message and exit
+  -b, --bulkextractor  Run Bulk Extractor on source
+  -d, --diskimage      Use disk image instead of dir as input
+  --hfs                Use for raw disk images of HFS disks
+  -n, --noclam         Skip ClamScan Virus Check
+  -r, --removefiles    Delete 'carved_files' directory when done
   
 For file paths containing spaces in directory names, enclose the entire path in '' or "" quotes.  
 
@@ -48,7 +52,9 @@ By default, Brunnhilde will keep a copy of the files exported from disk images i
 #### General  
 * Python 2.7
 * [Siegfried](http://www.itforarchivists.com/siegfried): Brunnhilde is now compatible with all version of Siegfried, including 1.6.1. It does not yet have support for MIME-Info or FDD signatures: for Brunnhilde to work, Siegfried must be using the PRONOM signature file only. If you have been using MIME-Info or FDD signatures as a replacement for or alongside PRONOM with Siegfried 1.5/1.6 on your machine, entering "roy build" in the terminal should return you to Siegfried's default PRONOM-only identification mode and allow Brunnhilde to work properly.  
-* tree: Installed by default in most Linux distros. On OS X, install using [Homebrew](http://brewformulas.org/tree). If tree is not installed on your machine, a blank tree.txt file will be created instead.  
+* tree: Installed by default in most Linux distros. On OS X, install using [Homebrew](http://brewformulas.org/tree). If tree is not installed on your machine, a blank tree.txt file will be created instead. 
+* [Bulk Extractor](https://github.com/simsong/bulk_extractor): Can be built on Linux and OS X from source distribution found [here](https://github.com/simsong/bulk_extractor) or using [Homebrew](http://brewformulas.org/tree). 
+* [ClamAV](https://www.clamav.net): Brunnhilde checks for viruses using ClamAV, which can be built from the source distribution found at clamav.net or using [Homebrew](http://brewformulas.org/tree). 
 
 #### To process disk images  
 * [SleuthKit](http://www.sleuthkit.org/): Installed by default in Bitcurator. On OS X, can be installed using Homebrew with "brew install sleuthkit".
