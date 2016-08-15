@@ -36,10 +36,9 @@ def run_siegfried(source_dir):
 def run_clamAV(source_dir):
 	'''Run ClamAV on directory'''
 	# run virus check on specified directory
-	real_source_dir = os.path.realpath(source_dir)
 	timestamp = str(datetime.datetime.now())
-	print("\nRunning virus check on %s. This may take a few minutes." % real_source_dir)
-	clamAV_command = "clamscan -i -r %s | tee %s/%s_virusCheck.txt" % (real_source_dir, report_dir, sourcebase)
+	print("\nRunning virus check on %s. This may take a few minutes." % source_dir)
+	clamAV_command = "clamscan -i -r %s | tee %s/%s_virusCheck.txt" % (source_dir, report_dir, sourcebase)
 	subprocess.call(clamAV_command, shell=True)
         vc_File = "%s/%s_virusCheck.txt" % (report_dir, sourcebase)
         # add timestamp
@@ -53,20 +52,19 @@ def run_clamAV(source_dir):
                 if answer == "n":
                         sys.exit()
         else:
-                print("\nNo infections found in %s." % real_source_dir)
+                print("\nNo infections found in %s." % source_dir)
 
 def run_bulkExt(source_dir):
         '''Run bulk extractor on directory'''
         # run bulk extractor against specified directory if option is chosen
-        real_source_dir = os.path.realpath(source_dir)
         bulkExt_log = "%s/%s_bulkExt-log.txt" % (report_dir, sourcebase)
-        print("\nRunning Bulk Extractor on %s. This may take a few minutes." % real_source_dir)
+        print("\nRunning Bulk Extractor on %s. This may take a few minutes." % source_dir)
         try:
                 os.makedirs(bulkExt_dir)
         except OSError as exception:
                 if exception.errno != errno.EEXIST:
                         raise
-        bulkExt_command = "bulk_extractor -S ssn_mode=2 -o %s -R %s | tee %s" % (bulkExt_dir, real_source_dir, bulkExt_log)
+        bulkExt_command = "bulk_extractor -S ssn_mode=2 -o %s -R %s | tee %s" % (bulkExt_dir, source_dir, bulkExt_log)
 	subprocess.call(bulkExt_command, shell=True)
 
 def import_csv():
