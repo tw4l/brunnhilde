@@ -39,9 +39,9 @@ def run_clamAV(source_dir):
 	real_source_dir = os.path.realpath(source_dir)
 	timestamp = str(datetime.datetime.now())
 	print("\nRunning virus check on %s. This may take a few minutes." % real_source_dir)
-	clamAV_command = "clamscan -i -r %s | tee %s/%s_virusCheck.txt" % (real_source_dir, report_dir, sourcename)
+	clamAV_command = "clamscan -i -r %s | tee %s/%s_virusCheck.txt" % (real_source_dir, report_dir, sourcebase)
 	subprocess.call(clamAV_command, shell=True)
-        vc_File = "%s/%s_virusCheck.txt" % (report_dir, sourcename)
+        vc_File = "%s/%s_virusCheck.txt" % (report_dir, sourcebase)
         # add timestamp
         target = open(vc_File, 'a')
         target.write("Date scanned: %s" % timestamp)
@@ -59,7 +59,7 @@ def run_bulkExt(source_dir):
         '''Run bulk extractor on directory'''
         # run bulk extractor against specified directory if option is chosen
         real_source_dir = os.path.realpath(source_dir)
-        bulkExt_log = "%s/%s_bulkExt-log.txt" % (report_dir, sourcename)
+        bulkExt_log = "%s/%s_bulkExt-log.txt" % (report_dir, sourcebase)
         print("\nRunning Bulk Extractor on %s. This may take a few minutes." % real_source_dir)
         try:
                 os.makedirs(bulkExt_dir)
@@ -298,7 +298,8 @@ siegfried_version = subprocess.check_output(["sf", "-version"])
 current_dir = os.getcwd()
 filename = args.filename
 basename = os.path.splitext(filename)[0]
-sourcename = os.path.splitext(args.source)[0]
+sourcename = os.path.realpath(args.source)
+sourcebase = os.path.basename(sourcename)
 report_dir = os.path.join(current_dir, '%s' % basename)
 csv_dir = os.path.join(report_dir, 'CSVs')
 bulkExt_dir = os.path.join(report_dir, 'bulkExt')
