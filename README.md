@@ -30,11 +30,12 @@ positional arguments:
   filename : Name of csv file to create  
 
 optional arguments:  
-a
-d
-g
-d
-x
+  -h, --help : show this help message and exit
+  -b, --bulkextractor: Run Bulk Extractor on source
+  -d, --diskimage : Use disk image instead of dir as input  
+  --hfs : Use for raw disk images of HFS disks 
+  -n, --noclam: Skip ClamScan Virus Check 
+  -r, --removefiles : Delete 'carved_files' directory when done  
   
 For file paths containing spaces in directory names, enclose the entire path in '' or "" quotes.  
 
