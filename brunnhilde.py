@@ -384,3 +384,5 @@ else: #source is a directory
 html_file.close()
 cursor.close()
 conn.close()
+
+print("Process complete. Reports in %s." % report_dir)
