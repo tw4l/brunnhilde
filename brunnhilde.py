@@ -28,10 +28,44 @@ import sys
 def run_siegfried(source_dir):
 	'''Run siegfried on directory'''
 	# run siegfried against specified directory
-	print("Running Siegfried against %s. This may take a few minutes." % source_dir)
+	print("\nRunning Siegfried against %s. This may take a few minutes." % source_dir)
 	siegfried_command = "sf -z -csv -hash md5 '%s' > %s" % (source_dir, sf_file)
 	subprocess.call(siegfried_command, shell=True)
-	print("Characterization complete. Processing results.")
+	print("Characterization complete. Processing results.\n")
+
+def run_clamAV(source_dir):
+	'''Run ClamAV on directory'''
+	# run virus check on specified directory
+	timestamp = str(datetime.datetime.now())
+	print("\nRunning virus check on %s. This may take a few minutes." % source_dir)
+	clamAV_command = "clamscan -i -r %s | tee %s/%s_virusCheck.txt" % (source_dir, report_dir, sourcebase)
+	subprocess.call(clamAV_command, shell=True)
+        vc_File = "%s/%s_virusCheck.txt" % (report_dir, sourcebase)
+        # add timestamp
+        target = open(vc_File, 'a')
+        target.write("Date scanned: %s" % timestamp)
+        target.close()
+        # check log for infected files
+	if "Infected files: 0" not in open(vc_File).read():
+                raw_answer = raw_input("\nInfected file(s) found. Do you want to keep processing (y/n)?")
+                answer = str.lower(raw_answer)
+                if answer == "n":
+                        sys.exit()
+        else:
+                print("\nNo infections found in %s." % source_dir)
+
+def run_bulkExt(source_dir):
+        '''Run bulk extractor on directory'''
+        # run bulk extractor against specified directory if option is chosen
+        bulkExt_log = "%s/%s_bulkExt-log.txt" % (report_dir, sourcebase)
+        print("\nRunning Bulk Extractor on %s. This may take a few minutes." % source_dir)
+        try:
+                os.makedirs(bulkExt_dir)
+        except OSError as exception:
+                if exception.errno != errno.EEXIST:
+                        raise
+        bulkExt_command = "bulk_extractor -S ssn_mode=2 -o %s -R %s | tee %s" % (bulkExt_dir, source_dir, bulkExt_log)
+	subprocess.call(bulkExt_command, shell=True)
 
 def import_csv():
 	'''Import csv file into sqlite db'''
@@ -245,8 +279,10 @@ MAIN FLOW
 
 # parse arguments
 parser = argparse.ArgumentParser()
+parser.add_argument("-b", "--bulkextractor", help="Run Bulk Extractor on source", action="store_true")
 parser.add_argument("-d", "--diskimage", help="Use disk image instead of dir as input", action="store_true")
 parser.add_argument("--hfs", help="Use for raw disk images of HFS disks", action="store_true")
+parser.add_argument("-n", "--noclam", help="Skip ClamScan Virus Check", action="store_true")
 parser.add_argument("-r", "--removefiles", help="Delete 'carved_files' directory when done", action="store_true")
 parser.add_argument("source", help="Path to source directory or disk image")
 parser.add_argument("filename", help="Name of csv file to create")
@@ -260,8 +296,11 @@ siegfried_version = subprocess.check_output(["sf", "-version"])
 current_dir = os.getcwd()
 filename = args.filename
 basename = os.path.splitext(filename)[0]
+sourcename = os.path.realpath(args.source)
+sourcebase = os.path.basename(sourcename)
 report_dir = os.path.join(current_dir, '%s' % basename)
 csv_dir = os.path.join(report_dir, 'CSVs')
+bulkExt_dir = os.path.join(report_dir, 'bulkExt')
 sf_file = os.path.join(report_dir, filename)
 
 # create directory for reports
@@ -319,12 +358,26 @@ if args.diskimage == True: # source is a disk image
 			sys.exit()
 
 	# process tempdir
+	if args.noclam == False: # run clamAV virus check unless specified otherwise
+		run_clamAV(tempdir)
 	process_content(tempdir)
+	if args.bulkextractor == True: # bulk extractor option is chosen
+		run_bulkExt(tempdir)
 	if args.removefiles == True:
 		shutil.rmtree(tempdir)
 
+
 else: #source is a directory
+	if os.path.isdir(args.source) == False:
+		print("Source is not a Directory. If you're processing a disk image, place '-d' before source.\n")
+		sys.exit()
+	if args.noclam == False: # run clamAV virus check unless specified otherwise
+		run_clamAV(args.source)
 	process_content(args.source)
+	if args.bulkextractor == True: # bulk extractor option is chosen
+		run_bulkExt(args.source)
+
+ 
 
 # close files, connections
 html_file.close()
