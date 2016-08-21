@@ -446,21 +446,25 @@ if args.diskimage == True: # source is a disk image
 	# export disk image contents to tempdir
 	if args.hfs == True: # hfs disks
 		carvefiles = "bash /usr/share/hfsexplorer/bin/unhfs.sh -o '%s' '%s'" % (tempdir, args.source)
+		print("\nAttempting to carve files from disk image using HFS Explorer.")
 		try:
 			subprocess.call(carvefiles, shell=True)
+			print("\nFile carving successful.")
 		except subprocess.CalledProcessError as e:
 			print(e.output)
-			print("Brunnhilde was unable to export files from disk image. Ending process.")
+			print("\nBrunnhilde was unable to export files from disk image. Ending process.")
 			shutil.rmtree(report_dir)
 			sys.exit()
 
 	else: # non-hfs disks (note: no UDF support yet)
 		carvefiles = ['tsk_recover', '-a', args.source, tempdir]
+		print("\nAttempting to carve files from disk image using tsk_recover.")
 		try:
 			subprocess.check_output(carvefiles)
+			print("\nFile carving successful.")
 		except subprocess.CalledProcessError as e:
 			print(e.output)
-			print("Brunnhilde was unable to export files from disk image. Ending process.")
+			print("\nBrunnhilde was unable to export files from disk image. Ending process.")
 			shutil.rmtree(report_dir)
 			sys.exit()
 
