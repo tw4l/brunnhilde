@@ -470,9 +470,11 @@ if args.diskimage == True: # source is a disk image
 
 	# process tempdir
 	if args.noclam == False: # run clamAV virus check unless specified otherwise
+		print("\nRunning clamAV against files.")
 		run_clamav(tempdir)
 	process_content(tempdir)
 	if args.bulkextractor == True: # bulk extractor option is chosen
+		print("\nRunning bulk_extractor against files.")
 		run_bulkext(tempdir)
 		write_html('Personally Identifiable Information (PII)', '%s/pii.txt' % bulkext_dir, '\t')
 	if args.removefiles == True:
@@ -481,12 +483,14 @@ if args.diskimage == True: # source is a disk image
 
 else: #source is a directory
 	if os.path.isdir(args.source) == False:
-		print("Source is not a Directory. If you're processing a disk image, place '-d' before source.\n")
+		print("\nSource is not a Directory. If you're processing a disk image, place '-d' before source.")
 		sys.exit()
 	if args.noclam == False: # run clamAV virus check unless specified otherwise
+		print("\nRunning clamAV against files.")
 		run_clamav(args.source)
 	process_content(args.source)
 	if args.bulkextractor == True: # bulk extractor option is chosen
+		print("\nRunning bulk_extractor against files.")
 		run_bulkext(args.source)
 		write_html('Personally Identifiable Information (PII)', '%s/pii.txt' % bulkext_dir, '\t')
 
