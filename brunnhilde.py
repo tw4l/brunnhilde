@@ -513,4 +513,4 @@ os.remove(temp_html)
 cursor.close()
 conn.close()
 
-print("Process complete. Reports in %s." % report_dir)
+print("\nProcess complete. Reports in %s." % report_dir)
