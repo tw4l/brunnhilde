@@ -75,7 +75,7 @@ To enable scanning of files with Bulk_Extractor, pass '-b' or '--bulkextractor' 
 
 ### Using disk images as input  
 
-In -d mode, Brunnhilde uses SleuthKit's tsk_recover to export files from a disk image into a "carved files" directory for analysis. This works with raw (dd) images by default. In Bitcurator or any other environment where libewf has been compiled into SleuthKit, Brunnhilde's -d mode also supports forensic disk image formats, including aff and ewf (E01). Due to the limitations of SleuthKit, Brunnhilde does not yet support characterizing disks that use the UDF filesystem.  
+In -d mode, Brunnhilde uses SleuthKit's tsk_recover to export files from a disk image into a "carved files" directory for analysis. This works with raw images by default. In Bitcurator or any other environment where libewf has been compiled into SleuthKit, Brunnhilde's -d mode also supports forensic disk image formats, including aff and ewf (E01). Due to the limitations of SleuthKit, Brunnhilde does not yet support characterizing disks that use the UDF filesystem.  
 
 To characterize HFS formatted disks, pass both the "-d" and "--hfs" flags as arguments to Brunnhilde, and be sure to use a raw disk image as the source (HFSExplorer is unable to process forensically packaged disk images). This functionality works best in Bitcurator. Non-Bitcurator environments will require you to install additional dependencies (HFSExplorer and Java) and to configure some Brunnhilde settings, such as the path to the "unhfs.sh" script and potentially the options being passed to it.  
 
