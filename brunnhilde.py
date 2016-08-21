@@ -41,7 +41,7 @@ def run_siegfried(source_dir):
 	if args.throttle == True:
 		sf_command = sf_command.replace('-csv -hash', '-csv -throttle 10ms -hash')
 	subprocess.call(sf_command, shell=True)
-	print("\nCharacterization complete. Processing results.\n")
+	print("\nCharacterization complete. Processing results.")
 	return sf_command
 
 def run_clamav(source_dir):
@@ -105,16 +105,16 @@ def get_stats(source_dir, scan_started):
 	cursor.execute("SELECT COUNT(*) from siegfried;") # total files
 	num_files = cursor.fetchone()[0]
 
-	cursor.execute("SELECT COUNT(DISTINCT md5) from siegfried where filesize<>'0';") # distinct files
+	cursor.execute("SELECT COUNT(DISTINCT md5) from siegfried WHERE filesize<>'0';") # distinct files
 	distinct_files = cursor.fetchone()[0]
 
 	cursor.execute("SELECT COUNT(*) from siegfried where filesize='0';") # empty files
 	empty_files = cursor.fetchone()[0]
 
-	cursor.execute("SELECT COUNT(md5) FROM siegfried t1 WHERE EXISTS (SELECT 1 from siegfried t2 WHERE t2.md5 = t1.md5 AND t1.filename != t2.filename)") # duplicates
+	cursor.execute("SELECT COUNT(md5) FROM siegfried t1 WHERE EXISTS (SELECT 1 from siegfried t2 WHERE t2.md5 = t1.md5 AND t1.filename != t2.filename) AND filesize<>'0'") # duplicates
 	all_dupes = cursor.fetchone()[0]
 
-	cursor.execute("SELECT COUNT(DISTINCT md5) FROM siegfried t1 WHERE EXISTS (SELECT 1 from siegfried t2 WHERE t2.md5 = t1.md5 AND t1.filename != t2.filename)") # distinct duplicates
+	cursor.execute("SELECT COUNT(DISTINCT md5) FROM siegfried t1 WHERE EXISTS (SELECT 1 from siegfried t2 WHERE t2.md5 = t1.md5 AND t1.filename != t2.filename) AND filesize<>'0'") # distinct duplicates
 	distinct_dupes = cursor.fetchone()[0]
 
 	duplicate_copies = int(all_dupes) - int(distinct_dupes) # number of duplicate copies of unique files
@@ -198,12 +198,12 @@ def get_stats(source_dir, scan_started):
 	html.write('\n<p>Years (last modified): %s - %s</p>' % (begin_date, end_date))
 	html.write('\n<p>Earliest date: %s</p>' % earliest_date)
 	html.write('\n<p>Latest date: %s</p>' % latest_date)
-	html.write('\n<h3>File contents</h3>')
-	html.write('\n<p>Distinct files*: %s</p>' % distinct_files)
-	html.write('\n<p>Empty files: %s</p>' % empty_files)
+	html.write('\n<h3>File contents*</h3>')
+	html.write('\n<p>Distinct files: %s</p>' % distinct_files)
 	html.write('\n<p>Distinct files that have duplicates: %s</p>' % distinct_dupes)
 	html.write('\n<p>Duplicate copies of distinct files: %s</p>' % duplicate_copies)
-	html.write('\n<p>*<em>Count of non-empty files with unique md5 hash values. Count includes one instance of each duplicated file.</em></p>')
+	html.write('\n<p>Empty files: %s</p>' % empty_files)
+	html.write('\n<p>*<em>Calculated by md5 hash. Empty files are not counted in first three categories. Total files = distinct files + duplicate copies + empty files.</em></p>')
 	html.write('\n<h3>Format identification</h3>')
 	html.write('\n<p>Identified file formats: %s</p>' % num_formats)
 	html.write('\n<p>Unidentified files: %s</p>' % unidentified_files)
@@ -275,7 +275,7 @@ def generate_reports():
 	write_html('Errors', path, ',')
 
 	# duplicates report
-	sql = "SELECT * FROM siegfried t1 WHERE EXISTS (SELECT 1 from siegfried t2 WHERE t2.md5 = t1.md5 AND t1.filename != t2.filename) ORDER BY md5;"
+	sql = "SELECT * FROM siegfried t1 WHERE EXISTS (SELECT 1 from siegfried t2 WHERE t2.md5 = t1.md5 AND t1.filename != t2.filename) AND filesize<>'0' ORDER BY md5;"
 	path = os.path.join(csv_dir, 'duplicates.csv')
 	sqlite_to_csv(sql, path, full_header)
 	write_html('Duplicates', path, ',')
@@ -470,11 +470,9 @@ if args.diskimage == True: # source is a disk image
 
 	# process tempdir
 	if args.noclam == False: # run clamAV virus check unless specified otherwise
-		print("\nRunning clamAV against files.")
 		run_clamav(tempdir)
 	process_content(tempdir)
 	if args.bulkextractor == True: # bulk extractor option is chosen
-		print("\nRunning bulk_extractor against files.")
 		run_bulkext(tempdir)
 		write_html('Personally Identifiable Information (PII)', '%s/pii.txt' % bulkext_dir, '\t')
 	if args.removefiles == True:
@@ -486,11 +484,9 @@ else: #source is a directory
 		print("\nSource is not a Directory. If you're processing a disk image, place '-d' before source.")
 		sys.exit()
 	if args.noclam == False: # run clamAV virus check unless specified otherwise
-		print("\nRunning clamAV against files.")
 		run_clamav(args.source)
 	process_content(args.source)
 	if args.bulkextractor == True: # bulk extractor option is chosen
-		print("\nRunning bulk_extractor against files.")
 		run_bulkext(args.source)
 		write_html('Personally Identifiable Information (PII)', '%s/pii.txt' % bulkext_dir, '\t')
 
