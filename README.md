@@ -4,7 +4,7 @@
 
 Generates aggregate reports of files in a directory or disk image based on input from Richard Lehane's [Siegfried](http://www.itforarchivists.com/siegfried).  
 
-Brunnhilde runs Siegfried against a specified directory or disk image, loads the results into a sqlite3 database, and queries the database to generate reports to aid in triage, arrangement, and description of digital archives. The program will also check for viruses unless specified otherwise, and will optionally run Bulk_Extractor against the given source. Outputs include:  
+Brunnhilde runs Siegfried against a specified directory or disk image, loads the results into a sqlite3 database, and queries the database to generate reports to aid in triage, arrangement, and description of digital archives. The program will also check for viruses unless specified otherwise, and will optionally run bulk_extractor against the given source. Outputs include:  
 
 * "*basename*.html": Includes some provenance information on the scan itself, aggregate statistics for the material as a whole (number of files, begin and end dates, number of unique vs. duplicate files, etc.), and detailed reports on content found (file formats, file format versions, MIME types, last modified dates by year, unidentified files, Siegfried warnings, Siegfried errors, duplicate files, and -optionally - potential personal identifiable information found by bulk_extractor). Named after basename passed to Brunnhilde as last argument.  
 * "bulk_extractor" folder: Contains bulk_extractor outputs (if selected).  
@@ -37,7 +37,7 @@ positional arguments:
   
 optional arguments:  
   -h, --help           show this help message and exit  
-  -b, --bulkextractor  Run Bulk Extractor on source  
+  -b, --bulkextractor  Run bulk_extractor on source  
   -d, --diskimage      Use disk image instead of dir as input  
   --hfs                Use for raw disk images of HFS disks  
   -n, --noclam         Skip ClamScan Virus Check  
@@ -69,9 +69,9 @@ To enable scanning of archive files (zip, tar, gzip, warc, arc), pass '-z' or '-
 
 To force Siegfried to pause for 1 second between file scans, pass '-t' or '--throttle' as arguments to Brunnhilde.  
 
-### Bulk_Extractor  
+### bulk_extractor  
 
-To enable scanning of files with Bulk_Extractor, pass '-b' or '--bulkextractor' as arguments. This is disabled by default. Results are written to a 'bulk_extractor' sub-directory. In addition, running Bulk_Extractor adds a "Personal Identifiable Information (PII)" section to the HTML report to enable quick scanning of these results.  
+To enable scanning of files with bulk_extractor, pass '-b' or '--bulkextractor' as arguments. This is disabled by default. Results are written to a 'bulk_extractor' sub-directory. In addition, running bulk_extractor adds a "Personal Identifiable Information (PII)" section to the HTML report to enable quick scanning of these results.  
 
 ### Using disk images as input  
 
@@ -89,7 +89,7 @@ All dependencies are already installed in Bitcurator. See instructions below for
 * Python 2.7
 * [Siegfried](http://www.itforarchivists.com/siegfried): Brunnhilde is now compatible with all version of Siegfried, including 1.6.1. It does not yet have support for MIME-Info or FDD signatures: for Brunnhilde to work, Siegfried must be using the PRONOM signature file only. If you have been using MIME-Info or FDD signatures as a replacement for or alongside PRONOM with Siegfried 1.5/1.6 on your machine, entering "roy build" in the terminal should return you to Siegfried's default PRONOM-only identification mode and allow Brunnhilde to work properly.  
 * tree: Installed by default in most Linux distros. On OS X, install using [Homebrew](http://brewformulas.org/tree). If tree is not installed on your machine, a blank tree.txt file will be created instead.  
-* [Bulk_Extractor](https://github.com/simsong/bulk_extractor): Can be built on Linux and OS X from source distribution found [here](https://github.com/simsong/bulk_extractor) or installed using [Homebrew](http://brewformulas.org/BulkExtractor).  
+* [bulk_extractor](https://github.com/simsong/bulk_extractor): Can be built on Linux and OS X from source distribution found [here](https://github.com/simsong/bulk_extractor) or installed using [Homebrew](http://brewformulas.org/BulkExtractor).  
 * [ClamAV](https://www.clamav.net): Brunnhilde checks for viruses using ClamAV, which can be built from the source distribution found at [clamav.net](http://clamav.net) or using [Homebrew](http://brewformulas.org/Clamav).   
 
 #### To process disk images  
@@ -104,7 +104,7 @@ All dependencies are already installed in Bitcurator. See instructions below for
 
 ### Thanks
 
-Thank you to Richard Lehane for writing Siegfried, Ross Spencer for ideas and help, Kevin Powell for suggesting the additions of ClamAV and Bulk_Extractor and writing the initial code to integrate these tools, and to the PRONOM team at the UK National Archives for building and maintaining such a wonderful tool.  
+Thank you to Richard Lehane for writing Siegfried, Ross Spencer for ideas and help, Kevin Powell for suggesting the additions of ClamAV and bulk_extractor and writing the initial code to integrate these tools, and to the PRONOM team at the UK National Archives for building and maintaining such a wonderful tool.  
 
 ### Licensing  
 
