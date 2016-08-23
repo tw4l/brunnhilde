@@ -83,7 +83,7 @@ By default, Brunnhilde will keep a copy of the files exported from disk images i
 
 ### Dependencies  
 
-General note: All dependencies are already installed in Bitcurator. See instructions below for installing dependencies if you wish to use Brunnhilde in a different OS X or Linux environment.  
+All dependencies are already installed in Bitcurator. See instructions below for installing dependencies if you wish to use Brunnhilde in OS X or a different Linux environment.  
 
 #### General  
 * Python 2.7
