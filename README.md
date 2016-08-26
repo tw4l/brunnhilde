@@ -101,6 +101,7 @@ All dependencies are already installed in Bitcurator. See instructions below for
 * Add ability to use MIME-Info signature files (alone or alongside PRONOM) with Siegfried 1.5+  
 * Add ability to use FDD signature files (alone or alongside PRONOM) with Siegfried 1.6+  
 * Add support for disk images of DVDs using UDF file system    
+* GUI  
 
 ### Thanks
 
