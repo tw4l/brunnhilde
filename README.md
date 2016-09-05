@@ -1,8 +1,10 @@
 ## Brunnhilde - A reporting companion to Siegfried  
 
-### Version: Brunnhilde v1.0.0  
+### Version: Brunnhilde v1.1.0  
 
 Generates aggregate reports of files in a directory or disk image based on input from Richard Lehane's [Siegfried](http://www.itforarchivists.com/siegfried).  
+
+For the graphical user interface (GUI) version of Brunnhilde, see: https://github.com/timothyryanwalsh/brunnhilde  
 
 Brunnhilde runs Siegfried against a specified directory or disk image, loads the results into a sqlite3 database, and queries the database to generate reports to aid in triage, arrangement, and description of digital archives. The program will also check for viruses unless specified otherwise, and will optionally run bulk_extractor against the given source. Outputs include:  
 
@@ -28,25 +30,27 @@ For a more detailed explanation of how multiple identifications are handled by S
 ### Running Brunnhilde  
 
 ```  
-usage: brunnhilde.py [-h] [-b] [-d] [--hfs] [-n] [-r] [-t] [-v] [-z] source basename  
+usage: brunnhilde.py [-h] [-b] [-d] [--hfs] [-n] [-r] [-t] [-v] [-z]
+                     source destination basename
 
-positional arguments:  
-  source               Path to source directory or disk image  
+positional arguments:
+  source               Path to source directory or disk image
+  destination          Path to destination for reports
   basename             Accession number or identifier, used as basename for
-                       outputs  
-  
-optional arguments:  
-  -h, --help           show this help message and exit  
-  -b, --bulkextractor  Run bulk_extractor on source  
-  -d, --diskimage      Use disk image instead of dir as input  
-  --hfs                Use for raw disk images of HFS disks  
-  -n, --noclam         Skip ClamScan Virus Check  
+                       outputs
+
+optional arguments:
+  -h, --help           show this help message and exit
+  -b, --bulkextractor  Run Bulk Extractor on source
+  -d, --diskimage      Use disk image instead of dir as input
+  --hfs                Use for raw disk images of HFS disks
+  -n, --noclam         Skip ClamScan Virus Check
   -r, --removefiles    Delete 'carved_files' directory when done (disk image
-                       input only)  
-  -t, --throttle       Pause for 1s between Siegfried scans  
-  -v, --version        Display Brunnhilde version  
+                       input only)
+  -t, --throttle       Pause for 1s between Siegfried scans
+  -v, --version        Display Brunnhilde version
   -z, --scanarchives   Decompress and scan zip, tar, gzip, warc, arc with
-                       Siegfried  
+                       Siegfried
 ```  
   
 For file paths containing spaces in directory names, enclose the entire path in '' or "" quotes.  
@@ -59,7 +63,7 @@ To disable virus scanning, pass '-n' or'--noclam' as arguments to Brunnhilde.
 
 ### Siegfried options  
 
-By default, Brunnhilde v1.0.0 uses the following Siegfried command:  
+By default, Brunnhilde v1.1.0 uses the following Siegfried command:  
 
 ```  
 sf -csv -hash md5 DIR > CSV  
@@ -101,7 +105,6 @@ All dependencies are already installed in Bitcurator. See instructions below for
 * Add ability to use MIME-Info signature files (alone or alongside PRONOM) with Siegfried 1.5+  
 * Add ability to use FDD signature files (alone or alongside PRONOM) with Siegfried 1.6+  
 * Add support for disk images of DVDs using UDF file system    
-* GUI  
 
 ### Thanks
 
