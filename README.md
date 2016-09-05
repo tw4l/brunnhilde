@@ -1,6 +1,6 @@
 ## Brunnhilde - A reporting companion to Siegfried  
 
-### Version: Brunnhilde v1.2.0
+### Version: Brunnhilde v1.3.0
 
 Generates aggregate reports of files in a directory or disk image based on input from Richard Lehane's [Siegfried](http://www.itforarchivists.com/siegfried).  
 
