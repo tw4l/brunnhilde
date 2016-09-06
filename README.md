@@ -31,6 +31,8 @@ For a more detailed explanation of how multiple identifications are handled by S
 
 Download tar.gz or .zip from Brunnhilde repository and extract to location of your choice.  
 
+For usage with Brunnhilde GUI in Bitcurator and other Debian/Ubuntu environments, save 'brunnhilde' folder (which includes brunnhilde.py) to /usr/share/.  
+
 ### Running Brunnhilde  
 
 ```  
