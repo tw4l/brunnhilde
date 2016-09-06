@@ -1,6 +1,6 @@
 ## Brunnhilde - A reporting companion to Siegfried  
 
-### Version: Brunnhilde v1.1.4
+### Version: Brunnhilde v1.1.0
 
 Generates aggregate reports of files in a directory or disk image based on input from Richard Lehane's [Siegfried](http://www.itforarchivists.com/siegfried).  
 
@@ -76,7 +76,7 @@ To disable virus scanning, pass '-n' or'--noclam' as arguments to Brunnhilde.
 
 ### Siegfried options  
 
-By default, Brunnhilde v1.1.4 uses the following Siegfried command:  
+By default, Brunnhilde v1.1.0 uses the following Siegfried command:  
 
 ```  
 sf -csv -hash md5 DIR > CSV  
