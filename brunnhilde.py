@@ -367,155 +367,150 @@ def process_content(source_dir):
     close_html() # close HTML file tags
     make_tree(source_dir) # create tree.txt
 
-def _make_parser():
+""" 
+MAIN FLOW
+"""
+
+# system info
+brunnhilde_version = 'v1.1.0'
+siegfried_version = subprocess.check_output(["sf", "-version"])
+
+# parse arguments
+parser = argparse.ArgumentParser()
+parser.add_argument("-b", "--bulkextractor", help="Run Bulk Extractor on source", action="store_true")
+parser.add_argument("-d", "--diskimage", help="Use disk image instead of dir as input", action="store_true")
+parser.add_argument("--hfs", help="Use for raw disk images of HFS disks", action="store_true")
+parser.add_argument("-n", "--noclam", help="Skip ClamScan Virus Check", action="store_true")
+parser.add_argument("-r", "--removefiles", help="Delete 'carved_files' directory when done (disk image input only)", action="store_true")
+parser.add_argument("-t", "--throttle", help="Pause for 1s between Siegfried scans", action="store_true")
+parser.add_argument("-v", "--version", help="Display Brunnhilde version", action="version", version="Brunnhilde %s" % brunnhilde_version)
+parser.add_argument("-z", "--scanarchives", help="Decompress and scan zip, tar, gzip, warc, arc with Siegfried", action="store_true")
+parser.add_argument("source", help="Path to source directory or disk image")
+parser.add_argument("destination", help="Path to destination for reports")
+parser.add_argument("basename", help="Accession number or identifier, used as basename for outputs")
+args = parser.parse_args()
+
+# global variables
+destination = args.destination
+basename = args.basename
+report_dir = os.path.join(destination, '%s' % basename)
+csv_dir = os.path.join(report_dir, 'csv_reports')
+log_dir = os.path.join(report_dir, 'logs')
+bulkext_dir = os.path.join(report_dir, 'bulk_extractor')
+sf_file = os.path.join(report_dir, 'siegfried.csv')
+
+# create directory for reports
+try:
+    os.makedirs(report_dir)
+except OSError as exception:
+    if exception.errno != errno.EEXIST:
+        raise
     
+# create subdirectory for CSV reports
+try:
+    os.makedirs(csv_dir)
+except OSError as exception:
+    if exception.errno != errno.EEXIST:
+        raise
 
-    return parser
-
-def main():
-    # system info
-    brunnhilde_version = 'v1.1.0'
-    siegfried_version = subprocess.check_output(["sf", "-version"])
-    
-    # parse arguments
-    parser = argparse.ArgumentParser()
-    parser.add_argument("-b", "--bulkextractor", help="Run Bulk Extractor on source", action="store_true")
-    parser.add_argument("-d", "--diskimage", help="Use disk image instead of dir as input", action="store_true")
-    parser.add_argument("--hfs", help="Use for raw disk images of HFS disks", action="store_true")
-    parser.add_argument("-n", "--noclam", help="Skip ClamScan Virus Check", action="store_true")
-    parser.add_argument("-r", "--removefiles", help="Delete 'carved_files' directory when done (disk image input only)", action="store_true")
-    parser.add_argument("-t", "--throttle", help="Pause for 1s between Siegfried scans", action="store_true")
-    parser.add_argument("-v", "--version", help="Display Brunnhilde version", action="version", version="Brunnhilde %s" % brunnhilde_version)
-    parser.add_argument("-z", "--scanarchives", help="Decompress and scan zip, tar, gzip, warc, arc with Siegfried", action="store_true")
-    parser.add_argument("source", help="Path to source directory or disk image")
-    parser.add_argument("destination", help="Path to destination for reports")
-    parser.add_argument("basename", help="Accession number or identifier, used as basename for outputs")
-    args = parser.parse_args()
-
-    # global variables
-    destination = args.destination
-    basename = args.basename
-    report_dir = os.path.join(destination, '%s' % basename)
-    csv_dir = os.path.join(report_dir, 'csv_reports')
-    log_dir = os.path.join(report_dir, 'logs')
-    bulkext_dir = os.path.join(report_dir, 'bulk_extractor')
-    sf_file = os.path.join(report_dir, 'siegfried.csv')
-
-    # create directory for reports
+# create subdirectory for logs if needed
+if args.bulkextractor == False and args.noclam == True:
+    pass
+else:
     try:
-        os.makedirs(report_dir)
+        os.makedirs(log_dir)
     except OSError as exception:
         if exception.errno != errno.EEXIST:
             raise
-        
-    # create subdirectory for CSV reports
+
+# create html report
+temp_html = os.path.join(report_dir, 'temp.html')
+html = open(temp_html, 'wb')
+
+# open sqlite db
+db = os.path.join(report_dir, 'siegfried.sqlite')
+conn = sqlite3.connect(db)
+conn.text_factory = str  # allows utf-8 data to be stored
+cursor = conn.cursor()
+
+# characterize source
+if args.diskimage == True: # source is a disk image
+    # make tempdir
+    tempdir = os.path.join(report_dir, 'carved_files')
     try:
-        os.makedirs(csv_dir)
+        os.makedirs(tempdir)
     except OSError as exception:
         if exception.errno != errno.EEXIST:
             raise
 
-    # create subdirectory for logs if needed
-    if args.bulkextractor == False and args.noclam == True:
-        pass
-    else:
+    # export disk image contents to tempdir
+    if args.hfs == True: # hfs disks
+        carvefiles = "bash /usr/share/hfsexplorer/bin/unhfs.sh -o '%s' '%s'" % (tempdir, args.source)
+        print("\nAttempting to carve files from disk image using HFS Explorer.")
         try:
-            os.makedirs(log_dir)
-        except OSError as exception:
-            if exception.errno != errno.EEXIST:
-                raise
-
-    # create html report
-    temp_html = os.path.join(report_dir, 'temp.html')
-    html = open(temp_html, 'wb')
-
-    # open sqlite db
-    db = os.path.join(report_dir, 'siegfried.sqlite')
-    conn = sqlite3.connect(db)
-    conn.text_factory = str  # allows utf-8 data to be stored
-    cursor = conn.cursor()
-
-    # characterize source
-    if args.diskimage == True: # source is a disk image
-        # make tempdir
-        tempdir = os.path.join(report_dir, 'carved_files')
-        try:
-            os.makedirs(tempdir)
-        except OSError as exception:
-            if exception.errno != errno.EEXIST:
-                raise
-
-        # export disk image contents to tempdir
-        if args.hfs == True: # hfs disks
-            carvefiles = "bash /usr/share/hfsexplorer/bin/unhfs.sh -o '%s' '%s'" % (tempdir, args.source)
-            print("\nAttempting to carve files from disk image using HFS Explorer.")
-            try:
-                subprocess.call(carvefiles, shell=True)
-                print("\nFile carving successful.")
-            except subprocess.CalledProcessError as e:
-                print(e.output)
-                print("\nBrunnhilde was unable to export files from disk image. Ending process.")
-                shutil.rmtree(report_dir)
-                sys.exit()
-
-        else: # non-hfs disks (note: no UDF support yet)
-            carvefiles = ['tsk_recover', '-a', args.source, tempdir]
-            print("\nAttempting to carve files from disk image using tsk_recover.")
-            try:
-                subprocess.check_output(carvefiles)
-                print("\nFile carving successful.")
-            except subprocess.CalledProcessError as e:
-                print(e.output)
-                print("\nBrunnhilde was unable to export files from disk image. Ending process.")
-                shutil.rmtree(report_dir)
-                sys.exit()
-
-        # process tempdir
-        if args.noclam == False: # run clamAV virus check unless specified otherwise
-            run_clamav(tempdir)
-        process_content(tempdir)
-        if args.bulkextractor == True: # bulk extractor option is chosen
-            run_bulkext(tempdir)
-            write_html('Personally Identifiable Information (PII)', '%s/pii.txt' % bulkext_dir, '\t')
-        if args.removefiles == True:
-            shutil.rmtree(tempdir)
-
-
-    else: #source is a directory
-        if os.path.isdir(args.source) == False:
-            print("\nSource is not a Directory. If you're processing a disk image, place '-d' before source.")
+            subprocess.call(carvefiles, shell=True)
+            print("\nFile carving successful.")
+        except subprocess.CalledProcessError as e:
+            print(e.output)
+            print("\nBrunnhilde was unable to export files from disk image. Ending process.")
+            shutil.rmtree(report_dir)
             sys.exit()
-        if args.noclam == False: # run clamAV virus check unless specified otherwise
-            run_clamav(args.source)
-        process_content(args.source)
-        if args.bulkextractor == True: # bulk extractor option is chosen
-            run_bulkext(args.source)
-            write_html('Personally Identifiable Information (PII)', '%s/pii.txt' % bulkext_dir, '\t')
 
-    # close HTML file
-    html.close()
+    else: # non-hfs disks (note: no UDF support yet)
+        carvefiles = ['tsk_recover', '-a', args.source, tempdir]
+        print("\nAttempting to carve files from disk image using tsk_recover.")
+        try:
+            subprocess.check_output(carvefiles)
+            print("\nFile carving successful.")
+        except subprocess.CalledProcessError as e:
+            print(e.output)
+            print("\nBrunnhilde was unable to export files from disk image. Ending process.")
+            shutil.rmtree(report_dir)
+            sys.exit()
 
-    # write new html file, with hrefs for PRONOM IDs
-    new_html = os.path.join(report_dir, '%s.html' % basename)
-    with open(temp_html, 'rb') as in_file:
-        with open(new_html, 'wb') as out_file:
-            for line in in_file:
-                if line.startswith('<td>x-fmt/') or line.startswith('<td>fmt/'):
-                    puid = line.replace('<td>', '')
-                    puid = puid.replace('</td>', '')
-                    newline = '<td><a href="http://apps.nationalarchives.gov.uk/PRONOM/%s" target="_blank">%s</a></td>' % (puid, puid)
-                    out_file.write(newline)
-                else:
-                    out_file.write(line)
+    # process tempdir
+    if args.noclam == False: # run clamAV virus check unless specified otherwise
+        run_clamav(tempdir)
+    process_content(tempdir)
+    if args.bulkextractor == True: # bulk extractor option is chosen
+        run_bulkext(tempdir)
+        write_html('Personally Identifiable Information (PII)', '%s/pii.txt' % bulkext_dir, '\t')
+    if args.removefiles == True:
+        shutil.rmtree(tempdir)
 
-    # remove temp html file
-    os.remove(temp_html)
 
-    # close database connections
-    cursor.close()
-    conn.close()
+else: #source is a directory
+    if os.path.isdir(args.source) == False:
+        print("\nSource is not a Directory. If you're processing a disk image, place '-d' before source.")
+        sys.exit()
+    if args.noclam == False: # run clamAV virus check unless specified otherwise
+        run_clamav(args.source)
+    process_content(args.source)
+    if args.bulkextractor == True: # bulk extractor option is chosen
+        run_bulkext(args.source)
+        write_html('Personally Identifiable Information (PII)', '%s/pii.txt' % bulkext_dir, '\t')
 
-    print("\nProcess complete. Reports in %s." % report_dir)
+# close HTML file
+html.close()
 
-if __name__ == '__main__':
-    main()
+# write new html file, with hrefs for PRONOM IDs
+new_html = os.path.join(report_dir, '%s.html' % basename)
+with open(temp_html, 'rb') as in_file:
+    with open(new_html, 'wb') as out_file:
+        for line in in_file:
+            if line.startswith('<td>x-fmt/') or line.startswith('<td>fmt/'):
+                puid = line.replace('<td>', '')
+                puid = puid.replace('</td>', '')
+                newline = '<td><a href="http://apps.nationalarchives.gov.uk/PRONOM/%s" target="_blank">%s</a></td>' % (puid, puid)
+                out_file.write(newline)
+            else:
+                out_file.write(line)
+
+# remove temp html file
+os.remove(temp_html)
+
+# close database connections
+cursor.close()
+conn.close()
+
+print("\nProcess complete. Reports in %s." % report_dir)
