@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-Brunnhilde v1.1.4
+Brunnhilde v1.1.0
 ---
 
 A Siegfried-based digital archives reporting tool
@@ -374,7 +374,7 @@ def _make_parser():
 
 def main():
     # system info
-    brunnhilde_version = 'v1.1.4'
+    brunnhilde_version = 'v1.1.0'
     siegfried_version = subprocess.check_output(["sf", "-version"])
     
     # parse arguments
