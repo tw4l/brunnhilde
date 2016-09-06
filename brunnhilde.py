@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-Brunnhilde v1.1.3
+Brunnhilde v1.1.4
 ---
 
 A Siegfried-based digital archives reporting tool
@@ -367,13 +367,7 @@ def process_content(source_dir):
     close_html() # close HTML file tags
     make_tree(source_dir) # create tree.txt
 
-def main():
-
-    # system info
-    brunnhilde_version = 'v1.1.3'
-    siegfried_version = subprocess.check_output(["sf", "-version"])
-
-    # parse arguments
+def _make_parser():
     parser = argparse.ArgumentParser()
     parser.add_argument("-b", "--bulkextractor", help="Run Bulk Extractor on source", action="store_true")
     parser.add_argument("-d", "--diskimage", help="Use disk image instead of dir as input", action="store_true")
@@ -386,6 +380,16 @@ def main():
     parser.add_argument("source", help="Path to source directory or disk image")
     parser.add_argument("destination", help="Path to destination for reports")
     parser.add_argument("basename", help="Accession number or identifier, used as basename for outputs")
+
+    return parser
+
+def main():
+    # system info
+    brunnhilde_version = 'v1.1.4'
+    siegfried_version = subprocess.check_output(["sf", "-version"])
+
+    # parse arguments
+    parser = _make_parser()
     args = parser.parse_args()
 
     # global variables
