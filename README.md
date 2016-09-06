@@ -4,7 +4,7 @@
 
 Generates aggregate reports of files in a directory or disk image based on input from Richard Lehane's [Siegfried](http://www.itforarchivists.com/siegfried).  
 
-For the graphical user interface (GUI) version of Brunnhilde, see: https://github.com/timothyryanwalsh/brunnhildegui  
+For the graphical user interface (GUI) version of Brunnhilde, see [Brunnhilde GUI](https://github.com/timothyryanwalsh/brunnhilde-gui).   
 
 Brunnhilde runs Siegfried against a specified directory or disk image, loads the results into a sqlite3 database, and queries the database to generate reports to aid in triage, arrangement, and description of digital archives. The program will also check for viruses unless specified otherwise, and will optionally run bulk_extractor against the given source. Outputs include:  
 
