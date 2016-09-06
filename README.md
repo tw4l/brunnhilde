@@ -34,10 +34,10 @@ Install with PyPI by entering the following in a terminal:
 pip install brunnhilde
 ```  
 
-Once Brunnhilde is installed, you can call it with:  
+Once Brunnhilde is installed, you should have a command line utility that can be called as follows:   
 
 ```  
-python brunnhilde.py [OPTIONS]
+brunnhilde.py [OPTIONS]
 ```  
 
 ### Running Brunnhilde  
