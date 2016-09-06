@@ -29,16 +29,7 @@ For a more detailed explanation of how multiple identifications are handled by S
 
 ### Installation  
 
-Install with PyPI by entering the following in a terminal:  
-```  
-pip install brunnhilde
-```  
-
-Once Brunnhilde is installed, you should have a command line utility that can be called as follows:   
-
-```  
-brunnhilde.py [OPTIONS]
-```  
+Download tar.gz or .zip from Brunnhilde repository and extract to location of your choice.  
 
 ### Running Brunnhilde  
 
