@@ -368,6 +368,16 @@ def process_content(source_dir):
     make_tree(source_dir) # create tree.txt
 
 def _make_parser():
+    
+
+    return parser
+
+def main():
+    # system info
+    brunnhilde_version = 'v1.1.4'
+    siegfried_version = subprocess.check_output(["sf", "-version"])
+    
+    # parse arguments
     parser = argparse.ArgumentParser()
     parser.add_argument("-b", "--bulkextractor", help="Run Bulk Extractor on source", action="store_true")
     parser.add_argument("-d", "--diskimage", help="Use disk image instead of dir as input", action="store_true")
@@ -380,17 +390,7 @@ def _make_parser():
     parser.add_argument("source", help="Path to source directory or disk image")
     parser.add_argument("destination", help="Path to destination for reports")
     parser.add_argument("basename", help="Accession number or identifier, used as basename for outputs")
-
-    return parser
-
-def main():
-    # parse arguments
-    parser = _make_parser()
     args = parser.parse_args()
-    
-    # system info
-    brunnhilde_version = 'v1.1.4'
-    siegfried_version = subprocess.check_output(["sf", "-version"])
 
     # global variables
     destination = args.destination
