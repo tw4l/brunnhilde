@@ -384,13 +384,13 @@ def _make_parser():
     return parser
 
 def main():
-    # system info
-    brunnhilde_version = 'v1.1.4'
-    siegfried_version = subprocess.check_output(["sf", "-version"])
-
     # parse arguments
     parser = _make_parser()
     args = parser.parse_args()
+    
+    # system info
+    brunnhilde_version = 'v1.1.4'
+    siegfried_version = subprocess.check_output(["sf", "-version"])
 
     # global variables
     destination = args.destination
