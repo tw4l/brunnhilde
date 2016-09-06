@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-Brunnhilde v1.1.0
+Brunnhilde v1.1.2
 ---
 
 A Siegfried-based digital archives reporting tool
@@ -370,7 +370,7 @@ def process_content(source_dir):
 def main():
 
     # system info
-    brunnhilde_version = 'v1.1.0'
+    brunnhilde_version = 'v1.1.2'
     siegfried_version = subprocess.check_output(["sf", "-version"])
 
     # parse arguments
