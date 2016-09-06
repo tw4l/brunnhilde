@@ -29,9 +29,13 @@ For a more detailed explanation of how multiple identifications are handled by S
 
 ### Installation  
 
-Download tar.gz or .zip from Brunnhilde repository and extract to location of your choice.  
+* Download tar.gz or .zip from Brunnhilde repository and extract to location of your choice.  
 
-For usage with Brunnhilde GUI in Bitcurator and other Debian/Ubuntu environments, save brunnhilde.py to /usr/share/brunnhilde/brunnhilde.py.  
+For usage in Bitcurator with the Brunnhilde GUI:  
+* Create directory /usr/share/brunnhilde:  
+`sudo mkdir /usr/share/brunnhilde`  
+* Move brunnhilde.py to /usr/share/brunnhilde:  
+`sudo mv /path/to/brunnhilde.py /usr/share/brunnhilde`  
 
 ### Running Brunnhilde  
 
