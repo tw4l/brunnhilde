@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-Brunnhilde v1.1.0
+Brunnhilde v1.1.1
 ---
 
 A Siegfried-based digital archives reporting tool
@@ -373,7 +373,7 @@ MAIN FLOW
 """
 
 # system info
-brunnhilde_version = 'v1.1.0'
+brunnhilde_version = 'v1.1.1'
 siegfried_version = subprocess.check_output(["sf", "-version"])
 
 # parse arguments
