@@ -208,7 +208,7 @@ def get_stats(source_dir, scan_started):
     html.write('\n<h3>Errors</h3>')
     html.write('\n<p>Siegfried errors: %s</p>' % num_errors)
     html.write('\n<h2>Virus scan report</h2>')
-    with file(virus_log) as f:
+    with file(os.path.join(log_dir, 'viruscheck-log.txt')) as f:
         virus_report = f.read()
     html.write('\n<p>%s</p>' % virus_report)
     html.write('\n<h2>Detailed reports</h2>')
