@@ -35,7 +35,7 @@ def run_siegfried(source_dir):
     # run siegfried against specified directory
     print("\nRunning Siegfried against %s. This may take a few minutes." % source_dir)
     global sf_command
-    sf_command = "sf -csv -hash md5 '%s' > %s" % (source_dir, sf_file)
+    sf_command = "sf -csv -hash md5 '%s' > '%s'" % (source_dir, sf_file)
     if args.scanarchives == True:
         sf_command = sf_command.replace('sf -csv', 'sf -z -csv')
     if args.throttle == True:
@@ -50,7 +50,7 @@ def run_clamav(source_dir):
     timestamp = str(datetime.datetime.now())
     print("\nRunning virus check on %s. This may take a few minutes." % source_dir)
     virus_log = os.path.join(log_dir, 'viruscheck-log.txt')
-    clamav_command = "clamscan -i -r '%s' | tee %s" % (source_dir, virus_log)
+    clamav_command = "clamscan -i -r '%s' | tee '%s'" % (source_dir, virus_log)
     subprocess.call(clamav_command, shell=True)
     # add timestamp
     target = open(virus_log, 'a')
@@ -58,10 +58,7 @@ def run_clamav(source_dir):
     target.close()
     # check log for infected files
     if "Infected files: 0" not in open(virus_log).read():
-        raw_answer = raw_input("\nInfected file(s) found. Do you want to keep processing (y/n)?")
-        answer = str.lower(raw_answer)
-        if answer == "n":
-            sys.exit()
+        print("\nWARNING: Infected file(s) found in %s. See %s for details." % (source_dir, virus_log))
     else:
         print("\nNo infections found in %s." % source_dir)
 
@@ -75,7 +72,7 @@ def run_bulkext(source_dir):
     except OSError as exception:
         if exception.errno != errno.EEXIST:
             raise
-    bulkext_command = "bulk_extractor -S ssn_mode=2 -o %s -R '%s' | tee %s" % (bulkext_dir, source_dir, bulkext_log)
+    bulkext_command = "bulk_extractor -S ssn_mode=2 -o %s -R '%s' | tee '%s'" % (bulkext_dir, source_dir, bulkext_log)
     subprocess.call(bulkext_command, shell=True)
 
 def import_csv():
