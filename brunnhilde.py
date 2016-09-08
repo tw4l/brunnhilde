@@ -355,7 +355,7 @@ def close_html():
 def make_tree(source_dir):
     '''Call tree on source directory and save output to tree.txt'''
     # create tree report
-    tree_command = "tree -tDhR '%s' > %s" % (source_dir, os.path.join(report_dir, 'tree.txt'))
+    tree_command = "tree -tDhR '%s' > '%s'" % (source_dir, os.path.join(report_dir, 'tree.txt'))
     subprocess.call(tree_command, shell=True)
 
 def process_content(source_dir):
