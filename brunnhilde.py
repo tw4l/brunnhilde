@@ -492,7 +492,7 @@ else: #source is a directory
     process_content(args.source)
     if args.bulkextractor == True: # bulk extractor option is chosen
         run_bulkext(args.source)
-        write_html('Personally Identifiable Information (PII)', '%s/pii.txt' % bulkext_dir, '\t')
+        write_html('Personally Identifiable Information (PII)', "'%s'/pii.txt" % bulkext_dir, '\t')
 
 # close HTML file
 html.close()
