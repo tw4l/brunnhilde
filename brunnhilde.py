@@ -72,7 +72,7 @@ def run_bulkext(source_dir):
     except OSError as exception:
         if exception.errno != errno.EEXIST:
             raise
-    bulkext_command = "bulk_extractor -S ssn_mode=2 -o %s -R '%s' | tee '%s'" % (bulkext_dir, source_dir, bulkext_log)
+    bulkext_command = "bulk_extractor -S ssn_mode=2 -o '%s' -R '%s' | tee '%s'" % (bulkext_dir, source_dir, bulkext_log)
     subprocess.call(bulkext_command, shell=True)
 
 def import_csv():
