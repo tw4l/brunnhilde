@@ -478,7 +478,7 @@ if args.diskimage == True: # source is a disk image
     process_content(tempdir)
     if args.bulkextractor == True: # bulk extractor option is chosen
         run_bulkext(tempdir)
-        write_html('Personally Identifiable Information (PII)', '%s/pii.txt' % bulkext_dir, '\t')
+        write_html('Personally Identifiable Information (PII)', '%s/pii.txt' % os.path.join(bulkext_dir, 'pii.txt'), '\t')
     if args.removefiles == True:
         shutil.rmtree(tempdir)
 
@@ -492,7 +492,7 @@ else: #source is a directory
     process_content(args.source)
     if args.bulkextractor == True: # bulk extractor option is chosen
         run_bulkext(args.source)
-        write_html('Personally Identifiable Information (PII)', "'%s'/pii.txt" % bulkext_dir, '\t')
+        write_html('Personally Identifiable Information (PII)', '%s/pii.txt' % os.path.join(bulkext_dir, 'pii.txt'), '\t')
 
 # close HTML file
 html.close()
