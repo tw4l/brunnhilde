@@ -505,7 +505,7 @@ with open(temp_html, 'rb') as in_file:
             if line.startswith('<td>x-fmt/') or line.startswith('<td>fmt/'):
                 puid = line.replace('<td>', '')
                 puid = puid.replace('</td>', '')
-                newline = '<td><a href="http://apps.nationalarchives.gov.uk/PRONOM/%s" target="_blank">%s</a></td>' % (puid, puid)
+                newline = '<td><a href="http://nationalarchives.gov.uk/PRONOM/%s" target="_blank">%s</a></td>' % (puid, puid)
                 out_file.write(newline)
             else:
                 out_file.write(line)
