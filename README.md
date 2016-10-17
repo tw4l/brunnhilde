@@ -2,7 +2,7 @@
 
 ### Version: Brunnhilde v1.2.4  
 
-**Note: Due to a change in the PRONOM web app's API, upgrading to v1.2.4 is required for functional PRONOM format page links in the HTML report.**  
+**Note: Due to a change in the PRONOM web app's URIs, upgrading to v1.2.4 is required for functional PRONOM format page links in the HTML report.**  
 
 Generates aggregate reports of files in a directory or disk image based on input from Richard Lehane's [Siegfried](http://www.itforarchivists.com/siegfried).  
 
