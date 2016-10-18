@@ -35,9 +35,6 @@ For a more detailed explanation of how multiple identifications are handled by S
 * Clone or download tar.gz or zip from Brunnhilde repository and extract to location of your choice.   
 
 #### Install in macOS/OS X with Homebrew:  
-* Add tap:  
-`brew tap timothyryanwalsh/digipres`  
-* Install brunnhilde:  
 `brew install timothyryanwalsh/digipres/brunnhilde`  
 
 Once installed, you can call Brunnhilde on your Mac with just `brunnhilde.py [arguments]`.  
