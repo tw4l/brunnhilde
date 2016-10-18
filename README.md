@@ -31,13 +31,8 @@ For a more detailed explanation of how multiple identifications are handled by S
 
 ### Installation  
 
-* Download tar.gz or .zip from Brunnhilde repository and extract to location of your choice.  
-
-#### Usage in Bitcurator with the Brunnhilde GUI:  
-* Create directory /usr/share/brunnhilde:  
-`sudo mkdir /usr/share/brunnhilde`  
-* Move brunnhilde.py to /usr/share/brunnhilde:  
-`sudo mv /path/to/brunnhilde.py /usr/share/brunnhilde`  
+#### Install in Linux:  
+* Clone or download tar.gz or zip from Brunnhilde repository and extract to location of your choice.   
 
 #### Install in macOS/OS X with Homebrew:  
 * Add tap:  
@@ -46,6 +41,12 @@ For a more detailed explanation of how multiple identifications are handled by S
 `brew install timothyryanwalsh/digipres/brunnhilde`  
 
 Once installed, you can call Brunnhilde on your Mac with just `brunnhilde.py [arguments]`.  
+
+#### Usage in Bitcurator with the Brunnhilde GUI:  
+* Create directory /usr/share/brunnhilde:  
+`sudo mkdir /usr/share/brunnhilde`  
+* Move brunnhilde.py to /usr/share/brunnhilde:  
+`sudo mv /path/to/brunnhilde.py /usr/share/brunnhilde` 
 
 ### Running Brunnhilde  
 
