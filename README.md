@@ -105,15 +105,13 @@ By default, Brunnhilde will keep a copy of the files exported from disk images i
 
 To characterize HFS formatted disks, pass both the "-d" and "--hfs" flags as arguments to Brunnhilde, and be sure to use a raw disk image as the source (HFSExplorer is unable to process forensically packaged disk images). This functionality works best in Bitcurator. Non-Bitcurator environments will require you to install additional dependencies (HFSExplorer and Java) and to configure some Brunnhilde settings, such as the path to the "unhfs.sh" script and potentially the options being passed to it.  
 
-unhfs, the command-line version of HFSExplorer, until recently had a bug that prevented some files from being extracted from HFS disks. Be sure that you have the latest version of HFSExplorer installed (on Bitcurator, this must be done manually by downloading the source from the following URL and replacing the contents of /usr/share/hfsexplorer):  
+unhfs, the command-line version of HFSExplorer, until recently had a bug that prevented some files from being extracted from HFS disks. Be sure that you have the [latest version](https://sourceforge.net/projects/catacombae/files/HFSExplorer/0.23.1%20%28snapshot%202016-09-02%29/) of HFSExplorer installed. On Bitcurator, this must be done manually by replacing the contents of /usr/share/hfsexplorer with the downloaded and extracted source code.
 
-`https://sourceforge.net/projects/catacombae/files/HFSExplorer/0.23.1%20%28snapshot%202016-09-02%29/`  
-
-In this release, unhfs.sh was renamed to unhfs (without any extension). To work with Brunnhilde, you must either rename this file to 'unhfs.sh' or edit line 452 of Brunnhilde to omit the file extension.  
+In this patched release, unhfs.sh was renamed to unhfs (without a file extension). To work with Brunnhilde, you must either rename this file to 'unhfs.sh' or edit line 452 of Brunnhilde to omit the file extension.  
 
 ### Dependencies  
 
-All dependencies are already installed in Bitcurator. See instructions below for installing dependencies if you wish to use Brunnhilde in OS X or a different Linux environment.  
+All dependencies are already installed in Bitcurator (except a slight issue with HFSExplorer - see section above for details). See instructions below for installing dependencies if you wish to use Brunnhilde in OS X or a different Linux environment.  
 
 #### General  
 * Python 2.7
@@ -124,7 +122,7 @@ All dependencies are already installed in Bitcurator. See instructions below for
 
 #### To process disk images  
 * [SleuthKit](http://www.sleuthkit.org/): Install from source or, in OS X, using [Homebrew](http://brewformulas.org/sleuthkit).
-* [HFSExplorer](http://www.catacombae.org/hfsexplorer/): Install from source.  
+* [HFSExplorer](https://sourceforge.net/projects/catacombae/files/HFSExplorer/0.23.1%20%28snapshot%202016-09-02%29/ ): Install from source.  
 
 ### Future development to-dos
 
