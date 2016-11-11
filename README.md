@@ -103,6 +103,12 @@ To characterize HFS formatted disks, pass both the "-d" and "--hfs" flags as arg
 
 By default, Brunnhilde will keep a copy of the files exported from disk images in a "carved_files" directory. If you do not wish to keep a copy of these files after reporting is finished, you can pass the "-r" or "--removefiles" flags as arguments to Brunnhilde, which will cause it to delete the "carved_files" directory once all other tasks have finished.    
 
+### HFS-formatted disk images  
+
+unhfs, the command-line version of HFSExplorer, until recently had a bug that prevented some files from being extracted from HFS disks. Be sure that you have the latest version of HFSExplorer installed (on Bitcurator, this must be done manually by downloading the source from the following URL and replacing the contents of /usr/share/hfsexplorer):  
+
+`https://sourceforge.net/projects/catacombae/files/HFSExplorer/0.23.1%20%28snapshot%202016-09-02%29/`  
+
 ### Dependencies  
 
 All dependencies are already installed in Bitcurator. See instructions below for installing dependencies if you wish to use Brunnhilde in OS X or a different Linux environment.  
