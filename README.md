@@ -109,7 +109,7 @@ unhfs, the command-line version of HFSExplorer, until recently had a bug that pr
 
 `https://sourceforge.net/projects/catacombae/files/HFSExplorer/0.23.1%20%28snapshot%202016-09-02%29/`  
 
-In this release, unhfs.sh was renamed to unhfs (without any extension). To work with Brunnhilde, you must either rename this file to 'unhfs.sh' or line 452 to omit the file extension.  
+In this release, unhfs.sh was renamed to unhfs (without any extension). To work with Brunnhilde, you must either rename this file to 'unhfs.sh' or edit line 452 of Brunnhilde to omit the file extension.  
 
 ### Dependencies  
 
