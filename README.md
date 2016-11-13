@@ -1,8 +1,6 @@
 ## Brunnhilde - A reporting companion to Siegfried  
 
-### Version: Brunnhilde v1.2.4  
-
-**Note: Due to a change in the PRONOM web app's URIs, upgrading to v1.2.4 is required for functional PRONOM format page links in the HTML report.**  
+### Version: Brunnhilde 2.0.0  
 
 Generates aggregate reports of files in a directory or disk image based on input from Richard Lehane's [Siegfried](http://www.itforarchivists.com/siegfried).  
 
@@ -32,7 +30,7 @@ For a more detailed explanation of how multiple identifications are handled by S
 ### Installation  
 
 #### Install in Linux:  
-* Clone or download tar.gz or zip from Brunnhilde repository and extract to location of your choice.   
+Clone or download Brunnhilde repository and extract to location of your choice (for use with Brunnhilde GUI, it is recommended to extract files to /usr/share/brunnhilde).   
 
 #### Install in macOS/OS X with Homebrew:  
 `brew install timothyryanwalsh/digipres/brunnhilde`  
@@ -45,10 +43,11 @@ Once installed, you can call Brunnhilde on your Mac with just `brunnhilde.py [ar
 * Move brunnhilde.py to /usr/share/brunnhilde:  
 `sudo mv /path/to/brunnhilde.py /usr/share/brunnhilde` 
 
-### Running Brunnhilde  
+### Usage
 
 ```  
-usage: brunnhilde.py [-h] [-b] [-d] [--hfs] [-n] [-r] [-t] [-v] [-z]
+usage: brunnhilde.py [-h] [-b] [-d] [--hash HASH] [--hfs] [-n] [-r] [-t] [-V]
+                     [-w] [-z]
                      source destination basename
 
 positional arguments:
@@ -61,12 +60,14 @@ optional arguments:
   -h, --help           show this help message and exit
   -b, --bulkextractor  Run Bulk Extractor on source
   -d, --diskimage      Use disk image instead of dir as input
+  --hash HASH          Specify hash algorithm
   --hfs                Use for raw disk images of HFS disks
   -n, --noclam         Skip ClamScan Virus Check
   -r, --removefiles    Delete 'carved_files' directory when done (disk image
                        input only)
   -t, --throttle       Pause for 1s between Siegfried scans
-  -v, --version        Display Brunnhilde version
+  -V, --version        Display Brunnhilde version
+  -w, --showwarnings   Add Siegfried warnings to HTML report
   -z, --scanarchives   Decompress and scan zip, tar, gzip, warc, arc with
                        Siegfried
 ```  
@@ -77,19 +78,31 @@ For file paths containing spaces in directory names, enclose the entire path in 
 
 By default, Brunnhilde will use ClamAV to scan the contents of a directory or files in a disk image. Findings are written to a log and to the terminal. If any threats are found, Brunnhilde will prompt the user to indicate whether they wish to continue processing the files.  
 
-To disable virus scanning, pass '-n' or'--noclam' as arguments to Brunnhilde.  
+To disable virus scanning, pass '-n' or'--noclam' as an argument.  
 
 ### Siegfried options  
 
-By default, Brunnhilde v1.2.4 uses the following Siegfried command:  
+By default, Brunnhilde 2.0.0 uses the following Siegfried command:  
 
 ```  
 sf -csv -hash md5 DIR > CSV  
 ```  
 
-To enable scanning of archive files (zip, tar, gzip, warc, arc), pass '-z' or '--scanarchives' as arguments to Brunnhilde.  
+To enable scanning of archive files (zip, tar, gzip, warc, arc), pass '-z' or '--scanarchives' as an argument.  
 
-To force Siegfried to pause for 1 second between file scans, pass '-t' or '--throttle' as arguments to Brunnhilde.  
+To force Siegfried to pause for 1 second between file scans, pass '-t' or '--throttle' as an argument.  
+
+### Specifying hash type  
+
+Brunnhilde uses the md5 hash type by default. Other options are sha1, sha256, or sha512.  
+
+To change the type of hash used, pass '--hash HASH' as an argument to Brunnhilde, replacing HASH with your choice of sha1, sha256, or sha512.   
+
+### Report completeness  
+
+In order to to keep the HTML from being excessively large, Brunnhilde 2.0.0 no longer includes Siegfried warnings by default.  
+
+To include Siegfried warnings in the report, pass '-w' or '--showwarnings' as an argument.
 
 ### bulk_extractor  
 
@@ -103,19 +116,19 @@ By default, Brunnhilde will keep a copy of the files exported from disk images i
 
 ### HFS-formatted disk images  
 
-To characterize HFS formatted disks, pass both the "-d" and "--hfs" flags as arguments to Brunnhilde, and be sure to use a raw disk image as the source (HFSExplorer is unable to process forensically packaged disk images). This functionality works best in Bitcurator. Non-Bitcurator environments will require you to install additional dependencies (HFSExplorer and Java) and to configure some Brunnhilde settings, such as the path to the "unhfs.sh" script and potentially the options being passed to it.  
+**nhfs, the command-line version of HFSExplorer, until recently had a bug that prevented some files from being extracted from HFS disks. Be sure that you have the [latest version](https://sourceforge.net/projects/catacombae/files/HFSExplorer/0.23.1%20%28snapshot%202016-09-02%29/) of HFSExplorer installed. On Bitcurator, this must be done manually by replacing the contents of /usr/share/hfsexplorer with the downloaded and extracted source.  
 
-unhfs, the command-line version of HFSExplorer, until recently had a bug that prevented some files from being extracted from HFS disks. Be sure that you have the [latest version](https://sourceforge.net/projects/catacombae/files/HFSExplorer/0.23.1%20%28snapshot%202016-09-02%29/) of HFSExplorer installed. On Bitcurator, this must be done manually by replacing the contents of /usr/share/hfsexplorer with the downloaded and extracted source code.
+In this patched release, unhfs.sh was renamed to unhfs (without a file extension). If file /usr/share/hfsexplorer/bin/unhfs.sh exists in your system, you must update HFSExplorer with the version linked above.**  
 
-In this patched release, unhfs.sh was renamed to unhfs (without a file extension). To work with Brunnhilde, you must either rename this file to 'unhfs.sh' or edit line 452 of Brunnhilde to omit the file extension.  
+To characterize HFS formatted disks, pass both the "-d" and "--hfs" flags as arguments, and be sure to use a raw disk image as the source (HFSExplorer is unable to process forensically packaged disk images). This functionality works best in Bitcurator. Non-Bitcurator environments will require you to install additional dependencies (HFSExplorer and Java) and to configure some Brunnhilde settings, such as the path to the "unhfs" script and potentially the options being passed to it.  
 
 ### Dependencies  
 
-All dependencies are already installed in Bitcurator (except a slight issue with HFSExplorer - see section above for details). See instructions below for installing dependencies if you wish to use Brunnhilde in OS X or a different Linux environment.  
+All dependencies are already installed in Bitcurator (except for an issue with HFSExplorer - see section "HFS-formatted disk iamges" above for details). See instructions below for installing dependencies if you wish to use Brunnhilde in OS X or a different Linux environment (Brunnhilde is not supported in Windows).  
 
 #### General  
-* Python 2.7
-* [Siegfried](http://www.itforarchivists.com/siegfried): Brunnhilde is now compatible with all version of Siegfried, including 1.6.1. It does not yet have support for MIME-Info or FDD signatures: for Brunnhilde to work, Siegfried must be using the PRONOM signature file only. If you have been using MIME-Info or FDD signatures as a replacement for or alongside PRONOM with Siegfried 1.5/1.6 on your machine, entering "roy build" in the terminal should return you to Siegfried's default PRONOM-only identification mode and allow Brunnhilde to work properly.  
+* Python (tested in 2.7 and 3.5)
+* [Siegfried](http://www.itforarchivists.com/siegfried): Brunnhilde is now compatible with all version of Siegfried, including 1.6+. It does not support MIME-Info or FDD signatures: for Brunnhilde to work, Siegfried must be using the PRONOM signature file only. If you have been using MIME-Info or FDD signatures as a replacement for or alongside PRONOM with Siegfried 1.5/1.6 on your machine, entering "roy build -multi 0" in the terminal should return you to Siegfried's default PRONOM-only identification mode and allow Brunnhilde to work properly.  
 * tree: Installed by default in most Linux distros. On OS X, install using [Homebrew](http://brewformulas.org/tree). If tree is not installed on your machine, a blank tree.txt file will be created instead.  
 * [bulk_extractor](https://github.com/simsong/bulk_extractor): Can be built on Linux and OS X from source distribution found [here](https://github.com/simsong/bulk_extractor) or installed using [Homebrew](http://brewformulas.org/BulkExtractor).  
 * [ClamAV](https://www.clamav.net): Brunnhilde checks for viruses using ClamAV, which can be built from the source distribution found at [clamav.net](http://clamav.net) or using [Homebrew](http://brewformulas.org/Clamav).   

@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-Brunnhilde v1.2.4
+Brunnhilde 2.0.0
 ---
 
 A Siegfried-based digital archives reporting tool
@@ -10,15 +10,15 @@ A Siegfried-based digital archives reporting tool
 For information on usage and dependencies, see:
 github.com/timothyryanwalsh/brunnhilde
 
-Python 2.7
+Tested in Python 2.7 and 3.5
 
 The MIT License (MIT)
 Copyright (c) 2016 Tim Walsh
 http://bitarchivist.net
 
 """
-
 import argparse
+from collections import OrderedDict
 import csv
 import datetime
 import errno
@@ -35,7 +35,14 @@ def run_siegfried(source_dir):
     # run siegfried against specified directory
     print("\nRunning Siegfried against %s. This may take a few minutes." % source_dir)
     global sf_command
-    sf_command = "sf -csv -hash md5 '%s' > '%s'" % (source_dir, sf_file)
+    hash_type = 'md5'
+    if args.hash == 'sha1':
+        hash_type = 'sha1'
+    elif args.hash == 'sha256':
+        hash_type = 'sha256'
+    elif args.hash == 'sha512':
+        hash_type = 'sha512'
+    sf_command = "sf -csv -hash %s '%s' > '%s'" % (hash_type, source_dir, sf_file)
     if args.scanarchives == True:
         sf_command = sf_command.replace('sf -csv', 'sf -z -csv')
     if args.throttle == True:
@@ -77,7 +84,7 @@ def run_bulkext(source_dir):
 
 def import_csv():
     '''Import csv file into sqlite db'''
-    with open(sf_file, 'rb') as f:
+    with open(sf_file, 'r') as f:
         reader = csv.reader(f)
         header = True
         for row in reader:
@@ -85,7 +92,7 @@ def import_csv():
                 header = False # gather column names from first row of csv
                 sql = "DROP TABLE IF EXISTS siegfried"
                 cursor.execute(sql)
-                sql = "CREATE TABLE siegfried (filename text, filesize text, modified text, errors text, md5 text, namespace text, id text, format text, version text, mime text, basis text, warning text)"
+                sql = "CREATE TABLE siegfried (filename text, filesize text, modified text, errors text, hash text, namespace text, id text, format text, version text, mime text, basis text, warning text)"
                 cursor.execute(sql)
                 insertsql = "INSERT INTO siegfried VALUES (%s)" % (", ".join([ "?" for column in row ]))
                 rowlen = len(row)
@@ -102,16 +109,16 @@ def get_stats(source_dir, scan_started):
     cursor.execute("SELECT COUNT(*) from siegfried;") # total files
     num_files = cursor.fetchone()[0]
 
-    cursor.execute("SELECT COUNT(DISTINCT md5) from siegfried WHERE filesize<>'0';") # distinct files
+    cursor.execute("SELECT COUNT(DISTINCT hash) from siegfried WHERE filesize<>'0';") # distinct files
     distinct_files = cursor.fetchone()[0]
 
     cursor.execute("SELECT COUNT(*) from siegfried where filesize='0';") # empty files
     empty_files = cursor.fetchone()[0]
 
-    cursor.execute("SELECT COUNT(md5) FROM siegfried t1 WHERE EXISTS (SELECT 1 from siegfried t2 WHERE t2.md5 = t1.md5 AND t1.filename != t2.filename) AND filesize<>'0'") # duplicates
+    cursor.execute("SELECT COUNT(hash) FROM siegfried t1 WHERE EXISTS (SELECT 1 from siegfried t2 WHERE t2.hash = t1.hash AND t1.filename != t2.filename) AND filesize<>'0'") # duplicates
     all_dupes = cursor.fetchone()[0]
 
-    cursor.execute("SELECT COUNT(DISTINCT md5) FROM siegfried t1 WHERE EXISTS (SELECT 1 from siegfried t2 WHERE t2.md5 = t1.md5 AND t1.filename != t2.filename) AND filesize<>'0'") # distinct duplicates
+    cursor.execute("SELECT COUNT(DISTINCT hash) FROM siegfried t1 WHERE EXISTS (SELECT 1 from siegfried t2 WHERE t2.hash = t1.hash AND t1.filename != t2.filename) AND filesize<>'0'") # distinct duplicates
     distinct_dupes = cursor.fetchone()[0]
 
     duplicate_copies = int(all_dupes) - int(distinct_dupes) # number of duplicate copies of unique files
@@ -122,11 +129,11 @@ def get_stats(source_dir, scan_started):
 
     year_sql = "SELECT DISTINCT SUBSTR(modified, 1, 4) as 'year' FROM siegfried;" # min and max year
     year_path = os.path.join(csv_dir, 'uniqueyears.csv')
-    with open(year_path, 'wb') as year_report:
+    with open(year_path, 'w') as year_report:
         w = csv.writer(year_report)
         for row in cursor.execute(year_sql):
             w.writerow(row)
-    with open(year_path, 'rb') as year_report:
+    with open(year_path, 'r') as year_report:
         r = csv.reader(year_report)
         years = []
         for row in r:
@@ -137,17 +144,18 @@ def get_stats(source_dir, scan_started):
 
     datemodified_sql = "SELECT DISTINCT modified FROM siegfried;" # min and max full modified date
     datemodified_path = os.path.join(csv_dir, 'datemodified.csv')
-    with open(datemodified_path, 'wb') as date_report:
+    with open(datemodified_path, 'w') as date_report:
         w = csv.writer(date_report)
         for row in cursor.execute(datemodified_sql):
             w.writerow(row)
-    with open(datemodified_path, 'rb') as date_report:
+    with open(datemodified_path, 'r') as date_report:
         r = csv.reader(date_report)
         dates = []
         for row in r:
             dates.append(row[0])
         earliest_date = min(dates)
         latest_date = max(dates)
+    os.remove(datemodified_path)
 
     cursor.execute("SELECT COUNT(DISTINCT format) as formats from siegfried WHERE format <> '';") # number of identfied file formats
     num_formats = cursor.fetchone()[0]
@@ -159,7 +167,7 @@ def get_stats(source_dir, scan_started):
     num_warnings = cursor.fetchone()[0]
 
     # get size from du and format
-    size = subprocess.check_output(['du', '-sh', source_dir])
+    size = subprocess.check_output(['du', '-sh', source_dir]).decode()
     size = size.replace('%s' % source_dir, '')
     size = size.replace('K', ' KB')
     size = size.replace('M', ' MB')
@@ -200,7 +208,7 @@ def get_stats(source_dir, scan_started):
     html.write('\n<p>Distinct files that have duplicates: %s</p>' % distinct_dupes)
     html.write('\n<p>Duplicate copies of distinct files: %s</p>' % duplicate_copies)
     html.write('\n<p>Empty files: %s</p>' % empty_files)
-    html.write('\n<p>*<em>Calculated by md5 hash. Empty files are not counted in first three categories. Total files = distinct files + duplicate copies + empty files.</em></p>')
+    html.write('\n<p>*<em>Calculated by hash value. Empty files are not counted in first three categories. Total files = distinct files + duplicate copies + empty files.</em></p>')
     html.write('\n<h3>Format identification</h3>')
     html.write('\n<p>Identified file formats: %s</p>' % num_formats)
     html.write('\n<p>Unidentified files: %s</p>' % unidentified_files)
@@ -211,7 +219,7 @@ def get_stats(source_dir, scan_started):
     if args.noclam == True:
         html.write('\n<p>Virus scan skipped.</p>')
     else:
-        with file(os.path.join(log_dir, 'viruscheck-log.txt')) as f:
+        with open(os.path.join(log_dir, 'viruscheck-log.txt')) as f:
             virus_report = f.read()
         html.write('\n<p>%s</p>' % virus_report)
     html.write('\n<h2>Detailed reports</h2>')
@@ -220,7 +228,8 @@ def get_stats(source_dir, scan_started):
     html.write('\n<p><a href="#MIME types">MIME types</a></p>')
     html.write('\n<p><a href="#Last modified dates by year">Last modified dates by year</a></p>')
     html.write('\n<p><a href="#Unidentified">Unidentified</a></p>')
-    html.write('\n<p><a href="#Warnings">Warnings</a></p>')
+    if args.showwarnings == True:
+        html.write('\n<p><a href="#Warnings">Warnings</a></p>')
     html.write('\n<p><a href="#Errors">Errors</a></p>')
     html.write('\n<p><a href="#Duplicates">Duplicates</a></p>')
     if args.bulkextractor == True:
@@ -229,7 +238,7 @@ def get_stats(source_dir, scan_started):
 def generate_reports():
     '''Run sql queries on db to generate reports, write to csv and html'''
     full_header = ['Filename', 'Filesize', 'Date modified', 'Errors', 'Checksum', 
-                'Namespace', 'ID', 'Format', 'Format Version', 'MIME type', 
+                'Namespace', 'ID', 'Format', 'Format version', 'MIME type', 
                 'Basis for ID', 'Warning']
 
     # sorted format list report
@@ -265,12 +274,13 @@ def generate_reports():
     path = os.path.join(csv_dir, 'unidentified.csv')
     sqlite_to_csv(sql, path, full_header)
     write_html('Unidentified', path, ',')
-
+    
     # warnings report
     sql = "SELECT * FROM siegfried WHERE warning <> '';"
     path = os.path.join(csv_dir, 'warnings.csv')
     sqlite_to_csv(sql, path, full_header)
-    write_html('Warnings', path, ',')
+    if args.showwarnings == True:
+        write_html('Warnings', path, ',')
 
     # errors report
     sql = "SELECT * FROM siegfried WHERE errors <> '';"
@@ -279,14 +289,14 @@ def generate_reports():
     write_html('Errors', path, ',')
 
     # duplicates report
-    sql = "SELECT * FROM siegfried t1 WHERE EXISTS (SELECT 1 from siegfried t2 WHERE t2.md5 = t1.md5 AND t1.filename != t2.filename) AND filesize<>'0' ORDER BY md5;"
+    sql = "SELECT * FROM siegfried t1 WHERE EXISTS (SELECT 1 from siegfried t2 WHERE t2.hash = t1.hash AND t1.filename != t2.filename) AND filesize<>'0' ORDER BY hash;"
     path = os.path.join(csv_dir, 'duplicates.csv')
     sqlite_to_csv(sql, path, full_header)
     write_html('Duplicates', path, ',')
 
 def sqlite_to_csv(sql, path, header):
     '''Write sql query result to csv'''
-    with open(path, 'wb') as report:
+    with open(path, 'w') as report:
         w = csv.writer(report)
         w.writerow(header)
         for row in cursor.execute(sql):
@@ -294,7 +304,7 @@ def sqlite_to_csv(sql, path, header):
 
 def write_html(header, path, file_delimiter):
     '''Write csv file to html table'''
-    with open(path, 'rb') as in_file:
+    with open(path, 'r') as in_file:
         # count lines and then return to start of file
         numline = len(in_file.readlines())
         in_file.seek(0)
@@ -306,7 +316,7 @@ def write_html(header, path, file_delimiter):
         html.write('\n<a name="%s"></a>' % header)
         html.write('\n<h3>%s</h3>' % header)
         if header == 'Duplicates':
-            html.write('\n<p><em>Duplicates are grouped by md5 hash.</em></p>')
+            html.write('\n<p><em>Duplicates are grouped by hash value.</em></p>')
         elif header == 'Personally Identifiable Information (PII)':
             html.write('\n<p><em>Potential PII in source, as identified by bulk_extractor.</em></p>')
         
@@ -316,9 +326,9 @@ def write_html(header, path, file_delimiter):
                 html.write('\n<table class="table table-striped table-bordered table-condensed">')
                 #write header
                 html.write('\n<tr>')
-                html.write('\n<td>File</td>')
-                html.write('\n<td>Value Found</td>')
-                html.write('\n<td>Context</td>')
+                html.write('\n<td><strong>File</strong></td>')
+                html.write('\n<td><strong>Value Found</strong></td>')
+                html.write('\n<td><strong>Context</strong></td>')
                 # write data
                 for row in islice(r, 4, None): # skip header lines
                     html.write('\n</tr>')
@@ -332,11 +342,51 @@ def write_html(header, path, file_delimiter):
             else:
                 html.write('\nNone found.')
 
+        # if writing duplicates, handle separately
+        elif header == 'Duplicates':
+            if numline > 1: #aka more rows than just header
+                # read md5s from csv and write to list
+                hash_list = []
+                for row in r:
+                    hash_list.append(row[4])
+                # deduplicate md5_list
+                hash_list = list(OrderedDict.fromkeys(hash_list))
+                hash_list.remove('Checksum')
+                # for each hash in md5_list, print header, file info, and list of matching files
+                for hash_value in hash_list:
+                    html.write('\n<p>Files matching checksum <strong>%s</strong>:</p>' % hash_value)
+                    html.write('\n<table class="table table-striped table-bordered table-condensed">')
+                    html.write('\n<tr>')
+                    html.write('\n<td><strong>Filename</strong></td><td><strong>Filesize</strong></td>')
+                    html.write('<td><strong>Date modified</strong></td><td><strong>Errors</strong></td>')
+                    html.write('<td><strong>Checksum</strong></td><td><strong>Namespace</strong></td>')
+                    html.write('<td><strong>ID</strong></td><td><strong>Format</strong></td>')
+                    html.write('<td><strong>Format version</strong></td><td><strong>MIME type</strong></td>')
+                    html.write('<td><strong>Basis for ID</strong></td><td><strong>Warning</strong></td>')
+                    html.write('\n</tr>')
+                    in_file.seek(0) # back to beginning of file
+                    for row in r:
+                        if row[4] == '%s' % hash_value:
+                            # write data
+                            html.write('\n<tr>')
+                            for column in row:
+                                html.write('\n<td>' + column + '</td>')
+                            html.write('\n</tr>')
+                    html.write('\n</table>')
+            else:
+                html.write('\nNone found.')
+
         # otherwise write as normal
         else:
             if numline > 1: #aka more rows than just header
                 html.write('\n<table class="table table-striped table-bordered table-condensed">')
-                # generate table
+                # write header row
+                html.write('\n<tr>')
+                row1 = next(r)
+                for column in row1:
+                    html.write('\n<td><strong>' + column + '</strong></td>')
+                html.write('\n</tr>')
+                # write data rows
                 for row in r:
                     # write data
                     html.write('\n<tr>')
@@ -376,18 +426,20 @@ MAIN FLOW
 """
 
 # system info
-brunnhilde_version = 'v1.2.4'
-siegfried_version = subprocess.check_output(["sf", "-version"])
+brunnhilde_version = 'Brunnhilde 2.0.0'
+siegfried_version = subprocess.check_output(["sf", "-version"]).decode()
 
 # parse arguments
 parser = argparse.ArgumentParser()
 parser.add_argument("-b", "--bulkextractor", help="Run Bulk Extractor on source", action="store_true")
 parser.add_argument("-d", "--diskimage", help="Use disk image instead of dir as input", action="store_true")
+parser.add_argument("--hash", help="Specify hash algorithm", dest="hash", action="store", type=str)
 parser.add_argument("--hfs", help="Use for raw disk images of HFS disks", action="store_true")
 parser.add_argument("-n", "--noclam", help="Skip ClamScan Virus Check", action="store_true")
 parser.add_argument("-r", "--removefiles", help="Delete 'carved_files' directory when done (disk image input only)", action="store_true")
 parser.add_argument("-t", "--throttle", help="Pause for 1s between Siegfried scans", action="store_true")
-parser.add_argument("-v", "--version", help="Display Brunnhilde version", action="version", version="Brunnhilde %s" % brunnhilde_version)
+parser.add_argument("-V", "--version", help="Display Brunnhilde version", action="version", version="%s" % brunnhilde_version)
+parser.add_argument("-w", "--showwarnings", help="Add Siegfried warnings to HTML report", action="store_true")
 parser.add_argument("-z", "--scanarchives", help="Decompress and scan zip, tar, gzip, warc, arc with Siegfried", action="store_true")
 parser.add_argument("source", help="Path to source directory or disk image")
 parser.add_argument("destination", help="Path to destination for reports")
@@ -429,7 +481,7 @@ else:
 
 # create html report
 temp_html = os.path.join(report_dir, 'temp.html')
-html = open(temp_html, 'wb')
+html = open(temp_html, 'w')
 
 # open sqlite db
 db = os.path.join(report_dir, 'siegfried.sqlite')
@@ -449,7 +501,7 @@ if args.diskimage == True: # source is a disk image
 
     # export disk image contents to tempdir
     if args.hfs == True: # hfs disks
-        carvefiles = "bash /usr/share/hfsexplorer/bin/unhfs.sh -o '%s' '%s'" % (tempdir, args.source)
+        carvefiles = "bash /usr/share/hfsexplorer/bin/unhfs -resforks APPLEDOUBLE -o '%s' '%s'" % (tempdir, args.source)
         print("\nAttempting to carve files from disk image using HFS Explorer.")
         try:
             subprocess.call(carvefiles, shell=True)
@@ -499,8 +551,8 @@ html.close()
 
 # write new html file, with hrefs for PRONOM IDs
 new_html = os.path.join(report_dir, '%s.html' % basename)
-with open(temp_html, 'rb') as in_file:
-    with open(new_html, 'wb') as out_file:
+with open(temp_html, 'r') as in_file:
+    with open(new_html, 'w') as out_file:
         for line in in_file:
             if line.startswith('<td>x-fmt/') or line.startswith('<td>fmt/'):
                 puid = line.replace('<td>', '')
