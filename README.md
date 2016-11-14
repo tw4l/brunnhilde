@@ -116,9 +116,9 @@ By default, Brunnhilde will keep a copy of the files exported from disk images i
 
 ### HFS-formatted disk images  
 
-**nhfs, the command-line version of HFSExplorer, until recently had a bug that prevented some files from being extracted from HFS disks. Be sure that you have the [latest version](https://sourceforge.net/projects/catacombae/files/HFSExplorer/0.23.1%20%28snapshot%202016-09-02%29/) of HFSExplorer installed. On Bitcurator, this must be done manually by replacing the contents of /usr/share/hfsexplorer with the downloaded and extracted source.  
+**Important: nhfs, the command-line version of HFSExplorer, until recently had a bug that prevented some files from being extracted from HFS disks. Be sure that you have the [latest version](https://sourceforge.net/projects/catacombae/files/HFSExplorer/0.23.1%20%28snapshot%202016-09-02%29/) of HFSExplorer installed. On Bitcurator, this must be done manually by replacing the contents of /usr/share/hfsexplorer with the downloaded and extracted source.**  
 
-In this patched release, unhfs.sh was renamed to unhfs (without a file extension). If file /usr/share/hfsexplorer/bin/unhfs.sh exists in your system, you must update HFSExplorer with the version linked above.**  
+**In this patched release, unhfs.sh was renamed to unhfs (without a file extension). If file /usr/share/hfsexplorer/bin/unhfs.sh exists in your system, you must update HFSExplorer with the version linked above.**  
 
 To characterize HFS formatted disks, pass both the "-d" and "--hfs" flags as arguments, and be sure to use a raw disk image as the source (HFSExplorer is unable to process forensically packaged disk images). This functionality works best in Bitcurator. Non-Bitcurator environments will require you to install additional dependencies (HFSExplorer and Java) and to configure some Brunnhilde settings, such as the path to the "unhfs" script and potentially the options being passed to it.  
 
