@@ -94,7 +94,7 @@ To force Siegfried to pause for 1 second between file scans, pass '-t' or '--thr
 
 ### Specifying hash type  
 
-Brunnhilde uses the md5 hash type by default. Other options are sha1, sha256, or sha512.  
+Brunnhilde uses the md5 hash algorithm by default. Other options are sha1, sha256, or sha512.  
 
 To change the type of hash used, pass '--hash HASH' as an argument to Brunnhilde, replacing HASH with your choice of sha1, sha256, or sha512.   
 
