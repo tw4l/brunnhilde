@@ -100,7 +100,7 @@ To change the type of hash used, pass '--hash HASH' as an argument to Brunnhilde
 
 ### Report completeness  
 
-In order to to keep the HTML from being excessively large, Brunnhilde 1.3.0 no longer includes Siegfried warnings by default.  
+In order to to keep the HTML from being excessively large, Brunnhilde 1.3.0 no longer includes Siegfried warnings in the HTML report by default (the CSV is still created).  
 
 To include Siegfried warnings in the report, pass '-w' or '--showwarnings' as an argument.
 
