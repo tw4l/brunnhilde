@@ -40,6 +40,9 @@ Clone or download Brunnhilde repository and extract to location of your choice (
 
 Once installed, you can call Brunnhilde on your Mac with just `brunnhilde.py [arguments]`.  
 
+To upgrade from a previous version of Brunnhilde:  
+`brew update && brew upgrade timothyryanwalsh/digipres/brunnhilde`  
+
 #### Usage in Bitcurator with the Brunnhilde GUI:  
 * Create directory /usr/share/brunnhilde:  
 `sudo mkdir /usr/share/brunnhilde`  
