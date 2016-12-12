@@ -501,7 +501,7 @@ if args.diskimage == True: # source is a disk image
 
     # export disk image contents to tempdir
     if args.hfs == True: # hfs disks
-        carvefiles = "bash /usr/share/hfsexplorer/bin/unhfs -resforks APPLEDOUBLE -o '%s' '%s'" % (tempdir, args.source)
+        carvefiles = "bash /usr/share/hfsexplorer/bin/unhfs -v -resforks APPLEDOUBLE -o '%s' '%s'" % (tempdir, args.source)
         print("\nAttempting to carve files from disk image using HFS Explorer.")
         try:
             subprocess.call(carvefiles, shell=True)
