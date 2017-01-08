@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-Brunnhilde 1.3.0
+Brunnhilde 1.3.1
 ---
 
 A Siegfried-based digital archives reporting tool
@@ -31,8 +31,7 @@ import subprocess
 import sys
 
 def run_siegfried(source_dir):
-    '''Run siegfried on directory'''
-    # run siegfried against specified directory
+    """Run siegfried on directory"""
     print("\nRunning Siegfried against %s. This may take a few minutes." % source_dir)
     global sf_command
     hash_type = 'md5'
@@ -52,8 +51,7 @@ def run_siegfried(source_dir):
     return sf_command
 
 def run_clamav(source_dir):
-    '''Run ClamAV on directory'''
-    # run virus check on specified directory
+    """Run ClamAV on directory"""
     timestamp = str(datetime.datetime.now())
     print("\nRunning virus check on %s. This may take a few minutes." % source_dir)
     virus_log = os.path.join(log_dir, 'viruscheck-log.txt')
@@ -70,8 +68,7 @@ def run_clamav(source_dir):
         print("\nNo infections found in %s." % source_dir)
 
 def run_bulkext(source_dir):
-    '''Run bulk extractor on directory'''
-    # run bulk extractor against specified directory if option is chosen
+    """Run bulk extractor on directory"""
     bulkext_log = os.path.join(log_dir, 'bulkext-log.txt')
     print("\nRunning Bulk Extractor on %s. This may take a few minutes." % source_dir)
     try:
@@ -83,7 +80,7 @@ def run_bulkext(source_dir):
     subprocess.call(bulkext_command, shell=True)
 
 def import_csv():
-    '''Import csv file into sqlite db'''
+    """Import csv file into sqlite db"""
     with open(sf_file, 'r') as f:
         reader = csv.reader(f)
         header = True
@@ -103,7 +100,7 @@ def import_csv():
         conn.commit()
 
 def get_stats(source_dir, scan_started):
-    '''Get aggregate statistics and write to html report'''
+    """Get aggregate statistics and write to html report"""
     
     # get stats from sqlite db
     cursor.execute("SELECT COUNT(*) from siegfried;") # total files
@@ -236,7 +233,7 @@ def get_stats(source_dir, scan_started):
         html.write('\n<p><a href="#Personally Identifiable Information (PII)">Personally Identifiable Information (PII)</a></p>')
 
 def generate_reports():
-    '''Run sql queries on db to generate reports, write to csv and html'''
+    """Run sql queries on db to generate reports, write to csv and html"""
     full_header = ['Filename', 'Filesize', 'Date modified', 'Errors', 'Checksum', 
                 'Namespace', 'ID', 'Format', 'Format version', 'MIME type', 
                 'Basis for ID', 'Warning']
@@ -295,7 +292,7 @@ def generate_reports():
     write_html('Duplicates', path, ',')
 
 def sqlite_to_csv(sql, path, header):
-    '''Write sql query result to csv'''
+    """Write sql query result to csv"""
     with open(path, 'w') as report:
         w = csv.writer(report)
         w.writerow(header)
@@ -303,7 +300,7 @@ def sqlite_to_csv(sql, path, header):
             w.writerow(row)
 
 def write_html(header, path, file_delimiter):
-    '''Write csv file to html table'''
+    """Write csv file to html table"""
     with open(path, 'r') as in_file:
         # count lines and then return to start of file
         numline = len(in_file.readlines())
@@ -401,18 +398,17 @@ def write_html(header, path, file_delimiter):
         html.write('\n<p>(<a href="#top">Return to top</a>)</p>')
 
 def close_html():
-    '''Write html closing tags'''
+    """Write html closing tags"""
     html.write('\n</body>')
     html.write('\n</html>')
 
 def make_tree(source_dir):
-    '''Call tree on source directory and save output to tree.txt'''
-    # create tree report
+    """Call tree on source directory and save output to tree.txt"""
     tree_command = "tree -tDhR '%s' > '%s'" % (source_dir, os.path.join(report_dir, 'tree.txt'))
     subprocess.call(tree_command, shell=True)
 
 def process_content(source_dir):
-    '''Run through main processing flow on specified directory'''
+    """Run through main processing flow on specified directory"""
     scan_started = str(datetime.datetime.now()) # get time
     run_siegfried(source_dir) # run siegfried
     import_csv() # load csv into sqlite db
@@ -421,12 +417,26 @@ def process_content(source_dir):
     close_html() # close HTML file tags
     make_tree(source_dir) # create tree.txt
 
+def write_pronom_links(old_file, new_file):
+    """Use regex to replace fmt/# and x-fmt/# PUIDs with link to appropriate PRONOM page"""
+    with open(old_file, 'r') as in_file:
+        with open(new_file, 'w') as out_file:
+            for line in in_file:
+                regex = r"fmt\/[0-9]+|x\-fmt\/[0-9]+" #regex to match fmt/# or x-fmt/#
+                pronom_links_to_replace = re.findall(regex, line)
+                new_line = line
+                for match in pronom_links_to_replace:
+                    new_line = line.replace(match, "<a href=\"http://nationalarchives.gov.uk/PRONOM/" + 
+                            match + "\" target=\"_blank\">" + match + "</a>")
+                    line = new_line # allow for more than one match per line
+                out_file.write(new_line)
+
 """ 
 MAIN FLOW
 """
 
 # system info
-brunnhilde_version = 'Brunnhilde 1.3.0'
+brunnhilde_version = 'Brunnhilde 1.3.1'
 siegfried_version = subprocess.check_output(["sf", "-version"]).decode()
 
 # parse arguments
@@ -551,16 +561,7 @@ html.close()
 
 # write new html file, with hrefs for PRONOM IDs
 new_html = os.path.join(report_dir, '%s.html' % basename)
-with open(temp_html, 'r') as in_file:
-    with open(new_html, 'w') as out_file:
-        for line in in_file:
-            if line.startswith('<td>x-fmt/') or line.startswith('<td>fmt/'):
-                puid = line.replace('<td>', '')
-                puid = puid.replace('</td>', '')
-                newline = '<td><a href="http://nationalarchives.gov.uk/PRONOM/%s" target="_blank">%s</a></td>' % (puid, puid)
-                out_file.write(newline)
-            else:
-                out_file.write(line)
+write_pronom_links(temp_html, new_html)
 
 # remove temp html file
 os.remove(temp_html)
