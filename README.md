@@ -1,6 +1,6 @@
 ## Brunnhilde - A reporting companion to Siegfried  
 
-### Version: Brunnhilde 1.3.1  
+### Version: Brunnhilde 1.4.0  
 
 Generates aggregate reports of files in a directory or disk image based on input from Richard Lehane's [Siegfried](http://www.itforarchivists.com/siegfried).  
 
@@ -32,22 +32,10 @@ For a more detailed explanation of how multiple identifications are handled by S
 
 ### Installation  
 
-#### Install in Linux:  
-Clone or download Brunnhilde repository and extract to location of your choice (for use with Brunnhilde GUI, it is recommended to extract files to /usr/share/brunnhilde).   
+`sudo pip install brunnhilde`  
 
-#### Install in macOS/OS X with Homebrew:  
-`brew install timothyryanwalsh/digipres/brunnhilde`  
+Once installed, you can call brunnhilde with just `brunnhilde.py [arguments]`.  
 
-Once installed, you can call Brunnhilde on your Mac with just `brunnhilde.py [arguments]`.  
-
-To upgrade from a previous version of Brunnhilde:  
-`brew update && brew upgrade timothyryanwalsh/digipres/brunnhilde`  
-
-#### Usage in Bitcurator with the Brunnhilde GUI:  
-* Create directory /usr/share/brunnhilde:  
-`sudo mkdir /usr/share/brunnhilde`  
-* Move brunnhilde.py to /usr/share/brunnhilde:  
-`sudo mv /path/to/brunnhilde.py /usr/share/brunnhilde` 
 
 ### Usage
 
