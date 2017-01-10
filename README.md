@@ -1,6 +1,6 @@
 ## Brunnhilde - A reporting companion to Siegfried  
 
-### Version: Brunnhilde 1.3.1  
+### Version: Brunnhilde 1.4.0  
 
 Generates aggregate reports of files in a directory or disk image based on input from Richard Lehane's [Siegfried](http://www.itforarchivists.com/siegfried).  
 
@@ -32,22 +32,12 @@ For a more detailed explanation of how multiple identifications are handled by S
 
 ### Installation  
 
-#### Install in Linux:  
-Clone or download Brunnhilde repository and extract to location of your choice (for use with Brunnhilde GUI, it is recommended to extract files to /usr/share/brunnhilde).   
+Brunnhilde minally requires that Python 2 or 3 and Siegfried are installed on your system. For more information, see "Dependencies" below.  
 
-#### Install in macOS/OS X with Homebrew:  
-`brew install timothyryanwalsh/digipres/brunnhilde`  
+`sudo pip install brunnhilde`  
 
-Once installed, you can call Brunnhilde on your Mac with just `brunnhilde.py [arguments]`.  
+Once installed, you can call brunnhilde with just `brunnhilde.py [arguments]`.  
 
-To upgrade from a previous version of Brunnhilde:  
-`brew update && brew upgrade timothyryanwalsh/digipres/brunnhilde`  
-
-#### Usage in Bitcurator with the Brunnhilde GUI:  
-* Create directory /usr/share/brunnhilde:  
-`sudo mkdir /usr/share/brunnhilde`  
-* Move brunnhilde.py to /usr/share/brunnhilde:  
-`sudo mv /path/to/brunnhilde.py /usr/share/brunnhilde` 
 
 ### Usage
 
@@ -132,16 +122,18 @@ To characterize HFS formatted disks, pass both the "-d" and "--hfs" flags as arg
 
 All dependencies are already installed in Bitcurator (except for an issue with HFSExplorer - see section "HFS-formatted disk iamges" above for details). See instructions below for installing dependencies if you wish to use Brunnhilde in OS X or a different Linux environment (Brunnhilde is not supported in Windows).  
 
-#### General  
+#### Core requirements
 * Python (tested in 2.7 and 3.5)
-* [Siegfried](http://www.itforarchivists.com/siegfried): Brunnhilde is now compatible with all version of Siegfried, including 1.6+. It does not support MIME-Info or FDD signatures: for Brunnhilde to work, Siegfried must be using the PRONOM signature file only. If you have been using MIME-Info or FDD signatures as a replacement for or alongside PRONOM with Siegfried 1.5/1.6 on your machine, entering "roy build -multi 0" in the terminal should return you to Siegfried's default PRONOM-only identification mode and allow Brunnhilde to work properly.  
-* tree: Installed by default in most Linux distros. On OS X, install using [Homebrew](http://brewformulas.org/tree). If tree is not installed on your machine, a blank tree.txt file will be created instead.  
+* [Siegfried](http://www.itforarchivists.com/siegfried): Brunnhilde is now compatible with all version of Siegfried, including 1.6+. It does not support MIME-Info or FDD signatures: for Brunnhilde to work, Siegfried must be using the PRONOM signature file only. If you have been using MIME-Info or FDD signatures as a replacement for or alongside PRONOM with Siegfried 1.5/1.6 on your machine, entering "roy build -multi 0" in the terminal should return you to Siegfried's default PRONOM-only identification mode and allow Brunnhilde to work properly.   
+
+#### Optional  
 * [bulk_extractor](https://github.com/simsong/bulk_extractor): Can be built on Linux and OS X from source distribution found [here](https://github.com/simsong/bulk_extractor) or installed using [Homebrew](http://brewformulas.org/BulkExtractor).  
 * [ClamAV](https://www.clamav.net): Brunnhilde checks for viruses using ClamAV, which can be built from the source distribution found at [clamav.net](http://clamav.net) or using [Homebrew](http://brewformulas.org/Clamav).   
+* tree: Installed by default in most Linux distros. On OS X, install using [Homebrew](http://brewformulas.org/tree). If tree is not installed on your machine, a blank tree.txt file will be created instead.  
 
 #### To process disk images  
 * [SleuthKit](http://www.sleuthkit.org/): Install from source or, in OS X, using [Homebrew](http://brewformulas.org/sleuthkit).
-* [HFSExplorer](https://sourceforge.net/projects/catacombae/files/HFSExplorer/0.23.1%20%28snapshot%202016-09-02%29/ ): Install from source.  
+* [HFSExplorer](https://sourceforge.net/projects/catacombae/files/HFSExplorer/0.23.1%20%28snapshot%202016-09-02%29/): Install from source.  
 
 ### Future development to-dos
 
