@@ -1,6 +1,6 @@
 ## Brunnhilde - A reporting companion to Siegfried  
 
-### Version: Brunnhilde 1.4.0  
+### Version: Brunnhilde 1.4.1  
 
 Generates aggregate reports of files in a directory or disk image based on input from Richard Lehane's [Siegfried](http://www.itforarchivists.com/siegfried).  
 
@@ -69,6 +69,8 @@ optional arguments:
 ```  
   
 For file paths containing spaces in directory names, enclose the entire path in '' or "" quotes.  
+
+In Brunnhilde 1.4.1+, Brunnhilde will accept absolute or relative paths for source and destination.  
 
 For example, the command `brunnhilde.py -z "/home/bcadmin/Desktop/Folder to Scan" /home/bcadmin/Desktop brunnhilde-test-0` will result in a new directory "brunnhilde-test-0" on the Bitcurator desktop containing various reports on input source "Folder to Scan".  
 

@@ -181,7 +181,7 @@ def get_stats(args, source_dir, scan_started, cursor, html, brunnhilde_version, 
     html.write('\n<body max>')
     html.write('\n<h1>Brunnhilde HTML report</h1>')
     html.write('\n<h3>Input source (directory or disk image)</h3>')
-    html.write('\n<p>%s</p>' % os.path.abspath(args.source))
+    html.write('\n<p>%s</p>' % source)
     html.write('\n<h3>Accession/Identifier</h3>')
     html.write('\n<p>%s</p>' % basename)
     html.write('\n<h2>Provenance information</h2>')
@@ -451,15 +451,16 @@ def _make_parser(version):
 
 def main():
     # system info
-    brunnhilde_version = 'brunnhilde 1.4.0'
+    brunnhilde_version = 'brunnhilde 1.4.1'
     siegfried_version = subprocess.check_output(["sf", "-version"]).decode()
 
     parser = _make_parser(brunnhilde_version)
     args = parser.parse_args()
 
     # global variables
-    global destination, basename, report_dir, csv_dir, log_dir, bulkext_dir, sf_file
-    destination = args.destination
+    global source, destination, basename, report_dir, csv_dir, log_dir, bulkext_dir, sf_file
+    source = os.path.abspath(args.source)
+    destination = os.path.abspath(args.destination)
     basename = args.basename
     report_dir = os.path.join(destination, '%s' % basename)
     csv_dir = os.path.join(report_dir, 'csv_reports')
@@ -513,7 +514,7 @@ def main():
 
         # export disk image contents to tempdir
         if args.hfs == True: # hfs disks
-            carvefiles = "bash /usr/share/hfsexplorer/bin/unhfs -v -resforks APPLEDOUBLE -o '%s' '%s'" % (tempdir, args.source)
+            carvefiles = "bash /usr/share/hfsexplorer/bin/unhfs -v -resforks APPLEDOUBLE -o '%s' '%s'" % (tempdir, source)
             print("\nAttempting to carve files from disk image using HFS Explorer.")
             try:
                 subprocess.call(carvefiles, shell=True)
@@ -525,7 +526,7 @@ def main():
                 sys.exit()
 
         else: # non-hfs disks (note: no UDF support yet)
-            carvefiles = ['tsk_recover', '-a', args.source, tempdir]
+            carvefiles = ['tsk_recover', '-a', source, tempdir]
             print("\nAttempting to carve files from disk image using tsk_recover.")
             try:
                 subprocess.check_output(carvefiles)
@@ -548,14 +549,14 @@ def main():
 
 
     else: #source is a directory
-        if os.path.isdir(args.source) == False:
+        if os.path.isdir(source) == False:
             print("\nSource is not a Directory. If you're processing a disk image, place '-d' before source.")
             sys.exit()
         if args.noclam == False: # run clamAV virus check unless specified otherwise
-            run_clamav(args.source)
-        process_content(args, args.source, cursor, conn, html, brunnhilde_version, siegfried_version)
+            run_clamav(source)
+        process_content(args, source, cursor, conn, html, brunnhilde_version, siegfried_version)
         if args.bulkextractor == True: # bulk extractor option is chosen
-            run_bulkext(args.source)
+            run_bulkext(source)
             write_html('Personally Identifiable Information (PII)', '%s' % os.path.join(bulkext_dir, 'pii.txt'), '\t', html)
 
     # close HTML file
