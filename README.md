@@ -70,6 +70,8 @@ optional arguments:
   
 For file paths containing spaces in directory names, enclose the entire path in '' or "" quotes.  
 
+For example, the command `brunnhilde.py -z "/home/bcadmin/Desktop/Folder to Scan" /home/bcadmin/Desktop brunnhilde-test-0` will result in a new directory "brunnhilde-test-0" on the Bitcurator desktop, which contains various reports on input source "Folder to Scan".  
+
 ### Virus scanning  
 
 By default, Brunnhilde will use ClamAV to scan the contents of a directory or files in a disk image. Findings are written to a log and to the terminal. If any threats are found, Brunnhilde will prompt the user to indicate whether they wish to continue processing the files.  
