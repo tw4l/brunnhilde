@@ -126,7 +126,7 @@ All dependencies are already installed in Bitcurator (except for an issue with H
 
 #### Core requirements
 * Python (tested in 2.7 and 3.5)
-* [Siegfried](http://www.itforarchivists.com/siegfried): Brunnhilde is now compatible with all version of Siegfried, including 1.6+. It does not support MIME-Info or FDD signatures: for Brunnhilde to work, Siegfried must be using the PRONOM signature file only. If you have been using MIME-Info or FDD signatures as a replacement for or alongside PRONOM with Siegfried 1.5/1.6 on your machine, entering "roy build -multi 0" in the terminal should return you to Siegfried's default PRONOM-only identification mode and allow Brunnhilde to work properly.   
+* [Siegfried](http://www.itforarchivists.com/siegfried): Brunnhilde is now compatible with all version of Siegfried, including 1.6+. It does not support MIME-Info or FDD signatures: for Brunnhilde to work, Siegfried must be using the PRONOM signature file only. If you have been using MIME-Info or FDD signatures as a replacement for or alongside PRONOM with Siegfried 1.5/1.6 on your machine, entering `roy build -multi 0` in the terminal should return you to Siegfried's default PRONOM-only identification mode and allow Brunnhilde to work properly.   
 
 #### Optional  
 * [bulk_extractor](https://github.com/simsong/bulk_extractor): Can be built on Linux and OS X from source distribution found [here](https://github.com/simsong/bulk_extractor) or installed using [Homebrew](http://brewformulas.org/BulkExtractor).  
