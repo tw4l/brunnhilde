@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-Brunnhilde 1.3.1
+Brunnhilde
 ---
 
 A Siegfried-based digital archives reporting tool
@@ -30,7 +30,7 @@ import sqlite3
 import subprocess
 import sys
 
-def run_siegfried(source_dir):
+def run_siegfried(args, source_dir):
     """Run siegfried on directory"""
     print("\nRunning Siegfried against %s. This may take a few minutes." % source_dir)
     global sf_command
@@ -79,7 +79,7 @@ def run_bulkext(source_dir):
     bulkext_command = "bulk_extractor -S ssn_mode=2 -o '%s' -R '%s' | tee '%s'" % (bulkext_dir, source_dir, bulkext_log)
     subprocess.call(bulkext_command, shell=True)
 
-def import_csv():
+def import_csv(cursor, conn):
     """Import csv file into sqlite db"""
     with open(sf_file, 'r') as f:
         reader = csv.reader(f)
@@ -99,7 +99,7 @@ def import_csv():
                     cursor.execute(insertsql, row)
         conn.commit()
 
-def get_stats(source_dir, scan_started):
+def get_stats(args, source_dir, scan_started, cursor, html, brunnhilde_version, siegfried_version):
     """Get aggregate statistics and write to html report"""
     
     # get stats from sqlite db
@@ -232,7 +232,7 @@ def get_stats(source_dir, scan_started):
     if args.bulkextractor == True:
         html.write('\n<p><a href="#Personally Identifiable Information (PII)">Personally Identifiable Information (PII)</a></p>')
 
-def generate_reports():
+def generate_reports(args, cursor, html):
     """Run sql queries on db to generate reports, write to csv and html"""
     full_header = ['Filename', 'Filesize', 'Date modified', 'Errors', 'Checksum', 
                 'Namespace', 'ID', 'Format', 'Format version', 'MIME type', 
@@ -242,56 +242,56 @@ def generate_reports():
     sql = "SELECT format, id, COUNT(*) as 'num' FROM siegfried GROUP BY format ORDER BY num DESC"
     path = os.path.join(csv_dir, 'formats.csv')
     format_header = ['Format', 'ID', 'Count']
-    sqlite_to_csv(sql, path, format_header)
-    write_html('File formats', path, ',')
+    sqlite_to_csv(sql, path, format_header, cursor)
+    write_html('File formats', path, ',', html)
 
     # sorted format and version list report
     sql = "SELECT format, id, version, COUNT(*) as 'num' FROM siegfried GROUP BY format, version ORDER BY num DESC"
     path = os.path.join(csv_dir, 'formatVersions.csv')
     version_header = ['Format', 'ID', 'Version', 'Count']
-    sqlite_to_csv(sql, path, version_header)
-    write_html('File formats and versions', path, ',')
+    sqlite_to_csv(sql, path, version_header, cursor)
+    write_html('File formats and versions', path, ',', html)
 
     # sorted mimetype list report
     sql = "SELECT mime, COUNT(*) as 'num' FROM siegfried GROUP BY mime ORDER BY num DESC"
     path = os.path.join(csv_dir, 'mimetypes.csv')
     mime_header = ['MIME type', 'Count']
-    sqlite_to_csv(sql, path, mime_header)
-    write_html('MIME types', path, ',')
+    sqlite_to_csv(sql, path, mime_header, cursor)
+    write_html('MIME types', path, ',', html)
 
     # dates report
     sql = "SELECT SUBSTR(modified, 1, 4) as 'year', COUNT(*) as 'num' FROM siegfried GROUP BY year ORDER BY num DESC"
     path = os.path.join(csv_dir, 'years.csv')
     year_header = ['Year Last Modified', 'Count']
-    sqlite_to_csv(sql, path, year_header)
-    write_html('Last modified dates by year', path, ',')
+    sqlite_to_csv(sql, path, year_header, cursor)
+    write_html('Last modified dates by year', path, ',', html)
 
     # unidentified files report
     sql = "SELECT * FROM siegfried WHERE id='UNKNOWN';"
     path = os.path.join(csv_dir, 'unidentified.csv')
-    sqlite_to_csv(sql, path, full_header)
-    write_html('Unidentified', path, ',')
+    sqlite_to_csv(sql, path, full_header, cursor)
+    write_html('Unidentified', path, ',', html)
     
     # warnings report
     sql = "SELECT * FROM siegfried WHERE warning <> '';"
     path = os.path.join(csv_dir, 'warnings.csv')
-    sqlite_to_csv(sql, path, full_header)
+    sqlite_to_csv(sql, path, full_header, cursor)
     if args.showwarnings == True:
-        write_html('Warnings', path, ',')
+        write_html('Warnings', path, ',', html)
 
     # errors report
     sql = "SELECT * FROM siegfried WHERE errors <> '';"
     path = os.path.join(csv_dir, 'errors.csv')
-    sqlite_to_csv(sql, path, full_header)
-    write_html('Errors', path, ',')
+    sqlite_to_csv(sql, path, full_header, cursor)
+    write_html('Errors', path, ',', html)
 
     # duplicates report
     sql = "SELECT * FROM siegfried t1 WHERE EXISTS (SELECT 1 from siegfried t2 WHERE t2.hash = t1.hash AND t1.filename != t2.filename) AND filesize<>'0' ORDER BY hash;"
     path = os.path.join(csv_dir, 'duplicates.csv')
-    sqlite_to_csv(sql, path, full_header)
-    write_html('Duplicates', path, ',')
+    sqlite_to_csv(sql, path, full_header, cursor)
+    write_html('Duplicates', path, ',', html)
 
-def sqlite_to_csv(sql, path, header):
+def sqlite_to_csv(sql, path, header, cursor):
     """Write sql query result to csv"""
     with open(path, 'w') as report:
         w = csv.writer(report)
@@ -299,7 +299,7 @@ def sqlite_to_csv(sql, path, header):
         for row in cursor.execute(sql):
             w.writerow(row)
 
-def write_html(header, path, file_delimiter):
+def write_html(header, path, file_delimiter, html):
     """Write csv file to html table"""
     with open(path, 'r') as in_file:
         # count lines and then return to start of file
@@ -397,7 +397,7 @@ def write_html(header, path, file_delimiter):
         # write link to top
         html.write('\n<p>(<a href="#top">Return to top</a>)</p>')
 
-def close_html():
+def close_html(html):
     """Write html closing tags"""
     html.write('\n</body>')
     html.write('\n</html>')
@@ -407,14 +407,14 @@ def make_tree(source_dir):
     tree_command = "tree -tDhR '%s' > '%s'" % (source_dir, os.path.join(report_dir, 'tree.txt'))
     subprocess.call(tree_command, shell=True)
 
-def process_content(source_dir):
+def process_content(args, source_dir, cursor, conn, html, brunnhilde_version, siegfried_version):
     """Run through main processing flow on specified directory"""
     scan_started = str(datetime.datetime.now()) # get time
-    run_siegfried(source_dir) # run siegfried
-    import_csv() # load csv into sqlite db
-    get_stats(source_dir, scan_started) # get aggregate stats and write to html file
-    generate_reports() # run sql queries, print to html and csv
-    close_html() # close HTML file tags
+    run_siegfried(args, source_dir) # run siegfried
+    import_csv(cursor, conn) # load csv into sqlite db
+    get_stats(args, source_dir, scan_started, cursor, html, brunnhilde_version, siegfried_version) # get aggregate stats and write to html file
+    generate_reports(args, cursor, html) # run sql queries, print to html and csv
+    close_html(html) # close HTML file tags
     make_tree(source_dir) # create tree.txt
 
 def write_pronom_links(old_file, new_file):
@@ -431,143 +431,148 @@ def write_pronom_links(old_file, new_file):
                     line = new_line # allow for more than one match per line
                 out_file.write(new_line)
 
-""" 
-MAIN FLOW
-"""
+def _make_parser(version):
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-b", "--bulkextractor", help="Run Bulk Extractor on source", action="store_true")
+    parser.add_argument("-d", "--diskimage", help="Use disk image instead of dir as input", action="store_true")
+    parser.add_argument("--hash", help="Specify hash algorithm", dest="hash", action="store", type=str)
+    parser.add_argument("--hfs", help="Use for raw disk images of HFS disks", action="store_true")
+    parser.add_argument("-n", "--noclam", help="Skip ClamScan Virus Check", action="store_true")
+    parser.add_argument("-r", "--removefiles", help="Delete 'carved_files' directory when done (disk image input only)", action="store_true")
+    parser.add_argument("-t", "--throttle", help="Pause for 1s between Siegfried scans", action="store_true")
+    parser.add_argument("-V", "--version", help="Display Brunnhilde version", action="version", version="%s" % version)
+    parser.add_argument("-w", "--showwarnings", help="Add Siegfried warnings to HTML report", action="store_true")
+    parser.add_argument("-z", "--scanarchives", help="Decompress and scan zip, tar, gzip, warc, arc with Siegfried", action="store_true")
+    parser.add_argument("source", help="Path to source directory or disk image")
+    parser.add_argument("destination", help="Path to destination for reports")
+    parser.add_argument("basename", help="Accession number or identifier, used as basename for outputs")
 
-# system info
-brunnhilde_version = 'Brunnhilde 1.3.1'
-siegfried_version = subprocess.check_output(["sf", "-version"]).decode()
+    return parser
 
-# parse arguments
-parser = argparse.ArgumentParser()
-parser.add_argument("-b", "--bulkextractor", help="Run Bulk Extractor on source", action="store_true")
-parser.add_argument("-d", "--diskimage", help="Use disk image instead of dir as input", action="store_true")
-parser.add_argument("--hash", help="Specify hash algorithm", dest="hash", action="store", type=str)
-parser.add_argument("--hfs", help="Use for raw disk images of HFS disks", action="store_true")
-parser.add_argument("-n", "--noclam", help="Skip ClamScan Virus Check", action="store_true")
-parser.add_argument("-r", "--removefiles", help="Delete 'carved_files' directory when done (disk image input only)", action="store_true")
-parser.add_argument("-t", "--throttle", help="Pause for 1s between Siegfried scans", action="store_true")
-parser.add_argument("-V", "--version", help="Display Brunnhilde version", action="version", version="%s" % brunnhilde_version)
-parser.add_argument("-w", "--showwarnings", help="Add Siegfried warnings to HTML report", action="store_true")
-parser.add_argument("-z", "--scanarchives", help="Decompress and scan zip, tar, gzip, warc, arc with Siegfried", action="store_true")
-parser.add_argument("source", help="Path to source directory or disk image")
-parser.add_argument("destination", help="Path to destination for reports")
-parser.add_argument("basename", help="Accession number or identifier, used as basename for outputs")
-args = parser.parse_args()
+def main():
+    # system info
+    brunnhilde_version = 'brunnhilde 1.4.0'
+    siegfried_version = subprocess.check_output(["sf", "-version"]).decode()
 
-# global variables
-destination = args.destination
-basename = args.basename
-report_dir = os.path.join(destination, '%s' % basename)
-csv_dir = os.path.join(report_dir, 'csv_reports')
-log_dir = os.path.join(report_dir, 'logs')
-bulkext_dir = os.path.join(report_dir, 'bulk_extractor')
-sf_file = os.path.join(report_dir, 'siegfried.csv')
+    parser = _make_parser(brunnhilde_version)
+    args = parser.parse_args()
 
-# create directory for reports
-try:
-    os.makedirs(report_dir)
-except OSError as exception:
-    if exception.errno != errno.EEXIST:
-        raise
-    
-# create subdirectory for CSV reports
-try:
-    os.makedirs(csv_dir)
-except OSError as exception:
-    if exception.errno != errno.EEXIST:
-        raise
+    # global variables
+    global destination, basename, report_dir, csv_dir, log_dir, bulkext_dir, sf_file
+    destination = args.destination
+    basename = args.basename
+    report_dir = os.path.join(destination, '%s' % basename)
+    csv_dir = os.path.join(report_dir, 'csv_reports')
+    log_dir = os.path.join(report_dir, 'logs')
+    bulkext_dir = os.path.join(report_dir, 'bulk_extractor')
+    sf_file = os.path.join(report_dir, 'siegfried.csv')
 
-# create subdirectory for logs if needed
-if args.bulkextractor == False and args.noclam == True:
-    pass
-else:
+    # create directory for reports
     try:
-        os.makedirs(log_dir)
+        os.makedirs(report_dir)
+    except OSError as exception:
+        if exception.errno != errno.EEXIST:
+            raise
+        
+    # create subdirectory for CSV reports
+    try:
+        os.makedirs(csv_dir)
     except OSError as exception:
         if exception.errno != errno.EEXIST:
             raise
 
-# create html report
-temp_html = os.path.join(report_dir, 'temp.html')
-html = open(temp_html, 'w')
-
-# open sqlite db
-db = os.path.join(report_dir, 'siegfried.sqlite')
-conn = sqlite3.connect(db)
-conn.text_factory = str  # allows utf-8 data to be stored
-cursor = conn.cursor()
-
-# characterize source
-if args.diskimage == True: # source is a disk image
-    # make tempdir
-    tempdir = os.path.join(report_dir, 'carved_files')
-    try:
-        os.makedirs(tempdir)
-    except OSError as exception:
-        if exception.errno != errno.EEXIST:
-            raise
-
-    # export disk image contents to tempdir
-    if args.hfs == True: # hfs disks
-        carvefiles = "bash /usr/share/hfsexplorer/bin/unhfs -v -resforks APPLEDOUBLE -o '%s' '%s'" % (tempdir, args.source)
-        print("\nAttempting to carve files from disk image using HFS Explorer.")
+    # create subdirectory for logs if needed
+    if args.bulkextractor == False and args.noclam == True:
+        pass
+    else:
         try:
-            subprocess.call(carvefiles, shell=True)
-            print("\nFile carving successful.")
-        except subprocess.CalledProcessError as e:
-            print(e.output)
-            print("\nBrunnhilde was unable to export files from disk image. Ending process.")
-            shutil.rmtree(report_dir)
-            sys.exit()
+            os.makedirs(log_dir)
+        except OSError as exception:
+            if exception.errno != errno.EEXIST:
+                raise
 
-    else: # non-hfs disks (note: no UDF support yet)
-        carvefiles = ['tsk_recover', '-a', args.source, tempdir]
-        print("\nAttempting to carve files from disk image using tsk_recover.")
+    # create html report
+    temp_html = os.path.join(report_dir, 'temp.html')
+    html = open(temp_html, 'w')
+
+    # open sqlite db
+    db = os.path.join(report_dir, 'siegfried.sqlite')
+    conn = sqlite3.connect(db)
+    conn.text_factory = str  # allows utf-8 data to be stored
+    cursor = conn.cursor()
+
+    # characterize source
+    if args.diskimage == True: # source is a disk image
+        # make tempdir
+        tempdir = os.path.join(report_dir, 'carved_files')
         try:
-            subprocess.check_output(carvefiles)
-            print("\nFile carving successful.")
-        except subprocess.CalledProcessError as e:
-            print(e.output)
-            print("\nBrunnhilde was unable to export files from disk image. Ending process.")
-            shutil.rmtree(report_dir)
+            os.makedirs(tempdir)
+        except OSError as exception:
+            if exception.errno != errno.EEXIST:
+                raise
+
+        # export disk image contents to tempdir
+        if args.hfs == True: # hfs disks
+            carvefiles = "bash /usr/share/hfsexplorer/bin/unhfs -v -resforks APPLEDOUBLE -o '%s' '%s'" % (tempdir, args.source)
+            print("\nAttempting to carve files from disk image using HFS Explorer.")
+            try:
+                subprocess.call(carvefiles, shell=True)
+                print("\nFile carving successful.")
+            except subprocess.CalledProcessError as e:
+                print(e.output)
+                print("\nBrunnhilde was unable to export files from disk image. Ending process.")
+                shutil.rmtree(report_dir)
+                sys.exit()
+
+        else: # non-hfs disks (note: no UDF support yet)
+            carvefiles = ['tsk_recover', '-a', args.source, tempdir]
+            print("\nAttempting to carve files from disk image using tsk_recover.")
+            try:
+                subprocess.check_output(carvefiles)
+                print("\nFile carving successful.")
+            except subprocess.CalledProcessError as e:
+                print(e.output)
+                print("\nBrunnhilde was unable to export files from disk image. Ending process.")
+                shutil.rmtree(report_dir)
+                sys.exit()
+
+        # process tempdir
+        if args.noclam == False: # run clamAV virus check unless specified otherwise
+            run_clamav(tempdir)
+        process_content(args, tempdir, cursor, conn, html, brunnhilde_version, siegfried_version)
+        if args.bulkextractor == True: # bulk extractor option is chosen
+            run_bulkext(tempdir)
+            write_html('Personally Identifiable Information (PII)', '%s' % os.path.join(bulkext_dir, 'pii.txt'), '\t', html)
+        if args.removefiles == True:
+            shutil.rmtree(tempdir)
+
+
+    else: #source is a directory
+        if os.path.isdir(args.source) == False:
+            print("\nSource is not a Directory. If you're processing a disk image, place '-d' before source.")
             sys.exit()
+        if args.noclam == False: # run clamAV virus check unless specified otherwise
+            run_clamav(args.source)
+        process_content(args, args.source, cursor, conn, html, brunnhilde_version, siegfried_version)
+        if args.bulkextractor == True: # bulk extractor option is chosen
+            run_bulkext(args.source)
+            write_html('Personally Identifiable Information (PII)', '%s' % os.path.join(bulkext_dir, 'pii.txt'), '\t', html)
 
-    # process tempdir
-    if args.noclam == False: # run clamAV virus check unless specified otherwise
-        run_clamav(tempdir)
-    process_content(tempdir)
-    if args.bulkextractor == True: # bulk extractor option is chosen
-        run_bulkext(tempdir)
-        write_html('Personally Identifiable Information (PII)', '%s' % os.path.join(bulkext_dir, 'pii.txt'), '\t')
-    if args.removefiles == True:
-        shutil.rmtree(tempdir)
+    # close HTML file
+    html.close()
 
+    # write new html file, with hrefs for PRONOM IDs
+    new_html = os.path.join(report_dir, '%s.html' % basename)
+    write_pronom_links(temp_html, new_html)
 
-else: #source is a directory
-    if os.path.isdir(args.source) == False:
-        print("\nSource is not a Directory. If you're processing a disk image, place '-d' before source.")
-        sys.exit()
-    if args.noclam == False: # run clamAV virus check unless specified otherwise
-        run_clamav(args.source)
-    process_content(args.source)
-    if args.bulkextractor == True: # bulk extractor option is chosen
-        run_bulkext(args.source)
-        write_html('Personally Identifiable Information (PII)', '%s' % os.path.join(bulkext_dir, 'pii.txt'), '\t')
+    # remove temp html file
+    os.remove(temp_html)
 
-# close HTML file
-html.close()
+    # close database connections
+    cursor.close()
+    conn.close()
 
-# write new html file, with hrefs for PRONOM IDs
-new_html = os.path.join(report_dir, '%s.html' % basename)
-write_pronom_links(temp_html, new_html)
+    print("\nProcess complete. Reports in %s." % report_dir)
 
-# remove temp html file
-os.remove(temp_html)
-
-# close database connections
-cursor.close()
-conn.close()
-
-print("\nProcess complete. Reports in %s." % report_dir)
+if __name__ == '__main__':
+    main()
