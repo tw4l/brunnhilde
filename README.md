@@ -32,6 +32,8 @@ For a more detailed explanation of how multiple identifications are handled by S
 
 ### Installation  
 
+Brunnhilde minally requires that Python 2 or 3 and Siegfried are installed on your system. For more information, see "Dependencies" below.  
+
 `sudo pip install brunnhilde`  
 
 Once installed, you can call brunnhilde with just `brunnhilde.py [arguments]`.  
