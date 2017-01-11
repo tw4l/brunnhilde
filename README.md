@@ -76,7 +76,7 @@ For example, the command `brunnhilde.py -z "/home/bcadmin/Desktop/Folder to Scan
 
 ### Virus scanning  
 
-By default, Brunnhilde will use ClamAV to scan the contents of a directory or files in a disk image. Findings are written to a log and to the terminal. If any threats are found, Brunnhilde will prompt the user to indicate whether they wish to continue processing the files.  
+By default, Brunnhilde will use ClamAV to scan the contents of a directory or files in a disk image. Findings are written to a log and to the terminal. If any threats are found, Brunnhilde will print a warning to the terminal and direct the user to the ClamAV log file.  
 
 To disable virus scanning, pass '-n' or'--noclam' as an argument.  
 
