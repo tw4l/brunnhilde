@@ -120,7 +120,7 @@ By default, Brunnhilde will keep a copy of the files exported from disk images i
 
 In this patched release, unhfs.sh is renamed to unhfs (without a file extension). If file /usr/share/hfsexplorer/bin/unhfs.sh (with file extension) exists in your system, you must update HFSExplorer with the version linked above.  
 
-To characterize HFS formatted disks, pass both the "-d" and "--hfs" flags as arguments, and be sure to use a raw disk image as the source (HFSExplorer is unable to process forensically packaged disk images). This functionality works best in Bitcurator. Non-Bitcurator environments will require you to install additional dependencies (HFSExplorer and Java) and to configure some Brunnhilde settings, such as the path to the "unhfs" script and potentially the options being passed to it.  
+To characterize HFS formatted disks, pass both the "-d" and "--hfs" flags as arguments, and be sure to use a raw disk image as the source (HFSExplorer is unable to process forensically packaged disk images). This functionality works "off the shelf" in Bitcurator. Non-Bitcurator environments will require you to install additional dependencies (HFSExplorer and Java).  
 
 ### Dependencies  
 
