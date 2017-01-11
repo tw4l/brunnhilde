@@ -72,7 +72,10 @@ For file paths containing spaces in directory names, enclose the entire path in 
 
 In Brunnhilde 1.4.1+, Brunnhilde will accept absolute or relative paths for source and destination.  
 
-For example, the command `brunnhilde.py -z "/home/bcadmin/Desktop/Folder to Scan" /home/bcadmin/Desktop brunnhilde-test-0` will result in a new directory "brunnhilde-test-0" on the Bitcurator desktop containing various reports on input source "Folder to Scan".  
+Example commands:  
+`brunnhilde.py -z "/home/bcadmin/Desktop/Folder to Scan" /home/bcadmin/Desktop brunnhilde-test-0` :  will result in a new directory "brunnhilde-test-0" on the Bitcurator desktop containing various reports on input source "Folder to Scan".  
+
+`brunnhilde.py -nz . /Users/twalsh/Desktop/ ARCH123456` : will result in new directory "ARCH123456" on Mac desktop containing various reports on current working directory (-n skips ClamAV virus scan).  
 
 ### Virus scanning  
 
