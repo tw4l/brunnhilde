@@ -124,7 +124,7 @@ To characterize HFS formatted disks, pass both the "-d" and "--hfs" flags as arg
 
 ### Dependencies  
 
-All dependencies are already installed in Bitcurator (except for an issue with HFSExplorer - see section "HFS-formatted disk iamges" above for details). See instructions below for installing dependencies if you wish to use Brunnhilde in OS X or a different Linux environment (Brunnhilde is not supported in Windows).  
+All dependencies are already installed in Bitcurator (except for an issue with HFSExplorer - see section "HFS-formatted disk images" above for details). See instructions below for installing dependencies if you wish to use Brunnhilde in OS X or a different Linux environment (Brunnhilde is not supported in Windows).  
 
 #### Core requirements
 * Python (tested in 2.7 and 3.5)
