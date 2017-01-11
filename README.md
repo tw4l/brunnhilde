@@ -68,7 +68,7 @@ optional arguments:
                        Siegfried
 ```  
   
-For file paths containing spaces in directory names, enclose the entire path in '' or "" quotes.  
+For file paths containing spaces in directory names, enclose the entire path in single or double quotes, or (in versions 1.4.1+) make sure spaces are escaped properly (e.g. `CCA\ Finding\ Aid\ Demo\`).  
 
 In Brunnhilde 1.4.1+, Brunnhilde will accept absolute or relative paths for source and destination.  
 
