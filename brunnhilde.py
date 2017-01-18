@@ -82,7 +82,7 @@ def run_bulkext(source_dir):
 def import_csv(cursor, conn):
     """Import csv file into sqlite db"""
     with open(sf_file, 'r') as f:
-        reader = csv.reader(f)
+        reader = csv.reader(x.replace('\0', '') for x in f) # replace null bytes with empty strings on read
         header = True
         for row in reader:
             if header:
