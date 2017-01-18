@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name = 'brunnhilde',
-    version = '1.4.1',
+    version = '1.4.2',
     url = 'https://github.com/timothyryanwalsh/brunnhilde',
     author = 'Tim Walsh',
     author_email = 'timothyryanwalsh@gmail.com',
