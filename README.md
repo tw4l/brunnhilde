@@ -125,7 +125,9 @@ In this patched release, unhfs.sh is renamed to unhfs (without a file extension)
 
 In order to continue using the HFSExplorer GUI in Bitcurator after updating HFSExplorer, right-click on the HFS Explorer icon in "Additional Tools", select "Properties", and amend the text in "Command" to:  
 
-`/usr/share/hfsexplorer/bin/./hfsexplorer % F`  
+`/usr/share/hfsexplorer/bin/./hfsexplorer %F`  
+
+(The above step removes the .sh file extension for the script called, reflecting a change in the HFSExplorer source in the latest release)  
 
 To characterize HFS formatted disks in Brunnhilde, pass both the "-d" and "--hfs" flags as arguments, and be sure to use a raw disk image as the source (HFSExplorer is unable to process forensically packaged disk images). This functionality works "off the shelf" in Bitcurator. Non-Bitcurator environments will require you to install additional dependencies (HFSExplorer and Java).  
 
