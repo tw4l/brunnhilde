@@ -573,7 +573,7 @@ def main():
     cursor.close()
     conn.close()
 
-    print("\nProcess complete. Reports in %s." % report_dir)
+    print("\nBrunnhilde characterization complete. Reports in %s." % report_dir)
 
 if __name__ == '__main__':
     main()
