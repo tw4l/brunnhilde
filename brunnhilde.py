@@ -135,8 +135,12 @@ def get_stats(args, source_dir, scan_started, cursor, html, brunnhilde_version, 
         years = []
         for row in r:
             years.append(row[0])
-        begin_date = min(years, key=float)
-        end_date = max(years, key=float)
+        if years is not None:
+            begin_date = min(years, key=float)
+            end_date = max(years, key=float)
+        else:
+            begin_date = "N/A"
+            end_date = "N/A"
     os.remove(year_path) # delete temporary "uniqueyear" file from csv reports directory
 
     datemodified_sql = "SELECT DISTINCT modified FROM siegfried;" # min and max full modified date
@@ -150,8 +154,12 @@ def get_stats(args, source_dir, scan_started, cursor, html, brunnhilde_version, 
         dates = []
         for row in r:
             dates.append(row[0])
-        earliest_date = min(dates)
-        latest_date = max(dates)
+        if dates is not None:
+            earliest_date = min(dates)
+            latest_date = max(dates)
+        else:
+            earliest_date = "N/A"
+            latest_date = "N/A"
     os.remove(datemodified_path)
 
     cursor.execute("SELECT COUNT(DISTINCT format) as formats from siegfried WHERE format <> '';") # number of identfied file formats
