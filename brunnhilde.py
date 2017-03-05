@@ -459,7 +459,7 @@ def _make_parser(version):
 
 def main():
     # system info
-    brunnhilde_version = 'brunnhilde 1.4.3'
+    brunnhilde_version = 'brunnhilde 1.4.4'
     siegfried_version = subprocess.check_output(["sf", "-version"]).decode()
 
     parser = _make_parser(brunnhilde_version)
