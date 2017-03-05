@@ -2,14 +2,14 @@ from setuptools import setup
 
 setup(
     name = 'brunnhilde',
-    version = '1.4.2',
+    version = '1.4.3',
     url = 'https://github.com/timothyryanwalsh/brunnhilde',
     author = 'Tim Walsh',
     author_email = 'timothyryanwalsh@gmail.com',
     py_modules = ['brunnhilde'],
     scripts = ['brunnhilde.py'],
     description = 'A Siegfried-based digital archives reporting tool for directories and disk images',
-    keywords = 'archives reporting formats directories diskimages',
+    keywords = 'archives reporting characterization identification diskimages',
     platforms = ['POSIX'],
     classifiers = [
         'Development Status :: 5 - Production/Stable',
