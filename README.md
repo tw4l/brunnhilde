@@ -32,6 +32,8 @@ For a more detailed explanation of how multiple identifications are handled by S
 
 ### Installation  
 
+Brunnhilde and all of its dependencies are already installed in Bitcurator version 1.7.106+.  
+
 Brunnhilde minimally requires that Python 2 or 3 and Siegfried are installed on your system. For more information, see "Dependencies" below.  
 
 `sudo pip install brunnhilde`  
@@ -119,11 +121,11 @@ By default, Brunnhilde will keep a copy of the files exported from disk images i
 
 ### HFS-formatted disk images  
 
-**Important note: unhfs, the command-line version of HFSExplorer, until recently had a bug that prevented some files from being extracted from HFS disks. Be sure that you have the [latest version](https://sourceforge.net/projects/catacombae/files/HFSExplorer/0.23.1%20%28snapshot%202016-09-02%29/) of HFSExplorer installed. On Bitcurator, this must be done manually by replacing the contents of /usr/share/hfsexplorer with the downloaded and extracted source.**  
+**Important note: unhfs, the command-line version of HFSExplorer, until recently had a bug that prevented some files from being extracted from HFS disks. Be sure that you have the [latest version](https://sourceforge.net/projects/catacombae/files/HFSExplorer/0.23.1%20%28snapshot%202016-09-02%29/) of HFSExplorer installed. In Bitcurator 1.7.106+, this issue is fixed in the standard installation.**  
 
 In this patched release, unhfs.sh is renamed to unhfs (without a file extension). If file /usr/share/hfsexplorer/bin/unhfs.sh (with file extension) exists in your system, you must update HFSExplorer with the version linked above.  
 
-In order to continue using the HFSExplorer GUI in Bitcurator after updating HFSExplorer, right-click on the HFS Explorer icon in "Additional Tools", select "Properties", and amend the text in "Command" to:  
+In Bitcurator Versions before 1.7.106, installation of the latest release of HFSEexplorer must be done manually by replacing the contents of /usr/share/hfsexplorer with the downloaded and extracted source. In order to continue using the HFSExplorer GUI in Bitcurator versions before 1.7.106 after updating HFSExplorer, right-click on the HFS Explorer icon in "Additional Tools", select "Properties", and amend the text in "Command" to:  
 
 `/usr/share/hfsexplorer/bin/./hfsexplorer %F`  
 
@@ -133,7 +135,7 @@ To characterize HFS formatted disks in Brunnhilde, pass both the "-d" and "--hfs
 
 ### Dependencies  
 
-All dependencies are already installed in Bitcurator (except for an issue with HFSExplorer - see section "HFS-formatted disk images" above for details). See instructions below for installing dependencies if you wish to use Brunnhilde in OS X or a different Linux environment (Brunnhilde is not supported in Windows).  
+All dependencies are already installed in Bitcurator 1.7.106+. See instructions below for installing dependencies if you wish to use Brunnhilde in macOS or a different Linux environment (Brunnhilde is not supported in Windows).  
 
 #### Core requirements
 * Python (tested in 2.7 and 3.5)
