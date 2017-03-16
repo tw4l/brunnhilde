@@ -32,7 +32,7 @@ For a more detailed explanation of how multiple identifications are handled by S
 
 ### Installation  
 
-Brunnhilde and all of its dependencies are already installed in Bitcurator version 1.7.106+.  
+Brunnhilde and all of its dependencies are already installed in Bitcurator version 1.7.106+. In versions 1.7.112+, a terminal launcher for Brunnhilde is included in the "Forensics Tools" folder on the Bitcurator desktop.  
 
 Brunnhilde minimally requires that Python 2 or 3 and Siegfried are installed on your system. For more information, see "Dependencies" below.  
 
