@@ -177,6 +177,7 @@ def get_stats(args, source_dir, scan_started, cursor, html, brunnhilde_version, 
     size = size.replace('K', ' KB')
     size = size.replace('M', ' MB')
     size = size.replace('G', ' GB')
+    size = size.replace('T', ' TB')
 
     # write html
     html.write('<!DOCTYPE html>')
