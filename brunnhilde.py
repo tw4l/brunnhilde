@@ -557,6 +557,9 @@ def main():
                 carvefiles.insert(3, '--tsk_sector_offset')
                 carvefiles.insert(4, args.tsk_sector_offset)
             
+            #TESTING ONLY - print list
+            print(carvefiles)
+
             # call command
             try:
                 subprocess.check_output(carvefiles)
