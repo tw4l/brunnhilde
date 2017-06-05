@@ -542,9 +542,9 @@ def main():
             print("\nAttempting to carve files from disk image using tsk_recover.")
             # recover allocated or all files depending on user input
             if args.allocated == True:
-                carvefiles = ['tsk_recover', '-v', '-e', source, tempdir]
+                carvefiles = ['tsk_recover', '-a', source, tempdir]
             else:
-                carvefiles = ['tsk_recover', '-v', '-e', source, tempdir]
+                carvefiles = ['tsk_recover', '-e', source, tempdir]
 
             # add optional user-supplied inputs at appropriate list indices
             if args.tsk_fstype:
