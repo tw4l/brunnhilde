@@ -539,8 +539,25 @@ def main():
                 sys.exit()
 
         else: # non-hfs disks (note: no UDF support yet)
-            carvefiles = ['tsk_recover', '-v', '-a', source, tempdir]
             print("\nAttempting to carve files from disk image using tsk_recover.")
+            # recover allocated or all files depending on user input
+            if args.allocated == True:
+                carvefiles = ['tsk_recover', '-v', '-e', source, tempdir]
+            else:
+                carvefiles = ['tsk_recover', '-v', '-e', source, tempdir]
+
+            # add optional user-supplied inputs at appropriate list indices
+            if args.tsk_fstype:
+                carvefiles.insert(3, '--tsk_fstype')
+                carvefiles.insert(4, args.tsk_fstype)
+            if args.tsk_imgtype:
+                carvefiles.insert(3, '--tsk_imgtype')
+                carvefiles.insert(4, args.tsk_imgtype)
+            if args.tsk_sector_offset:
+                carvefiles.insert(3, '--tsk_sector_offset')
+                carvefiles.insert(4, args.tsk_sector_offset)
+            
+            # call command
             try:
                 subprocess.check_output(carvefiles)
                 print("\nFile carving successful.")
