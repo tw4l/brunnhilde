@@ -442,6 +442,7 @@ def write_pronom_links(old_file, new_file):
 
 def _make_parser(version):
     parser = argparse.ArgumentParser()
+    parser.add_argument("-a", "--allocated", help="Instruct tsk_recover to export only allocated files (recovers all files by default)", action="store_true")
     parser.add_argument("-b", "--bulkextractor", help="Run Bulk Extractor on source", action="store_true")
     parser.add_argument("-d", "--diskimage", help="Use disk image instead of dir as input", action="store_true")
     parser.add_argument("--hash", help="Specify hash algorithm", dest="hash", action="store", type=str)
@@ -449,6 +450,9 @@ def _make_parser(version):
     parser.add_argument("-n", "--noclam", help="Skip ClamScan Virus Check", action="store_true")
     parser.add_argument("-r", "--removefiles", help="Delete 'carved_files' directory when done (disk image input only)", action="store_true")
     parser.add_argument("-t", "--throttle", help="Pause for 1s between Siegfried scans", action="store_true")
+    parser.add_argument("--tsk_imgtype", help="Specify format of image type for tsk_recover. See tsk_recover man page for details", action="store")
+    parser.add_argument("--tsk_fstype", help="Specify file system type for tsk_recover. See tsk_recover man page for details", action="store")
+    parser.add_argument("--tsk_sector_offset", help="Sector offset for particular volume for tsk_recover to recover", action="store")
     parser.add_argument("-V", "--version", help="Display Brunnhilde version", action="version", version="%s" % version)
     parser.add_argument("-w", "--showwarnings", help="Add Siegfried warnings to HTML report", action="store_true")
     parser.add_argument("-z", "--scanarchives", help="Decompress and scan zip, tar, gzip, warc, arc with Siegfried", action="store_true")
@@ -535,7 +539,7 @@ def main():
                 sys.exit()
 
         else: # non-hfs disks (note: no UDF support yet)
-            carvefiles = ['tsk_recover', '-a', source, tempdir]
+            carvefiles = ['tsk_recover', '-v', '-a', source, tempdir]
             print("\nAttempting to carve files from disk image using tsk_recover.")
             try:
                 subprocess.check_output(carvefiles)
