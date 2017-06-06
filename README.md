@@ -1,6 +1,6 @@
 ## Brunnhilde - A reporting companion to Siegfried  
 
-### Version: Brunnhilde 1.4.4  
+### Version: Brunnhilde 1.5.0  
 
 Generates aggregate reports of files in a directory or disk image based on input from Richard Lehane's [Siegfried](http://www.itforarchivists.com/siegfried).  
 
@@ -117,7 +117,17 @@ To enable scanning of files with bulk_extractor, pass '-b' or '--bulkextractor' 
 
 In -d mode, Brunnhilde uses SleuthKit's tsk_recover to export files from a disk image into a "carved files" directory for analysis. This works with raw images by default. In Bitcurator or any other environment where libewf has been compiled into SleuthKit, Brunnhilde's -d mode also supports forensic disk image formats, including aff and ewf (E01). Due to the limitations of SleuthKit, Brunnhilde does not yet support characterizing disks that use the UDF filesystem.  
 
-By default, Brunnhilde will keep a copy of the files exported from disk images in a "carved_files" directory. If you do not wish to keep a copy of these files after reporting is finished, you can pass the "-r" or "--removefiles" flags as arguments to Brunnhilde, which will cause it to delete the "carved_files" directory once all other tasks have finished.    
+By default, Brunnhilde will keep a copy of the files exported from disk images in a "carved_files" directory. If you do not wish to keep a copy of these files after reporting is finished, you can pass the "-r" or "--removefiles" flags as arguments to Brunnhilde, which will cause it to delete the "carved_files" directory once all other tasks have finished.
+
+Brunnhilde 1.5.0+ includes some options for more granular control of tsk_recover:
+
+-a: Export only allocated files (by default, Brunnhilde instructs tsk_recover to extract all files from disk images, including deleted files, for reporting)  
+--tsk_fstype: Specify file system type in image (if not specified, tsk_recover will make best guess; to see possible values, type `tsk_recover -f list` in a terminal)  
+--tsk_imgtype: Specify disk image type (if not specified, tsk_recover will make best guess; to see possible values, type `tsk_recover -f list` in a terminal)  
+--tsk_sector_offset: Specify which volume on a disk to extract files from based on sector offset (see tsk_recover man page for more details)  
+
+An example command for these values might be:  
+`brunnhilde.py -d --tsk_fstype fat --tsk_imgtype ewf --tsk_sector_offset 59 sampleimage.E01 . sampleimage_brunnhilde`
 
 ### HFS-formatted disk images  
 
