@@ -32,7 +32,7 @@ For a more detailed explanation of how multiple identifications are handled by S
 
 ### Installation  
 
-Brunnhilde and all of its dependencies are already installed in Bitcurator version 1.7.106+. In versions 1.8.0+, a terminal launcher for Brunnhilde is included in the "Forensics and Reporting" folder on the Bitcurator desktop.  
+Brunnhilde and all of its dependencies are already installed in BitCurator version 1.7.106+. In versions 1.8.0+, a terminal launcher for Brunnhilde is included in the "Forensics and Reporting" folder on the BitCurator desktop.  
 
 Brunnhilde minimally requires that Python 2 or 3 and Siegfried are installed on your system. For more information, see "Dependencies" below.  
 
@@ -87,7 +87,7 @@ For file paths containing spaces in directory names, enclose the entire path in 
 In Brunnhilde 1.4.1+, Brunnhilde will accept absolute or relative paths for source and destination.  
 
 Example commands:  
-`brunnhilde.py -z "/home/bcadmin/Desktop/Folder to Scan" /home/bcadmin/Desktop brunnhilde-test-0` :  will result in a new directory "brunnhilde-test-0" on the Bitcurator desktop containing various reports on input source "Folder to Scan".  
+`brunnhilde.py -z "/home/bcadmin/Desktop/Folder to Scan" /home/bcadmin/Desktop brunnhilde-test-0` :  will result in a new directory "brunnhilde-test-0" on the BitCurator desktop containing various reports on input source "Folder to Scan".  
 
 `brunnhilde.py -nz . /Users/twalsh/Desktop/ ARCH123456` : will result in new directory "ARCH123456" on Mac desktop containing various reports on current working directory (-n skips ClamAV virus scan).  
 
@@ -127,7 +127,9 @@ To enable scanning of files with bulk_extractor, pass '-b' or '--bulkextractor' 
 
 ### Using disk images as input  
 
-In -d mode, Brunnhilde uses SleuthKit's tsk_recover to export files from a disk image into a "carved files" directory for analysis. This works with raw images by default. In Bitcurator or any other environment where libewf has been compiled into SleuthKit, Brunnhilde's -d mode also supports forensic disk image formats, including aff and ewf (E01). Due to the limitations of SleuthKit, Brunnhilde does not yet support characterizing disks that use the UDF filesystem.  
+In -d mode, Brunnhilde uses SleuthKit's tsk_recover to export files from a disk image into a "carved files" directory for analysis. This works with raw images by default. In BitCurator or any other environment where libewf has been compiled into SleuthKit, Brunnhilde's -d mode also supports forensic disk image formats, including aff and ewf (E01). Due to the limitations of SleuthKit, Brunnhilde does not yet support characterizing disks that use the UDF filesystem.  
+
+**Note: tsk_recover does not retain file system dates, so the date reporting functionality of Brunnhilde is limited for non-HFS disk images. It is advised to create DFXML or similar files to retain/analyze file system metadata such as date stamps.**
 
 By default, Brunnhilde will keep a copy of the files exported from disk images in a "carved_files" directory. If you do not wish to keep a copy of these files after reporting is finished, you can pass the "-r" or "--removefiles" flags as arguments to Brunnhilde, which will cause it to delete the "carved_files" directory once all other tasks have finished.
 
@@ -141,23 +143,21 @@ Brunnhilde 1.5.0+ includes some options for more granular control of tsk_recover
 An example command for these values might be:  
 `brunnhilde.py -d --tsk_fstype fat --tsk_imgtype ewf --tsk_sector_offset 59 sampleimage.E01 . sampleimage_brunnhilde`
 
-**Note: tsk_recover does not retain file system dates, so the date reporting functionality of Brunnhilde is limited for non-HFS disk images. It is advised to create DFXML or similar files to retain/analyze file system metadata such as date stamps.**
-
 ### HFS-formatted disk images  
 
-**Important note: unhfs, the command-line version of HFSExplorer, until recently had a bug that prevented some files from being extracted from HFS disks. Be sure that you have the [latest version](https://sourceforge.net/projects/catacombae/files/HFSExplorer/0.23.1%20%28snapshot%202016-09-02%29/) of HFSExplorer installed. In Bitcurator 1.7.106+, this issue is fixed in the standard installation.**  
+**Important note: unhfs, the command-line version of HFSExplorer, until recently had a bug that prevented some files from being extracted from HFS disks. Be sure that you have the [latest version](https://sourceforge.net/projects/catacombae/files/HFSExplorer/0.23.1%20%28snapshot%202016-09-02%29/) of HFSExplorer installed. In BitCurator 1.7.106+, this issue is fixed in the standard installation.**  
 
 In this patched release, unhfs.sh is renamed to unhfs (without a file extension). If file /usr/share/hfsexplorer/bin/unhfs.sh (with file extension) exists in your system, you must update HFSExplorer with the version linked above.  
 
-In Bitcurator versions before 1.7.106, installation of the latest release of HFSEexplorer must be done manually by replacing the contents of /usr/share/hfsexplorer with the downloaded and extracted source. In order to continue using the HFSExplorer GUI in Bitcurator versions before 1.7.106 after updating HFSExplorer, right-click on the HFS Explorer icon in "Additional Tools", select "Properties", and amend the text in "Command" to:  
+In BitCurator versions before 1.7.106, installation of the latest release of HFSEexplorer must be done manually by replacing the contents of /usr/share/hfsexplorer with the downloaded and extracted source. In order to continue using the HFSExplorer GUI in BitCurator versions before 1.7.106 after updating HFSExplorer, right-click on the HFS Explorer icon in "Additional Tools", select "Properties", and amend the text in "Command" to:  
 
 `/usr/share/hfsexplorer/bin/./hfsexplorer %F`   
 
-To characterize HFS formatted disks in Brunnhilde, pass both the "-d" and "--hfs" flags as arguments, and be sure to use a raw disk image as the source (HFSExplorer is unable to process forensically packaged disk images). This functionality works "off the shelf" in Bitcurator. Non-Bitcurator environments will require you to install additional dependencies (HFSExplorer and Java).  
+To characterize HFS formatted disks in Brunnhilde, pass both the "-d" and "--hfs" flags as arguments, and be sure to use a raw disk image as the source (HFSExplorer is unable to process forensically packaged disk images). This functionality works "off the shelf" in BitCurator. Non-BitCurator environments will require you to install additional dependencies (HFSExplorer and Java).  
 
 ### Dependencies  
 
-All dependencies are already installed in Bitcurator 1.7.106+. See instructions below for installing dependencies if you wish to use Brunnhilde in macOS or a different Linux environment (Brunnhilde is not supported in Windows).  
+All dependencies are already installed in BitCurator 1.7.106+. See instructions below for installing dependencies if you wish to use Brunnhilde in macOS or a different Linux environment (Brunnhilde is not supported in Windows).  
 
 #### Core requirements
 * Python (tested in 2.7 and 3.5)
