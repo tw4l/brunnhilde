@@ -135,7 +135,7 @@ Brunnhilde 1.5.0+ includes some options for more granular control of tsk_recover
 
 -a: Export only allocated files (by default, Brunnhilde instructs tsk_recover to extract all files from disk images, including deleted files, for reporting)  
 --tsk_fstype: Specify file system type in image (if not specified, tsk_recover will make best guess; to see possible values, type `tsk_recover -f list` in a terminal)  
---tsk_imgtype: Specify disk image type (if not specified, tsk_recover will make best guess; to see possible values, type `tsk_recover -f list` in a terminal)  
+--tsk_imgtype: Specify disk image type (if not specified, tsk_recover will make best guess; to see possible values, type `tsk_recover -i list` in a terminal)  
 --tsk_sector_offset: Specify which volume on a disk to extract files from based on sector offset (see tsk_recover man page for more details)  
 
 An example command for these values might be:  
