@@ -187,7 +187,7 @@ def get_stats(args, source_dir, scan_started, cursor, html, brunnhilde_version, 
     html.write('\n<meta http-equiv="Content-Type" content="text/html; charset=utf-8">')
     html.write('\n<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">')
     html.write('\n</head>')
-    html.write('\n<body max>')
+    html.write('\n<body max style="5px">')
     html.write('\n<h1>Brunnhilde HTML report</h1>')
     html.write('\n<h3>Input source (directory or disk image)</h3>')
     html.write('\n<p>%s</p>' % source)
