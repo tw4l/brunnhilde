@@ -141,7 +141,7 @@ Brunnhilde 1.5.0+ includes some options for more granular control of tsk_recover
 --tsk_sector_offset: Specify which volume on a disk to extract files from based on sector offset (see tsk_recover man page for more details)  
 
 An example command for these values might be:  
-`brunnhilde.py -d --tsk_fstype fat --tsk_imgtype ewf --tsk_sector_offset 59 sampleimage.E01 . sampleimage_brunnhilde`
+`brunnhilde.py -d --tsk_fstype fat --tsk_imgtype ewf --tsk_sector_offset 59 sampleimage.E01 . test0`
 
 ### HFS-formatted disk images  
 
