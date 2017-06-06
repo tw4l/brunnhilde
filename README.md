@@ -129,6 +129,8 @@ Brunnhilde 1.5.0+ includes some options for more granular control of tsk_recover
 An example command for these values might be:  
 `brunnhilde.py -d --tsk_fstype fat --tsk_imgtype ewf --tsk_sector_offset 59 sampleimage.E01 . sampleimage_brunnhilde`
 
+**Note: tsk_recover does not retain file system dates, so the date reporting functionality of Brunnhilde is limited for non-HFS disk images. It is advised to create DFXML or similar files to retain/analyze file system metadata such as date stamps.**
+
 ### HFS-formatted disk images  
 
 **Important note: unhfs, the command-line version of HFSExplorer, until recently had a bug that prevented some files from being extracted from HFS disks. Be sure that you have the [latest version](https://sourceforge.net/projects/catacombae/files/HFSExplorer/0.23.1%20%28snapshot%202016-09-02%29/) of HFSExplorer installed. In Bitcurator 1.7.106+, this issue is fixed in the standard installation.**  
