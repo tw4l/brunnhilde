@@ -44,30 +44,42 @@ Once installed, you can call brunnhilde with just `brunnhilde.py [arguments]`.
 ### Usage
 
 ```  
-usage: brunnhilde.py [-h] [-b] [-d] [--hash HASH] [--hfs] [-n] [-r] [-t] [-V]
-                     [-w] [-z]
+usage: brunnhilde.py [-h] [-a] [-b] [-d] [--hash HASH] [--hfs] [-n] [-r] [-t]
+                     [--tsk_imgtype TSK_IMGTYPE] [--tsk_fstype TSK_FSTYPE]
+                     [--tsk_sector_offset TSK_SECTOR_OFFSET] [-V] [-w] [-z]
                      source destination basename
 
 positional arguments:
-  source               Path to source directory or disk image
-  destination          Path to destination for reports
-  basename             Accession number or identifier, used as basename for
-                       outputs
+  source                Path to source directory or disk image
+  destination           Path to destination for reports
+  basename              Accession number or identifier, used as basename for
+                        outputs
 
 optional arguments:
-  -h, --help           show this help message and exit
-  -b, --bulkextractor  Run Bulk Extractor on source
-  -d, --diskimage      Use disk image instead of dir as input
-  --hash HASH          Specify hash algorithm
-  --hfs                Use for raw disk images of HFS disks
-  -n, --noclam         Skip ClamScan Virus Check
-  -r, --removefiles    Delete 'carved_files' directory when done (disk image
-                       input only)
-  -t, --throttle       Pause for 1s between Siegfried scans
-  -V, --version        Display Brunnhilde version
-  -w, --showwarnings   Add Siegfried warnings to HTML report
-  -z, --scanarchives   Decompress and scan zip, tar, gzip, warc, arc with
-                       Siegfried
+  -h, --help            show this help message and exit
+  -a, --allocated       Instruct tsk_recover to export only allocated files
+                        (recovers all files by default)
+  -b, --bulkextractor   Run Bulk Extractor on source
+  -d, --diskimage       Use disk image instead of dir as input
+  --hash HASH           Specify hash algorithm
+  --hfs                 Use for raw disk images of HFS disks
+  -n, --noclam          Skip ClamScan Virus Check
+  -r, --removefiles     Delete 'carved_files' directory when done (disk image
+                        input only)
+  -t, --throttle        Pause for 1s between Siegfried scans
+  --tsk_imgtype TSK_IMGTYPE
+                        Specify format of image type for tsk_recover. See
+                        tsk_recover man page for details
+  --tsk_fstype TSK_FSTYPE
+                        Specify file system type for tsk_recover. See
+                        tsk_recover man page for details
+  --tsk_sector_offset TSK_SECTOR_OFFSET
+                        Sector offset for particular volume for tsk_recover to
+                        recover
+  -V, --version         Display Brunnhilde version
+  -w, --showwarnings    Add Siegfried warnings to HTML report
+  -z, --scanarchives    Decompress and scan zip, tar, gzip, warc, arc with
+                        Siegfried
 ```  
   
 For file paths containing spaces in directory names, enclose the entire path in single or double quotes, or (in versions 1.4.1+) make sure spaces are escaped properly (e.g. `CCA\ Finding\ Aid\ Demo\`).  
