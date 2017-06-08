@@ -41,7 +41,7 @@ def run_siegfried(args, source_dir):
         hash_type = 'sha256'
     elif args.hash == 'sha512':
         hash_type = 'sha512'
-    sf_command = "sf -csv -hash %s '%s' > '%s'" % (hash_type, source_dir, sf_file)
+    sf_command = 'sf -csv -hash %s "%s" > "%s"' % (hash_type, source_dir, sf_file)
     if args.scanarchives == True:
         sf_command = sf_command.replace('sf -csv', 'sf -z -csv')
     if args.throttle == True:
@@ -134,7 +134,8 @@ def get_stats(args, source_dir, scan_started, cursor, html, brunnhilde_version, 
         r = csv.reader(year_report)
         years = []
         for row in r:
-            years.append(row[0])
+            if row:
+                years.append(row[0])
         if not years:
             begin_date = "N/A"
             end_date = "N/A"  
@@ -153,7 +154,8 @@ def get_stats(args, source_dir, scan_started, cursor, html, brunnhilde_version, 
         r = csv.reader(date_report)
         dates = []
         for row in r:
-            dates.append(row[0])
+            if row:
+                dates.append(row[0])
         if not dates:
             earliest_date = "N/A"
             latest_date = "N/A"
@@ -172,7 +174,10 @@ def get_stats(args, source_dir, scan_started, cursor, html, brunnhilde_version, 
     num_warnings = cursor.fetchone()[0]
 
     # get size from du and format
-    size = subprocess.check_output(['du', '-sh', source_dir]).decode()
+    if sys.platform.startswith('win'):
+        size = "N/A (haven't figured out how to make this work in Windows yet)"
+    else:
+        size = subprocess.check_output(['du', '-sh', source_dir]).decode()
     size = size.replace('%s' % source_dir, '')
     size = size.replace('K', ' KB')
     size = size.replace('M', ' MB')
@@ -354,7 +359,8 @@ def write_html(header, path, file_delimiter, html):
                 # read md5s from csv and write to list
                 hash_list = []
                 for row in r:
-                    hash_list.append(row[4])
+                    if row:
+                        hash_list.append(row[4])
                 # deduplicate md5_list
                 hash_list = list(OrderedDict.fromkeys(hash_list))
                 hash_list.remove('Checksum')
