@@ -17,6 +17,8 @@ stderr = logging.StreamHandler()
 stderr.setLevel(logging.WARNING)
 logging.getLogger().addHandler(stderr)
 
+def is_non_zero_file(fpath):  
+    return os.path.isfile(fpath) and os.path.getsize(fpath) > 0
 
 class SelfCleaningTestCase(unittest.TestCase):
     """TestCase subclass which cleans up self.tmpdir after each test"""
@@ -53,29 +55,29 @@ class TestBrunnhildeIntegration(SelfCleaningTestCase):
         subprocess.call("python ./brunnhilde.py %s %s brunnhilde_test" % (self.src_tmpdir, 
             self.dest_tmpdir), shell=True)
         # siegfried csv and sqlite db
-        self.assertTrue(os.path.isfile(os.path.join(self.dest_tmpdir, 'brunnhilde_test', 
+        self.assertTrue(is_non_zero_file(os.path.join(self.dest_tmpdir, 'brunnhilde_test', 
             'siegfried.csv')))
-        self.assertTrue(os.path.isfile(os.path.join(self.dest_tmpdir, 'brunnhilde_test', 
+        self.assertTrue(is_non_zero_file(os.path.join(self.dest_tmpdir, 'brunnhilde_test', 
             'siegfried.sqlite')))
         # html report
-        self.assertTrue(os.path.isfile(os.path.join(self.dest_tmpdir, 'brunnhilde_test', 
+        self.assertTrue(is_non_zero_file(os.path.join(self.dest_tmpdir, 'brunnhilde_test', 
             'brunnhilde_test.html')))
         # csv reports
-        self.assertTrue(os.path.isfile(os.path.join(self.dest_tmpdir, 'brunnhilde_test', 
+        self.assertTrue(is_non_zero_file(os.path.join(self.dest_tmpdir, 'brunnhilde_test', 
             'csv_reports', 'duplicates.csv')))
-        self.assertTrue(os.path.isfile(os.path.join(self.dest_tmpdir, 'brunnhilde_test', 
+        self.assertTrue(is_non_zero_file(os.path.join(self.dest_tmpdir, 'brunnhilde_test', 
             'csv_reports', 'errors.csv')))
-        self.assertTrue(os.path.isfile(os.path.join(self.dest_tmpdir, 'brunnhilde_test', 
+        self.assertTrue(is_non_zero_file(os.path.join(self.dest_tmpdir, 'brunnhilde_test', 
             'csv_reports', 'formats.csv')))
-        self.assertTrue(os.path.isfile(os.path.join(self.dest_tmpdir, 'brunnhilde_test', 
+        self.assertTrue(is_non_zero_file(os.path.join(self.dest_tmpdir, 'brunnhilde_test', 
             'csv_reports', 'formatVersions.csv')))
-        self.assertTrue(os.path.isfile(os.path.join(self.dest_tmpdir, 'brunnhilde_test', 
+        self.assertTrue(is_non_zero_file(os.path.join(self.dest_tmpdir, 'brunnhilde_test', 
             'csv_reports', 'mimetypes.csv')))
-        self.assertTrue(os.path.isfile(os.path.join(self.dest_tmpdir, 'brunnhilde_test', 
+        self.assertTrue(is_non_zero_file(os.path.join(self.dest_tmpdir, 'brunnhilde_test', 
             'csv_reports', 'unidentified.csv')))
-        self.assertTrue(os.path.isfile(os.path.join(self.dest_tmpdir, 'brunnhilde_test', 
+        self.assertTrue(is_non_zero_file(os.path.join(self.dest_tmpdir, 'brunnhilde_test', 
             'csv_reports', 'warnings.csv')))
-        self.assertTrue(os.path.isfile(os.path.join(self.dest_tmpdir, 'brunnhilde_test', 
+        self.assertTrue(is_non_zero_file(os.path.join(self.dest_tmpdir, 'brunnhilde_test', 
             'csv_reports', 'years.csv')))
         # tree.txt
         self.assertTrue(os.path.isfile(os.path.join(self.dest_tmpdir, 'brunnhilde_test', 
