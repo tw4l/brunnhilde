@@ -11,6 +11,7 @@ setup(
     description = 'A Siegfried-based digital archives reporting tool for directories and disk images',
     keywords = 'archives reporting characterization identification diskimages',
     platforms = ['POSIX'],
+    test_suite='test',
     classifiers = [
         'Development Status :: 5 - Production/Stable',
         'License :: OSI Approved :: MIT License',
