@@ -45,6 +45,9 @@ class SelfCleaningTestCase(unittest.TestCase):
 
 
 class TestBrunnhildeIntegration(SelfCleaningTestCase):
+    """
+    Integration tests. sf (Siegfried) must be installed on user's system for tests to work.
+    """
 
     def test_integration_outputs_created(self):
         subprocess.call("python ./brunnhilde.py %s %s brunnhilde_test" % (self.src_tmpdir, 
