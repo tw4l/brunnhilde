@@ -187,7 +187,7 @@ def get_stats(args, source_dir, scan_started, cursor, html, brunnhilde_version, 
     html.write('\n<meta http-equiv="Content-Type" content="text/html; charset=utf-8">')
     html.write('\n<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">')
     html.write('\n</head>')
-    html.write('\n<body max>')
+    html.write('\n<body style="margin:5px">')
     html.write('\n<h1>Brunnhilde HTML report</h1>')
     html.write('\n<h3>Input source (directory or disk image)</h3>')
     html.write('\n<p>%s</p>' % source)
@@ -442,6 +442,7 @@ def write_pronom_links(old_file, new_file):
 
 def _make_parser(version):
     parser = argparse.ArgumentParser()
+    parser.add_argument("-a", "--allocated", help="Instruct tsk_recover to export only allocated files (recovers all files by default)", action="store_true")
     parser.add_argument("-b", "--bulkextractor", help="Run Bulk Extractor on source", action="store_true")
     parser.add_argument("-d", "--diskimage", help="Use disk image instead of dir as input", action="store_true")
     parser.add_argument("--hash", help="Specify hash algorithm", dest="hash", action="store", type=str)
@@ -449,6 +450,9 @@ def _make_parser(version):
     parser.add_argument("-n", "--noclam", help="Skip ClamScan Virus Check", action="store_true")
     parser.add_argument("-r", "--removefiles", help="Delete 'carved_files' directory when done (disk image input only)", action="store_true")
     parser.add_argument("-t", "--throttle", help="Pause for 1s between Siegfried scans", action="store_true")
+    parser.add_argument("--tsk_imgtype", help="Specify format of image type for tsk_recover. See tsk_recover man page for details", action="store")
+    parser.add_argument("--tsk_fstype", help="Specify file system type for tsk_recover. See tsk_recover man page for details", action="store")
+    parser.add_argument("--tsk_sector_offset", help="Sector offset for particular volume for tsk_recover to recover", action="store")
     parser.add_argument("-V", "--version", help="Display Brunnhilde version", action="version", version="%s" % version)
     parser.add_argument("-w", "--showwarnings", help="Add Siegfried warnings to HTML report", action="store_true")
     parser.add_argument("-z", "--scanarchives", help="Decompress and scan zip, tar, gzip, warc, arc with Siegfried", action="store_true")
@@ -460,7 +464,7 @@ def _make_parser(version):
 
 def main():
     # system info
-    brunnhilde_version = 'brunnhilde 1.4.4'
+    brunnhilde_version = 'brunnhilde 1.5.0'
     siegfried_version = subprocess.check_output(["sf", "-version"]).decode()
 
     parser = _make_parser(brunnhilde_version)
@@ -535,8 +539,25 @@ def main():
                 sys.exit()
 
         else: # non-hfs disks (note: no UDF support yet)
-            carvefiles = ['tsk_recover', '-a', source, tempdir]
             print("\nAttempting to carve files from disk image using tsk_recover.")
+            # recover allocated or all files depending on user input
+            if args.allocated == True:
+                carvefiles = ['tsk_recover', '-a', source, tempdir]
+            else:
+                carvefiles = ['tsk_recover', '-e', source, tempdir]
+
+            # add optional user-supplied inputs at appropriate list indices
+            if args.tsk_fstype:
+                carvefiles.insert(3, '-f')
+                carvefiles.insert(4, args.tsk_fstype)
+            if args.tsk_imgtype:
+                carvefiles.insert(3, '-i')
+                carvefiles.insert(4, args.tsk_imgtype)
+            if args.tsk_sector_offset:
+                carvefiles.insert(3, '-o')
+                carvefiles.insert(4, args.tsk_sector_offset)
+
+            # call command
             try:
                 subprocess.check_output(carvefiles)
                 print("\nFile carving successful.")
