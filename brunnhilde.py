@@ -446,14 +446,14 @@ def _make_parser(version):
     parser.add_argument("-b", "--bulkextractor", help="Run Bulk Extractor on source", action="store_true")
     parser.add_argument("--ssn_mode", help="Specify ssn_mode for Bulk Extractor (0, 1, or 2)", action="store", type=int)
     parser.add_argument("-d", "--diskimage", help="Use disk image instead of dir as input", action="store_true")
-    parser.add_argument("--hash", help="Specify hash algorithm", dest="hash", action="store", type=str)
     parser.add_argument("--hfs", help="Use for raw disk images of HFS disks", action="store_true")
-    parser.add_argument("-n", "--noclam", help="Skip ClamScan Virus Check", action="store_true")
-    parser.add_argument("-r", "--removefiles", help="Delete 'carved_files' directory when done (disk image input only)", action="store_true")
-    parser.add_argument("-t", "--throttle", help="Pause for 1s between Siegfried scans", action="store_true")
     parser.add_argument("--tsk_imgtype", help="Specify format of image type for tsk_recover. See tsk_recover man page for details", action="store")
     parser.add_argument("--tsk_fstype", help="Specify file system type for tsk_recover. See tsk_recover man page for details", action="store")
     parser.add_argument("--tsk_sector_offset", help="Sector offset for particular volume for tsk_recover to recover", action="store")
+    parser.add_argument("--hash", help="Specify hash algorithm", dest="hash", action="store", type=str)
+    parser.add_argument("-n", "--noclam", help="Skip ClamScan Virus Check", action="store_true")
+    parser.add_argument("-r", "--removefiles", help="Delete 'carved_files' directory when done (disk image input only)", action="store_true")
+    parser.add_argument("-t", "--throttle", help="Pause for 1s between Siegfried scans", action="store_true")
     parser.add_argument("-V", "--version", help="Display Brunnhilde version", action="version", version="%s" % version)
     parser.add_argument("-w", "--showwarnings", help="Add Siegfried warnings to HTML report", action="store_true")
     parser.add_argument("-z", "--scanarchives", help="Decompress and scan zip, tar, gzip, warc, arc with Siegfried", action="store_true")
@@ -465,7 +465,7 @@ def _make_parser(version):
 
 def main():
     # system info
-    brunnhilde_version = 'brunnhilde 1.5.0'
+    brunnhilde_version = 'brunnhilde 1.5.1'
     siegfried_version = subprocess.check_output(["sf", "-version"]).decode()
 
     parser = _make_parser(brunnhilde_version)
