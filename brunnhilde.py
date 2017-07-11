@@ -67,7 +67,7 @@ def run_clamav(source_dir):
     else:
         print("\nNo infections found in %s." % source_dir)
 
-def run_bulkext(source_dir):
+def run_bulkext(source_dir, ssn_mode):
     """Run bulk extractor on directory"""
     bulkext_log = os.path.join(log_dir, 'bulkext-log.txt')
     print("\nRunning Bulk Extractor on %s. This may take a few minutes." % source_dir)
@@ -76,7 +76,7 @@ def run_bulkext(source_dir):
     except OSError as exception:
         if exception.errno != errno.EEXIST:
             raise
-    bulkext_command = "bulk_extractor -S ssn_mode=2 -o '%s' -R '%s' | tee '%s'" % (bulkext_dir, source_dir, bulkext_log)
+    bulkext_command = "bulk_extractor -S ssn_mode=%d -o '%s' -R '%s' | tee '%s'" % (ssn_mode, bulkext_dir, source_dir, bulkext_log)
     subprocess.call(bulkext_command, shell=True)
 
 def import_csv(cursor, conn):
@@ -444,6 +444,7 @@ def _make_parser(version):
     parser = argparse.ArgumentParser()
     parser.add_argument("-a", "--allocated", help="Instruct tsk_recover to export only allocated files (recovers all files by default)", action="store_true")
     parser.add_argument("-b", "--bulkextractor", help="Run Bulk Extractor on source", action="store_true")
+    parser.add_argument("--ssn_mode", help="Specify ssn_mode for Bulk Extractor (0, 1, or 2)", action="store", type=int)
     parser.add_argument("-d", "--diskimage", help="Use disk image instead of dir as input", action="store_true")
     parser.add_argument("--hash", help="Specify hash algorithm", dest="hash", action="store", type=str)
     parser.add_argument("--hfs", help="Use for raw disk images of HFS disks", action="store_true")
@@ -471,7 +472,7 @@ def main():
     args = parser.parse_args()
 
     # global variables
-    global source, destination, basename, report_dir, csv_dir, log_dir, bulkext_dir, sf_file
+    global source, destination, basename, report_dir, csv_dir, log_dir, bulkext_dir, sf_file, ssn_mode
     source = os.path.abspath(args.source)
     destination = os.path.abspath(args.destination)
     basename = args.basename
@@ -480,6 +481,12 @@ def main():
     log_dir = os.path.join(report_dir, 'logs')
     bulkext_dir = os.path.join(report_dir, 'bulk_extractor')
     sf_file = os.path.join(report_dir, 'siegfried.csv')
+
+    # ssn_mode - default to 1 if not provided
+    if args.ssn_mode in (0, 2):
+        ssn_mode = args.ssn_mode
+    else:
+        ssn_mode = 1
 
     # create directory for reports
     try:
@@ -572,7 +579,7 @@ def main():
             run_clamav(tempdir)
         process_content(args, tempdir, cursor, conn, html, brunnhilde_version, siegfried_version)
         if args.bulkextractor == True: # bulk extractor option is chosen
-            run_bulkext(tempdir)
+            run_bulkext(tempdir, ssn_mode)
             write_html('Personally Identifiable Information (PII)', '%s' % os.path.join(bulkext_dir, 'pii.txt'), '\t', html)
         if args.removefiles == True:
             shutil.rmtree(tempdir)
@@ -586,7 +593,7 @@ def main():
             run_clamav(source)
         process_content(args, source, cursor, conn, html, brunnhilde_version, siegfried_version)
         if args.bulkextractor == True: # bulk extractor option is chosen
-            run_bulkext(source)
+            run_bulkext(source, ssn_mode)
             write_html('Personally Identifiable Information (PII)', '%s' % os.path.join(bulkext_dir, 'pii.txt'), '\t', html)
 
     # close HTML file
