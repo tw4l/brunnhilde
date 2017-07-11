@@ -1,6 +1,6 @@
 ## Brunnhilde - A reporting companion to Siegfried  
 
-### Version: Brunnhilde 1.5.0  
+### Version: Brunnhilde 1.5.1  
 
 Generates aggregate reports of files in a directory or disk image based on input from Richard Lehane's [Siegfried](http://www.itforarchivists.com/siegfried).  
 
@@ -44,9 +44,10 @@ Once installed, you can call brunnhilde with just `brunnhilde.py [arguments]`.
 ### Usage
 
 ```  
-usage: brunnhilde.py [-h] [-a] [-b] [-d] [--hash HASH] [--hfs] [-n] [-r] [-t]
+usage: brunnhilde.py [-h] [-a] [-b] [--ssn_mode SSN_MODE] [-d] [--hfs]
                      [--tsk_imgtype TSK_IMGTYPE] [--tsk_fstype TSK_FSTYPE]
-                     [--tsk_sector_offset TSK_SECTOR_OFFSET] [-V] [-w] [-z]
+                     [--tsk_sector_offset TSK_SECTOR_OFFSET] [--hash HASH]
+                     [-n] [-r] [-t] [-V] [-w] [-z]
                      source destination basename
 
 positional arguments:
@@ -60,13 +61,9 @@ optional arguments:
   -a, --allocated       Instruct tsk_recover to export only allocated files
                         (recovers all files by default)
   -b, --bulkextractor   Run Bulk Extractor on source
+  --ssn_mode SSN_MODE   Specify ssn_mode for Bulk Extractor (0, 1, or 2)
   -d, --diskimage       Use disk image instead of dir as input
-  --hash HASH           Specify hash algorithm
   --hfs                 Use for raw disk images of HFS disks
-  -n, --noclam          Skip ClamScan Virus Check
-  -r, --removefiles     Delete 'carved_files' directory when done (disk image
-                        input only)
-  -t, --throttle        Pause for 1s between Siegfried scans
   --tsk_imgtype TSK_IMGTYPE
                         Specify format of image type for tsk_recover. See
                         tsk_recover man page for details
@@ -76,10 +73,17 @@ optional arguments:
   --tsk_sector_offset TSK_SECTOR_OFFSET
                         Sector offset for particular volume for tsk_recover to
                         recover
+  --hash HASH           Specify hash algorithm
+  -n, --noclam          Skip ClamScan Virus Check
+  -r, --removefiles     Delete 'carved_files' directory when done (disk image
+                        input only)
+  -t, --throttle        Pause for 1s between Siegfried scans
   -V, --version         Display Brunnhilde version
   -w, --showwarnings    Add Siegfried warnings to HTML report
   -z, --scanarchives    Decompress and scan zip, tar, gzip, warc, arc with
                         Siegfried
+
+
 ```  
   
 For file paths containing spaces in directory names, enclose the entire path in single or double quotes, or (in versions 1.4.1+) make sure spaces are escaped properly (e.g. `CCA\ Finding\ Aid\ Demo\`).  
@@ -124,6 +128,16 @@ To include Siegfried warnings in the report, pass '-w' or '--showwarnings' as an
 ### bulk_extractor  
 
 To enable scanning of files with bulk_extractor, pass '-b' or '--bulkextractor' as arguments. This is disabled by default. Results are written to a 'bulk_extractor' sub-directory. In addition, running bulk_extractor adds a "Personal Identifiable Information (PII)" section to the HTML report to enable quick scanning of these results.  
+
+In Brunnhilde 1.5.1+, specify the ssn_mode passed to bulk_extractor with `--ssn_mode INT`. Valid choices are 0, 1, or 2. If not specified, Brunnhilde will default to 1. See the following explanation of the modes from the [bulkextractor 1.5 release notes](https://github.com/simsong/bulk_extractor/blob/master/doc/announce/announce_1.5.md):
+
+```
+SSN recognition: you are now able to specify one of three SSN recognition modes:  
+
+-S ssn_mode=0 SSN’s must be labeled “SSN:”. Dashes or no dashes are okay.  
+-S ssn_mode=1 No “SSN” required, but dashes are required.  
+-S ssn_mode=2 No dashes required. Allow any 9-digit number that matches SSN allocation range.  
+```
 
 ### Using disk images as input  
 
