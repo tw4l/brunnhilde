@@ -44,10 +44,10 @@ Once installed, you can call brunnhilde with just `brunnhilde.py [arguments]`.
 ### Usage
 
 ```  
-usage: brunnhilde.py [-h] [-a] [-b] [--ssn_mode SSN_MODE] [-d] [--hash HASH]
-                     [--hfs] [-n] [-r] [-t] [--tsk_imgtype TSK_IMGTYPE]
-                     [--tsk_fstype TSK_FSTYPE]
-                     [--tsk_sector_offset TSK_SECTOR_OFFSET] [-V] [-w] [-z]
+usage: brunnhilde.py [-h] [-a] [-b] [--ssn_mode SSN_MODE] [-d] [--hfs]
+                     [--tsk_imgtype TSK_IMGTYPE] [--tsk_fstype TSK_FSTYPE]
+                     [--tsk_sector_offset TSK_SECTOR_OFFSET] [--hash HASH]
+                     [-n] [-r] [-t] [-V] [-w] [-z]
                      source destination basename
 
 positional arguments:
@@ -63,12 +63,7 @@ optional arguments:
   -b, --bulkextractor   Run Bulk Extractor on source
   --ssn_mode SSN_MODE   Specify ssn_mode for Bulk Extractor (0, 1, or 2)
   -d, --diskimage       Use disk image instead of dir as input
-  --hash HASH           Specify hash algorithm
   --hfs                 Use for raw disk images of HFS disks
-  -n, --noclam          Skip ClamScan Virus Check
-  -r, --removefiles     Delete 'carved_files' directory when done (disk image
-                        input only)
-  -t, --throttle        Pause for 1s between Siegfried scans
   --tsk_imgtype TSK_IMGTYPE
                         Specify format of image type for tsk_recover. See
                         tsk_recover man page for details
@@ -78,10 +73,16 @@ optional arguments:
   --tsk_sector_offset TSK_SECTOR_OFFSET
                         Sector offset for particular volume for tsk_recover to
                         recover
+  --hash HASH           Specify hash algorithm
+  -n, --noclam          Skip ClamScan Virus Check
+  -r, --removefiles     Delete 'carved_files' directory when done (disk image
+                        input only)
+  -t, --throttle        Pause for 1s between Siegfried scans
   -V, --version         Display Brunnhilde version
   -w, --showwarnings    Add Siegfried warnings to HTML report
   -z, --scanarchives    Decompress and scan zip, tar, gzip, warc, arc with
                         Siegfried
+
 
 ```  
   
