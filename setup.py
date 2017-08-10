@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name = 'brunnhilde',
-    version = '1.5.1',
+    version = '1.5.2',
     url = 'https://github.com/timothyryanwalsh/brunnhilde',
     author = 'Tim Walsh',
     author_email = 'timothyryanwalsh@gmail.com',
@@ -24,6 +24,7 @@ setup(
         'Topic :: Communications :: File Sharing',
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
         'Topic :: Database',
         'Topic :: System :: Archiving',
         'Topic :: System :: Filesystems',
