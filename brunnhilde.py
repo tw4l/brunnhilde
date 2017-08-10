@@ -555,14 +555,14 @@ def main():
 
             # add optional user-supplied inputs at appropriate list indices
             if args.tsk_fstype:
-                carvefiles.insert(3, '-f')
-                carvefiles.insert(4, args.tsk_fstype)
+                carvefiles.insert(2, '-f')
+                carvefiles.insert(3, args.tsk_fstype)
             if args.tsk_imgtype:
-                carvefiles.insert(3, '-i')
-                carvefiles.insert(4, args.tsk_imgtype)
+                carvefiles.insert(2, '-i')
+                carvefiles.insert(3, args.tsk_imgtype)
             if args.tsk_sector_offset:
-                carvefiles.insert(3, '-o')
-                carvefiles.insert(4, args.tsk_sector_offset)
+                carvefiles.insert(2, '-o')
+                carvefiles.insert(3, args.tsk_sector_offset)
 
             # call command
             try:
