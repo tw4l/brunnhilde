@@ -30,18 +30,21 @@ import sqlite3
 import subprocess
 import sys
 
-def run_siegfried(args, source_dir):
+def run_siegfried(args, source_dir, use_hash):
     """Run siegfried on directory"""
     print("\nRunning Siegfried against %s. This may take a few minutes." % source_dir)
     global sf_command
-    hash_type = 'md5'
-    if args.hash == 'sha1':
-        hash_type = 'sha1'
-    elif args.hash == 'sha256':
-        hash_type = 'sha256'
-    elif args.hash == 'sha512':
-        hash_type = 'sha512'
-    sf_command = 'sf -csv -hash %s "%s" > "%s"' % (hash_type, source_dir, sf_file)
+    if use_hash == True:
+        hash_type = 'md5'
+        if args.hash == 'sha1':
+            hash_type = 'sha1'
+        elif args.hash == 'sha256':
+            hash_type = 'sha256'
+        elif args.hash == 'sha512':
+            hash_type = 'sha512'
+        sf_command = 'sf -csv -hash %s "%s" > "%s"' % (hash_type, source_dir, sf_file)
+    else:
+        sf_command = 'sf -csv "%s" > "%s"' % (source_dir, sf_file)
     if args.scanarchives == True:
         sf_command = sf_command.replace('sf -csv', 'sf -z -csv')
     if args.throttle == True:
@@ -79,7 +82,7 @@ def run_bulkext(source_dir, ssn_mode):
     bulkext_command = 'bulk_extractor -S ssn_mode=%d -o "%s" -R "%s" | tee "%s"' % (ssn_mode, bulkext_dir, source_dir, bulkext_log)
     subprocess.call(bulkext_command, shell=True)
 
-def import_csv(cursor, conn):
+def import_csv(cursor, conn, use_hash):
     """Import csv file into sqlite db"""
     with open(sf_file, 'r') as f:
         reader = csv.reader(x.replace('\0', '') for x in f) # replace null bytes with empty strings on read
@@ -89,7 +92,10 @@ def import_csv(cursor, conn):
                 header = False # gather column names from first row of csv
                 sql = "DROP TABLE IF EXISTS siegfried"
                 cursor.execute(sql)
-                sql = "CREATE TABLE siegfried (filename text, filesize text, modified text, errors text, hash text, namespace text, id text, format text, version text, mime text, basis text, warning text)"
+                if use_hash == True:
+                    sql = "CREATE TABLE siegfried (filename text, filesize text, modified text, errors text, hash text, namespace text, id text, format text, version text, mime text, basis text, warning text)"
+                else:
+                    sql = "CREATE TABLE siegfried (filename text, filesize text, modified text, errors text, namespace text, id text, format text, version text, mime text, basis text, warning text)"
                 cursor.execute(sql)
                 insertsql = "INSERT INTO siegfried VALUES (%s)" % (", ".join([ "?" for column in row ]))
                 rowlen = len(row)
@@ -99,27 +105,28 @@ def import_csv(cursor, conn):
                     cursor.execute(insertsql, row)
         conn.commit()
 
-def get_stats(args, source_dir, scan_started, cursor, html, brunnhilde_version, siegfried_version):
+def get_stats(args, source_dir, scan_started, cursor, html, brunnhilde_version, siegfried_version, use_hash):
     """Get aggregate statistics and write to html report"""
     
     # get stats from sqlite db
     cursor.execute("SELECT COUNT(*) from siegfried;") # total files
     num_files = cursor.fetchone()[0]
 
-    cursor.execute("SELECT COUNT(DISTINCT hash) from siegfried WHERE filesize<>'0';") # distinct files
-    distinct_files = cursor.fetchone()[0]
-
     cursor.execute("SELECT COUNT(*) from siegfried where filesize='0';") # empty files
     empty_files = cursor.fetchone()[0]
 
-    cursor.execute("SELECT COUNT(hash) FROM siegfried t1 WHERE EXISTS (SELECT 1 from siegfried t2 WHERE t2.hash = t1.hash AND t1.filename != t2.filename) AND filesize<>'0'") # duplicates
-    all_dupes = cursor.fetchone()[0]
+    if use_hash == True:
+        cursor.execute("SELECT COUNT(DISTINCT hash) from siegfried WHERE filesize<>'0';") # distinct files
+        distinct_files = cursor.fetchone()[0]
+    
+        cursor.execute("SELECT COUNT(hash) FROM siegfried t1 WHERE EXISTS (SELECT 1 from siegfried t2 WHERE t2.hash = t1.hash AND t1.filename != t2.filename) AND filesize<>'0'") # duplicates
+        all_dupes = cursor.fetchone()[0]
 
-    cursor.execute("SELECT COUNT(DISTINCT hash) FROM siegfried t1 WHERE EXISTS (SELECT 1 from siegfried t2 WHERE t2.hash = t1.hash AND t1.filename != t2.filename) AND filesize<>'0'") # distinct duplicates
-    distinct_dupes = cursor.fetchone()[0]
+        cursor.execute("SELECT COUNT(DISTINCT hash) FROM siegfried t1 WHERE EXISTS (SELECT 1 from siegfried t2 WHERE t2.hash = t1.hash AND t1.filename != t2.filename) AND filesize<>'0'") # distinct duplicates
+        distinct_dupes = cursor.fetchone()[0]
 
-    duplicate_copies = int(all_dupes) - int(distinct_dupes) # number of duplicate copies of unique files
-    duplicate_copies = str(duplicate_copies)
+        duplicate_copies = int(all_dupes) - int(distinct_dupes) # number of duplicate copies of unique files
+        duplicate_copies = str(duplicate_copies)
 
     cursor.execute("SELECT COUNT(*) FROM siegfried WHERE id='UNKNOWN';") # unidentified files
     unidentified_files = cursor.fetchone()[0]
@@ -209,12 +216,16 @@ def get_stats(args, source_dir, scan_started, cursor, html, brunnhilde_version, 
     html.write('\n<p>Years (last modified): %s - %s</p>' % (begin_date, end_date))
     html.write('\n<p>Earliest date: %s</p>' % earliest_date)
     html.write('\n<p>Latest date: %s</p>' % latest_date)
-    html.write('\n<h3>File contents*</h3>')
-    html.write('\n<p>Distinct files: %s</p>' % distinct_files)
-    html.write('\n<p>Distinct files that have duplicates: %s</p>' % distinct_dupes)
-    html.write('\n<p>Duplicate copies of distinct files: %s</p>' % duplicate_copies)
+    if use_hash == True:
+        html.write('\n<h3>File contents*</h3>')
+        html.write('\n<p>Distinct files: %s</p>' % distinct_files)
+        html.write('\n<p>Distinct files that have duplicates: %s</p>' % distinct_dupes)
+        html.write('\n<p>Duplicate copies of distinct files: %s</p>' % duplicate_copies)
+    else:
+        html.write('\n<h3>File contents</h3>')
     html.write('\n<p>Empty files: %s</p>' % empty_files)
-    html.write('\n<p>*<em>Calculated by hash value. Empty files are not counted in first three categories. Total files = distinct files + duplicate copies + empty files.</em></p>')
+    if use_hash == True:
+        html.write('\n<p>*<em>Calculated by hash value. Empty files are not counted in first three categories. Total files = distinct files + duplicate copies + empty files.</em></p>')
     html.write('\n<h3>Format identification</h3>')
     html.write('\n<p>Identified file formats: %s</p>' % num_formats)
     html.write('\n<p>Unidentified files: %s</p>' % unidentified_files)
@@ -237,15 +248,19 @@ def get_stats(args, source_dir, scan_started, cursor, html, brunnhilde_version, 
     if args.showwarnings == True:
         html.write('\n<p><a href="#Warnings">Warnings</a></p>')
     html.write('\n<p><a href="#Errors">Errors</a></p>')
-    html.write('\n<p><a href="#Duplicates">Duplicates</a></p>')
+    if use_hash == True:
+        html.write('\n<p><a href="#Duplicates">Duplicates</a></p>')
     if args.bulkextractor == True:
         html.write('\n<p><a href="#Personally Identifiable Information (PII)">Personally Identifiable Information (PII)</a></p>')
 
-def generate_reports(args, cursor, html):
+def generate_reports(args, cursor, html, use_hash):
     """Run sql queries on db to generate reports, write to csv and html"""
     full_header = ['Filename', 'Filesize', 'Date modified', 'Errors', 'Checksum', 
                 'Namespace', 'ID', 'Format', 'Format version', 'MIME type', 
                 'Basis for ID', 'Warning']
+    if use_hash == False:
+        full_header = ['Filename', 'Filesize', 'Date modified', 'Errors', 'Namespace', 
+                'ID', 'Format', 'Format version', 'MIME type', 'Basis for ID', 'Warning']
 
     # sorted format list report
     sql = "SELECT format, id, COUNT(*) as 'num' FROM siegfried GROUP BY format ORDER BY num DESC"
@@ -294,11 +309,12 @@ def generate_reports(args, cursor, html):
     sqlite_to_csv(sql, path, full_header, cursor)
     write_html('Errors', path, ',', html)
 
-    # duplicates report
-    sql = "SELECT * FROM siegfried t1 WHERE EXISTS (SELECT 1 from siegfried t2 WHERE t2.hash = t1.hash AND t1.filename != t2.filename) AND filesize<>'0' ORDER BY hash;"
-    path = os.path.join(csv_dir, 'duplicates.csv')
-    sqlite_to_csv(sql, path, full_header, cursor)
-    write_html('Duplicates', path, ',', html)
+    if use_hash == True:
+        # duplicates report
+        sql = "SELECT * FROM siegfried t1 WHERE EXISTS (SELECT 1 from siegfried t2 WHERE t2.hash = t1.hash AND t1.filename != t2.filename) AND filesize<>'0' ORDER BY hash;"
+        path = os.path.join(csv_dir, 'duplicates.csv')
+        sqlite_to_csv(sql, path, full_header, cursor)
+        write_html('Duplicates', path, ',', html)
 
 def sqlite_to_csv(sql, path, header, cursor):
     """Write sql query result to csv"""
@@ -416,13 +432,13 @@ def make_tree(source_dir):
     tree_command = 'tree -tDhR "%s" > "%s"' % (source_dir, os.path.join(report_dir, 'tree.txt'))
     subprocess.call(tree_command, shell=True)
 
-def process_content(args, source_dir, cursor, conn, html, brunnhilde_version, siegfried_version):
+def process_content(args, source_dir, cursor, conn, html, brunnhilde_version, siegfried_version, use_hash):
     """Run through main processing flow on specified directory"""
     scan_started = str(datetime.datetime.now()) # get time
-    run_siegfried(args, source_dir) # run siegfried
-    import_csv(cursor, conn) # load csv into sqlite db
-    get_stats(args, source_dir, scan_started, cursor, html, brunnhilde_version, siegfried_version) # get aggregate stats and write to html file
-    generate_reports(args, cursor, html) # run sql queries, print to html and csv
+    run_siegfried(args, source_dir, use_hash) # run siegfried
+    import_csv(cursor, conn, use_hash) # load csv into sqlite db
+    get_stats(args, source_dir, scan_started, cursor, html, brunnhilde_version, siegfried_version, use_hash) # get aggregate stats and write to html file
+    generate_reports(args, cursor, html, use_hash) # run sql queries, print to html and csv
     close_html(html) # close HTML file tags
     make_tree(source_dir) # create tree.txt
 
@@ -465,7 +481,7 @@ def _make_parser(version):
 
 def main():
     # system info
-    brunnhilde_version = 'brunnhilde 1.5.3'
+    brunnhilde_version = 'brunnhilde 1.5.4'
     siegfried_version = subprocess.check_output(["sf", "-version"]).decode()
 
     parser = _make_parser(brunnhilde_version)
@@ -481,6 +497,11 @@ def main():
     log_dir = os.path.join(report_dir, 'logs')
     bulkext_dir = os.path.join(report_dir, 'bulk_extractor')
     sf_file = os.path.join(report_dir, 'siegfried.csv')
+
+    # check to see if hash specified is 'none'
+    use_hash = True
+    if args.hash == 'none':
+        use_hash = False
 
     # ssn_mode - default to 1 if not provided
     if args.ssn_mode in (0, 2):
@@ -577,7 +598,7 @@ def main():
         # process tempdir
         if args.noclam == False: # run clamAV virus check unless specified otherwise
             run_clamav(tempdir)
-        process_content(args, tempdir, cursor, conn, html, brunnhilde_version, siegfried_version)
+        process_content(args, tempdir, cursor, conn, html, brunnhilde_version, siegfried_version, use_hash)
         if args.bulkextractor == True: # bulk extractor option is chosen
             run_bulkext(tempdir, ssn_mode)
             write_html('Personally Identifiable Information (PII)', '%s' % os.path.join(bulkext_dir, 'pii.txt'), '\t', html)
@@ -591,7 +612,7 @@ def main():
             sys.exit()
         if args.noclam == False: # run clamAV virus check unless specified otherwise
             run_clamav(source)
-        process_content(args, source, cursor, conn, html, brunnhilde_version, siegfried_version)
+        process_content(args, source, cursor, conn, html, brunnhilde_version, siegfried_version, use_hash)
         if args.bulkextractor == True: # bulk extractor option is chosen
             run_bulkext(source, ssn_mode)
             write_html('Personally Identifiable Information (PII)', '%s' % os.path.join(bulkext_dir, 'pii.txt'), '\t', html)

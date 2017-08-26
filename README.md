@@ -1,6 +1,6 @@
 ## Brunnhilde - A reporting companion to Siegfried  
 
-### Version: Brunnhilde 1.5.3  
+### Version: Brunnhilde 1.5.4  
 
 Generates aggregate reports of files in a directory or disk image based on input from Richard Lehane's [Siegfried](http://www.itforarchivists.com/siegfried).  
 
@@ -115,9 +115,11 @@ To force Siegfried to pause for 1 second between file scans, pass '-t' or '--thr
 
 ### Specifying hash type  
 
-Brunnhilde uses the md5 hash algorithm by default. Other options are sha1, sha256, or sha512.  
+Brunnhilde uses the md5 hash algorithm by default. Other options are sha1, sha256, sha512, or none.  
 
-To change the type of hash used, pass '--hash HASH' as an argument to Brunnhilde, replacing HASH with your choice of sha1, sha256, or sha512.   
+To change the type of hash used, pass '--hash HASH' as an argument to Brunnhilde, replacing HASH with your choice of sha1, sha256, or sha512.
+
+If the user specifies not to calculate checksums with '--hash none', the resulting CSV outputs and HTML report will not contain information calculated from hash values, namely information about duplicates in the source.
 
 ### Report completeness  
 
