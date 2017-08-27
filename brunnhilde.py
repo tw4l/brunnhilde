@@ -175,7 +175,7 @@ def get_stats(args, source_dir, scan_started, cursor, html, brunnhilde_version, 
 
     # get size from du and format
     if sys.platform.startswith('win'):
-        size = "N/A (haven't figured out how to make this work in Windows yet)"
+        size = "N/A (haven't figured out how to make this work in Windows yet)" # see: https://docs.microsoft.com/en-us/sysinternals/downloads/du
     else:
         size = subprocess.check_output(['du', '-sh', source_dir]).decode()
     size = size.replace('%s' % source_dir, '')
