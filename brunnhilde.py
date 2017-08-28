@@ -223,24 +223,13 @@ def get_stats(args, source_dir, scan_started, cursor, html, brunnhilde_version, 
     cursor.execute("SELECT COUNT(*) FROM siegfried WHERE warning <> '';") # number of siegfried warnings
     num_warnings = cursor.fetchone()[0]
 
-    
-    size = ''
-    # in windows, calculate size with recursive dirwalk and format
-    if sys.platform.startswith('win'):
-        size_bytes = 0
-        for root, dirs, files in os.walk(source_dir):
-            for f in files:
-                fp = os.path.join(root, f)
-                size_bytes += os.path.getsize(fp)
-        size = convert_size(size_bytes)
-    # in linux/mac, get size from du and format
-    else:
-        size = subprocess.check_output(['du', '-sh', source_dir]).decode()
-        size = size.replace('%s' % source_dir, '')
-        size = size.replace('K', ' KB')
-        size = size.replace('M', ' MB')
-        size = size.replace('G', ' GB')
-        size = size.replace('T', ' TB')
+    # calculate size from recursive dirwalk and format
+    size_bytes = 0
+    for root, dirs, files in os.walk(source_dir):
+        for f in files:
+            fp = os.path.join(root, f)
+            size_bytes += os.path.getsize(fp)
+    size = convert_size(size_bytes)
 
     # write html
     html.write('<!DOCTYPE html>')
