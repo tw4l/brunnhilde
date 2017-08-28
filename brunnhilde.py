@@ -23,6 +23,7 @@ import csv
 import datetime
 import errno
 from itertools import islice
+import math
 import os
 import re
 import shutil
@@ -81,6 +82,18 @@ def run_bulkext(source_dir, ssn_mode):
             raise
     bulkext_command = 'bulk_extractor -S ssn_mode=%d -o "%s" -R "%s" | tee "%s"' % (ssn_mode, bulkext_dir, source_dir, bulkext_log)
     subprocess.call(bulkext_command, shell=True)
+
+def convert_size(size):
+    # convert size to human-readable form
+    if (size == 0):
+        return '0 bytes'
+    size_name = ("bytes", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB")
+    i = int(math.floor(math.log(size,1024)))
+    p = math.pow(1024,i)
+    s = round(size/p)
+    s = str(s)
+    s = s.replace('.0', '')
+    return '%s %s' % (s,size_name[i])
 
 def import_csv(cursor, conn, use_hash):
     """Import csv file into sqlite db"""
@@ -210,16 +223,24 @@ def get_stats(args, source_dir, scan_started, cursor, html, brunnhilde_version, 
     cursor.execute("SELECT COUNT(*) FROM siegfried WHERE warning <> '';") # number of siegfried warnings
     num_warnings = cursor.fetchone()[0]
 
-    # get size from du and format
+    
+    size = ''
+    # in windows, calculate size with recursive dirwalk and format
     if sys.platform.startswith('win'):
-        size = "N/A (haven't figured out how to make this work in Windows yet)" # see: https://docs.microsoft.com/en-us/sysinternals/downloads/du
+        size_bytes = 0
+        for root, dirs, files in os.walk(source_dir):
+            for f in files:
+                fp = os.path.join(root, f)
+                size_bytes += os.path.getsize(fp)
+        size = convert_size(size_bytes)
+    # in linux/mac, get size from du and format
     else:
         size = subprocess.check_output(['du', '-sh', source_dir]).decode()
-    size = size.replace('%s' % source_dir, '')
-    size = size.replace('K', ' KB')
-    size = size.replace('M', ' MB')
-    size = size.replace('G', ' GB')
-    size = size.replace('T', ' TB')
+        size = size.replace('%s' % source_dir, '')
+        size = size.replace('K', ' KB')
+        size = size.replace('M', ' MB')
+        size = size.replace('G', ' GB')
+        size = size.replace('T', ' TB')
 
     # write html
     html.write('<!DOCTYPE html>')
