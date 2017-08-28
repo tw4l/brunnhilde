@@ -446,7 +446,8 @@ def process_content(args, source_dir, cursor, conn, html, brunnhilde_version, si
     get_stats(args, source_dir, scan_started, cursor, html, brunnhilde_version, siegfried_version, use_hash) # get aggregate stats and write to html file
     generate_reports(args, cursor, html, use_hash) # run sql queries, print to html and csv
     close_html(html) # close HTML file tags
-    make_tree(source_dir) # create tree.txt
+    if not sys.platform.startswith('win'):
+        make_tree(source_dir) # create tree.txt on mac and linux machines
 
 def write_pronom_links(old_file, new_file):
     """Use regex to replace fmt/# and x-fmt/# PUIDs with link to appropriate PRONOM page"""
