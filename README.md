@@ -1,6 +1,6 @@
 ## Brunnhilde - A reporting companion to Siegfried  
 
-### Version: Brunnhilde 1.5.0  
+### Version: Brunnhilde 1.5.4  
 
 Generates aggregate reports of files in a directory or disk image based on input from Richard Lehane's [Siegfried](http://www.itforarchivists.com/siegfried).  
 
@@ -44,9 +44,10 @@ Once installed, you can call brunnhilde with just `brunnhilde.py [arguments]`.
 ### Usage
 
 ```  
-usage: brunnhilde.py [-h] [-a] [-b] [-d] [--hash HASH] [--hfs] [-n] [-r] [-t]
+usage: brunnhilde.py [-h] [-a] [-b] [--ssn_mode SSN_MODE] [-d] [--hfs]
                      [--tsk_imgtype TSK_IMGTYPE] [--tsk_fstype TSK_FSTYPE]
-                     [--tsk_sector_offset TSK_SECTOR_OFFSET] [-V] [-w] [-z]
+                     [--tsk_sector_offset TSK_SECTOR_OFFSET] [--hash HASH]
+                     [-n] [-r] [-t] [-V] [-w] [-z]
                      source destination basename
 
 positional arguments:
@@ -60,13 +61,9 @@ optional arguments:
   -a, --allocated       Instruct tsk_recover to export only allocated files
                         (recovers all files by default)
   -b, --bulkextractor   Run Bulk Extractor on source
+  --ssn_mode SSN_MODE   Specify ssn_mode for Bulk Extractor (0, 1, or 2)
   -d, --diskimage       Use disk image instead of dir as input
-  --hash HASH           Specify hash algorithm
   --hfs                 Use for raw disk images of HFS disks
-  -n, --noclam          Skip ClamScan Virus Check
-  -r, --removefiles     Delete 'carved_files' directory when done (disk image
-                        input only)
-  -t, --throttle        Pause for 1s between Siegfried scans
   --tsk_imgtype TSK_IMGTYPE
                         Specify format of image type for tsk_recover. See
                         tsk_recover man page for details
@@ -76,10 +73,17 @@ optional arguments:
   --tsk_sector_offset TSK_SECTOR_OFFSET
                         Sector offset for particular volume for tsk_recover to
                         recover
+  --hash HASH           Specify hash algorithm
+  -n, --noclam          Skip ClamScan Virus Check
+  -r, --removefiles     Delete 'carved_files' directory when done (disk image
+                        input only)
+  -t, --throttle        Pause for 1s between Siegfried scans
   -V, --version         Display Brunnhilde version
   -w, --showwarnings    Add Siegfried warnings to HTML report
   -z, --scanarchives    Decompress and scan zip, tar, gzip, warc, arc with
                         Siegfried
+
+
 ```  
   
 For file paths containing spaces in directory names, enclose the entire path in single or double quotes, or (in versions 1.4.1+) make sure spaces are escaped properly (e.g. `CCA\ Finding\ Aid\ Demo\`).  
@@ -111,9 +115,11 @@ To force Siegfried to pause for 1 second between file scans, pass '-t' or '--thr
 
 ### Specifying hash type  
 
-Brunnhilde uses the md5 hash algorithm by default. Other options are sha1, sha256, or sha512.  
+Brunnhilde uses the md5 hash algorithm by default. Other options are sha1, sha256, sha512, or none.  
 
-To change the type of hash used, pass '--hash HASH' as an argument to Brunnhilde, replacing HASH with your choice of sha1, sha256, or sha512.   
+To change the type of hash used, pass '--hash HASH' as an argument to Brunnhilde, replacing HASH with your choice of sha1, sha256, or sha512.
+
+If the user specifies not to calculate checksums with '--hash none', the resulting CSV outputs and HTML report will not contain information calculated from hash values, namely information about duplicates in the source.
 
 ### Report completeness  
 
@@ -125,6 +131,16 @@ To include Siegfried warnings in the report, pass '-w' or '--showwarnings' as an
 
 To enable scanning of files with bulk_extractor, pass '-b' or '--bulkextractor' as arguments. This is disabled by default. Results are written to a 'bulk_extractor' sub-directory. In addition, running bulk_extractor adds a "Personal Identifiable Information (PII)" section to the HTML report to enable quick scanning of these results.  
 
+In Brunnhilde 1.5.1+, specify the ssn_mode passed to bulk_extractor with `--ssn_mode INT`. Valid choices are 0, 1, or 2. If not specified, Brunnhilde will default to 1. See the following explanation of the modes from the [bulkextractor 1.5 release notes](https://github.com/simsong/bulk_extractor/blob/master/doc/announce/announce_1.5.md):
+
+```
+SSN recognition: you are now able to specify one of three SSN recognition modes:  
+
+-S ssn_mode=0 SSN’s must be labeled “SSN:”. Dashes or no dashes are okay.  
+-S ssn_mode=1 No “SSN” required, but dashes are required.  
+-S ssn_mode=2 No dashes required. Allow any 9-digit number that matches SSN allocation range.  
+```
+
 ### Using disk images as input  
 
 In -d mode, Brunnhilde uses SleuthKit's tsk_recover to export files from a disk image into a "carved files" directory for analysis. This works with raw images by default. In BitCurator or any other environment where libewf has been compiled into SleuthKit, Brunnhilde's -d mode also supports forensic disk image formats, including aff and ewf (E01). Due to the limitations of SleuthKit, Brunnhilde does not yet support characterizing disks that use the UDF filesystem.  
@@ -133,9 +149,9 @@ In -d mode, Brunnhilde uses SleuthKit's tsk_recover to export files from a disk 
 
 By default, Brunnhilde will keep a copy of the files exported from disk images in a "carved_files" directory. If you do not wish to keep a copy of these files after reporting is finished, you can pass the "-r" or "--removefiles" flags as arguments to Brunnhilde, which will cause it to delete the "carved_files" directory once all other tasks have finished.
 
-Brunnhilde 1.5.0+ includes some options for more granular control of tsk_recover:
+Brunnhilde 1.5.3+ includes some options for more granular control of tsk_recover:
 
--a: Export only allocated files (by default, Brunnhilde instructs tsk_recover to extract all files from disk images, including deleted files, for reporting)  
+-a: Export only allocated files (by default, Brunnhilde passes the -e option to tsk_recover, instructing it to extract all files from disk images, including deleted files, for reporting)  
 --tsk_fstype: Specify file system type in image (if not specified, tsk_recover will make best guess; to see possible values, type `tsk_recover -f list` in a terminal)  
 --tsk_imgtype: Specify disk image type (if not specified, tsk_recover will make best guess; to see possible values, type `tsk_recover -i list` in a terminal)  
 --tsk_sector_offset: Specify which volume on a disk to extract files from based on sector offset (see tsk_recover man page for more details)  
