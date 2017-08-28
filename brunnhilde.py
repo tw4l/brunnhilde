@@ -133,43 +133,84 @@ def get_stats(args, source_dir, scan_started, cursor, html, brunnhilde_version, 
 
     year_sql = "SELECT DISTINCT SUBSTR(modified, 1, 4) as 'year' FROM siegfried;" # min and max year
     year_path = os.path.join(csv_dir, 'uniqueyears.csv')
-    with open(year_path, 'w') as year_report:
-        w = csv.writer(year_report)
-        for row in cursor.execute(year_sql):
-            w.writerow(row)
-    with open(year_path, 'r') as year_report:
-        r = csv.reader(year_report)
-        years = []
-        for row in r:
-            if row:
-                years.append(row[0])
-        if not years:
-            begin_date = "N/A"
-            end_date = "N/A"  
-        else:
-            begin_date = min(years, key=float)
-            end_date = max(years, key=float)
-    os.remove(year_path) # delete temporary "uniqueyear" file from csv reports directory
+    # if python3, specify newline to prevent extra csv line in windows
+    # see: https://stackoverflow.com/questions/3348460/csv-file-written-with-python-has-blank-lines-between-each-row
+    if (sys.version_info > (3, 0)):
+        with open(year_path, 'w', newline='') as year_report:
+            w = csv.writer(year_report)
+            for row in cursor.execute(year_sql):
+                w.writerow(row)
+        with open(year_path, 'r') as year_report:
+            r = csv.reader(year_report)
+            years = []
+            for row in r:
+                if row:
+                    years.append(row[0])
+            if not years:
+                begin_date = "N/A"
+                end_date = "N/A"  
+            else:
+                begin_date = min(years, key=float)
+                end_date = max(years, key=float)
+    # in python2, open and read csv in byte mode
+    else:
+        with open(year_path, 'wb') as year_report:
+            w = csv.writer(year_report)
+            for row in cursor.execute(year_sql):
+                w.writerow(row)
+        with open(year_path, 'rb') as year_report:
+            r = csv.reader(year_report)
+            years = []
+            for row in r:
+                if row:
+                    years.append(row[0])
+            if not years:
+                begin_date = "N/A"
+                end_date = "N/A"  
+            else:
+                begin_date = min(years, key=float)
+                end_date = max(years, key=float)
+    os.remove(year_path) # delete temporary uniqueyear"file from csv reports dir
 
     datemodified_sql = "SELECT DISTINCT modified FROM siegfried;" # min and max full modified date
     datemodified_path = os.path.join(csv_dir, 'datemodified.csv')
-    with open(datemodified_path, 'w') as date_report:
-        w = csv.writer(date_report)
-        for row in cursor.execute(datemodified_sql):
-            w.writerow(row)
-    with open(datemodified_path, 'r') as date_report:
-        r = csv.reader(date_report)
-        dates = []
-        for row in r:
-            if row:
-                dates.append(row[0])
-        if not dates:
-            earliest_date = "N/A"
-            latest_date = "N/A"
-        else:
-            earliest_date = min(dates)
-            latest_date = max(dates)
-    os.remove(datemodified_path)
+    # specify newline in python3 to prevent extra csv lines in windows
+    if (sys.version_info > (3, 0)):
+        with open(datemodified_path, 'w', newline='') as date_report:
+            w = csv.writer(date_report)
+            for row in cursor.execute(datemodified_sql):
+                w.writerow(row)
+        with open(datemodified_path, 'r') as date_report:
+            r = csv.reader(date_report)
+            dates = []
+            for row in r:
+                if row:
+                    dates.append(row[0])
+            if not dates:
+                earliest_date = "N/A"
+                latest_date = "N/A"
+            else:
+                earliest_date = min(dates)
+                latest_date = max(dates)
+    # read and write csv in byte mode in python2
+    else:
+        with open(datemodified_path, 'wb') as date_report:
+            w = csv.writer(date_report)
+            for row in cursor.execute(datemodified_sql):
+                w.writerow(row)
+        with open(datemodified_path, 'rb') as date_report:
+            r = csv.reader(date_report)
+            dates = []
+            for row in r:
+                if row:
+                    dates.append(row[0])
+            if not dates:
+                earliest_date = "N/A"
+                latest_date = "N/A"
+            else:
+                earliest_date = min(dates)
+                latest_date = max(dates)
+    os.remove(datemodified_path) # delete temporary datemodified file from csv reports dir
 
     cursor.execute("SELECT COUNT(DISTINCT format) as formats from siegfried WHERE format <> '';") # number of identfied file formats
     num_formats = cursor.fetchone()[0]
@@ -323,11 +364,20 @@ def generate_reports(args, cursor, html, use_hash):
 
 def sqlite_to_csv(sql, path, header, cursor):
     """Write sql query result to csv"""
-    with open(path, 'w') as report:
-        w = csv.writer(report)
-        w.writerow(header)
-        for row in cursor.execute(sql):
-            w.writerow(row)
+    # in python3, specify newline to prevent extra csv lines in windows
+    if (sys.version_info > (3, 0)):
+        with open(path, 'w', newline='') as report:
+            w = csv.writer(report)
+            w.writerow(header)
+            for row in cursor.execute(sql):
+                w.writerow(row)
+    # in python2, write csv in byte mode
+    else:
+        with open(path, 'wb') as report:
+            w = csv.writer(report)
+            w.writerow(header)
+            for row in cursor.execute(sql):
+                w.writerow(row)
 
 def write_html(header, path, file_delimiter, html):
     """Write csv file to html table"""
