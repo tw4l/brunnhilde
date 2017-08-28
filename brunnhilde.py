@@ -10,7 +10,7 @@ A Siegfried-based digital archives reporting tool
 For information on usage and dependencies, see:
 github.com/timothyryanwalsh/brunnhilde
 
-Tested in Python 2.7 and 3.5
+Tested in Python 2.7, 3.5, and 3.6
 
 The MIT License (MIT)
 Copyright (c) 2016 Tim Walsh
@@ -85,47 +85,29 @@ def run_bulkext(source_dir, ssn_mode):
 def import_csv(cursor, conn, use_hash):
     """Import csv file into sqlite db"""
     if (sys.version_info > (3, 0)):
-        with open(sf_file, 'r', encoding='utf8') as f:
-            reader = csv.reader(x.replace('\0', '') for x in f) # replace null bytes with empty strings on read
-            header = True
-            for row in reader:
-                if header:
-                    header = False # gather column names from first row of csv
-                    sql = "DROP TABLE IF EXISTS siegfried"
-                    cursor.execute(sql)
-                    if use_hash == True:
-                        sql = "CREATE TABLE siegfried (filename text, filesize text, modified text, errors text, hash text, namespace text, id text, format text, version text, mime text, basis text, warning text)"
-                    else:
-                        sql = "CREATE TABLE siegfried (filename text, filesize text, modified text, errors text, namespace text, id text, format text, version text, mime text, basis text, warning text)"
-                    cursor.execute(sql)
-                    insertsql = "INSERT INTO siegfried VALUES (%s)" % (", ".join([ "?" for column in row ]))
-                    rowlen = len(row)
-                else:
-                    # skip lines that don't have right number of columns
-                    if len(row) == rowlen:
-                        cursor.execute(insertsql, row)
-            conn.commit()
+        f = open(sf_file, 'r', encoding='utf8')
     else:
-        with open(sf_file, 'rb') as f:
-            reader = csv.reader(x.replace('\0', '') for x in f) # replace null bytes with empty strings on read
-            header = True
-            for row in reader:
-                if header:
-                    header = False # gather column names from first row of csv
-                    sql = "DROP TABLE IF EXISTS siegfried"
-                    cursor.execute(sql)
-                    if use_hash == True:
-                        sql = "CREATE TABLE siegfried (filename text, filesize text, modified text, errors text, hash text, namespace text, id text, format text, version text, mime text, basis text, warning text)"
-                    else:
-                        sql = "CREATE TABLE siegfried (filename text, filesize text, modified text, errors text, namespace text, id text, format text, version text, mime text, basis text, warning text)"
-                    cursor.execute(sql)
-                    insertsql = "INSERT INTO siegfried VALUES (%s)" % (", ".join([ "?" for column in row ]))
-                    rowlen = len(row)
-                else:
-                    # skip lines that don't have right number of columns
-                    if len(row) == rowlen:
-                        cursor.execute(insertsql, row)
-            conn.commit()
+        f = open(sf_file, 'rb')
+    reader = csv.reader(x.replace('\0', '') for x in f) # replace null bytes with empty strings on read
+    header = True
+    for row in reader:
+        if header:
+            header = False # gather column names from first row of csv
+            sql = "DROP TABLE IF EXISTS siegfried"
+            cursor.execute(sql)
+            if use_hash == True:
+                sql = "CREATE TABLE siegfried (filename text, filesize text, modified text, errors text, hash text, namespace text, id text, format text, version text, mime text, basis text, warning text)"
+            else:
+                sql = "CREATE TABLE siegfried (filename text, filesize text, modified text, errors text, namespace text, id text, format text, version text, mime text, basis text, warning text)"
+            cursor.execute(sql)
+            insertsql = "INSERT INTO siegfried VALUES (%s)" % (", ".join([ "?" for column in row ]))
+            rowlen = len(row)
+        else:
+            # skip lines that don't have right number of columns
+            if len(row) == rowlen:
+                cursor.execute(insertsql, row)
+    conn.commit()
+    f.close()
 
 def get_stats(args, source_dir, scan_started, cursor, html, brunnhilde_version, siegfried_version, use_hash):
     """Get aggregate statistics and write to html report"""
@@ -156,82 +138,67 @@ def get_stats(args, source_dir, scan_started, cursor, html, brunnhilde_version, 
     year_sql = "SELECT DISTINCT SUBSTR(modified, 1, 4) as 'year' FROM siegfried;" # min and max year
     year_path = os.path.join(csv_dir, 'uniqueyears.csv')
     # if python3, specify newline to prevent extra csv line in windows
+    # else, open and read csv in bytes mode
     # see: https://stackoverflow.com/questions/3348460/csv-file-written-with-python-has-blank-lines-between-each-row
     if (sys.version_info > (3, 0)):
-        with open(year_path, 'w', newline='') as year_report:
-            w = csv.writer(year_report)
-            for row in cursor.execute(year_sql):
-                w.writerow(row)
-        with open(year_path, 'r') as year_report:
-            r = csv.reader(year_report)
-            years = []
-            for row in r:
-                if row:
-                    years.append(row[0])
-            if not years:
-                begin_date = "N/A"
-                end_date = "N/A"  
-            else:
-                begin_date = min(years, key=float)
-                end_date = max(years, key=float)
-    # in python2, open and read csv in byte mode
+        year_report = open(year_path, 'w', newline='')
     else:
-        with open(year_path, 'wb') as year_report:
-            w = csv.writer(year_report)
-            for row in cursor.execute(year_sql):
-                w.writerow(row)
-        with open(year_path, 'rb') as year_report:
-            r = csv.reader(year_report)
-            years = []
-            for row in r:
-                if row:
-                    years.append(row[0])
-            if not years:
-                begin_date = "N/A"
-                end_date = "N/A"  
-            else:
-                begin_date = min(years, key=float)
-                end_date = max(years, key=float)
-    os.remove(year_path) # delete temporary uniqueyear"file from csv reports dir
+        year_report = open(year_path, 'wb')
+    w = csv.writer(year_report)
+    for row in cursor.execute(year_sql):
+        w.writerow(row)
+    year_report.close()
+
+    if (sys.version_info > (3, 0)):
+        year_report_read = open(year_path, 'r', newline='')
+    else:
+        year_report_read = open(year_path, 'rb')
+    r = csv.reader(year_report_read)
+    years = []
+    for row in r:
+        if row:
+            years.append(row[0])
+    if not years:
+        begin_date = "N/A"
+        end_date = "N/A"  
+    else:
+        begin_date = min(years, key=float)
+        end_date = max(years, key=float)
+    year_report_read.close()
+
+    # delete temporary uniqueyear"file from csv reports dir
+    os.remove(year_path)
 
     datemodified_sql = "SELECT DISTINCT modified FROM siegfried;" # min and max full modified date
     datemodified_path = os.path.join(csv_dir, 'datemodified.csv')
     # specify newline in python3 to prevent extra csv lines in windows
-    if (sys.version_info > (3, 0)):
-        with open(datemodified_path, 'w', newline='') as date_report:
-            w = csv.writer(date_report)
-            for row in cursor.execute(datemodified_sql):
-                w.writerow(row)
-        with open(datemodified_path, 'r') as date_report:
-            r = csv.reader(date_report)
-            dates = []
-            for row in r:
-                if row:
-                    dates.append(row[0])
-            if not dates:
-                earliest_date = "N/A"
-                latest_date = "N/A"
-            else:
-                earliest_date = min(dates)
-                latest_date = max(dates)
     # read and write csv in byte mode in python2
+    if (sys.version_info > (3, 0)):
+        date_report = open(datemodified_path, 'w', newline='')
     else:
-        with open(datemodified_path, 'wb') as date_report:
-            w = csv.writer(date_report)
-            for row in cursor.execute(datemodified_sql):
-                w.writerow(row)
-        with open(datemodified_path, 'rb') as date_report:
-            r = csv.reader(date_report)
-            dates = []
-            for row in r:
-                if row:
-                    dates.append(row[0])
-            if not dates:
-                earliest_date = "N/A"
-                latest_date = "N/A"
-            else:
-                earliest_date = min(dates)
-                latest_date = max(dates)
+        date_report = open(datemodified_path, 'wb')
+    w = csv.writer(date_report)
+    for row in cursor.execute(datemodified_sql):
+        w.writerow(row)
+    date_report.close()
+
+    if (sys.version_info > (3, 0)):
+        date_report_read = open(datemodified_path, 'r', newline='')
+    else:
+        date_report_read = open(datemodified_path, 'rb')
+    r = csv.reader(date_report)
+    dates = []
+    for row in r:
+        if row:
+            dates.append(row[0])
+    if not dates:
+        earliest_date = "N/A"
+        latest_date = "N/A"
+    else:
+        earliest_date = min(dates)
+        latest_date = max(dates)
+    date_report_read.close()
+
     os.remove(datemodified_path) # delete temporary datemodified file from csv reports dir
 
     cursor.execute("SELECT COUNT(DISTINCT format) as formats from siegfried WHERE format <> '';") # number of identfied file formats
@@ -387,19 +354,16 @@ def generate_reports(args, cursor, html, use_hash):
 def sqlite_to_csv(sql, path, header, cursor):
     """Write sql query result to csv"""
     # in python3, specify newline to prevent extra csv lines in windows
-    if (sys.version_info > (3, 0)):
-        with open(path, 'w', newline='', encoding='utf8') as report:
-            w = csv.writer(report)
-            w.writerow(header)
-            for row in cursor.execute(sql):
-                w.writerow(row)
     # in python2, write csv in byte mode
+    if (sys.version_info > (3, 0)):
+        report = open(path, 'w', newline='', encoding='utf8')
     else:
-        with open(path, 'wb') as report:
-            w = csv.writer(report)
-            w.writerow(header)
-            for row in cursor.execute(sql):
-                w.writerow(row)
+        report = open(path, 'wb')
+    w = csv.writer(report)
+    w.writerow(header)
+    for row in cursor.execute(sql):
+        w.writerow(row)
+    report.close()
 
 def write_html(header, path, file_delimiter, html):
     """Write csv file to html table"""
@@ -529,29 +493,24 @@ def write_pronom_links(old_file, new_file):
     """Use regex to replace fmt/# and x-fmt/# PUIDs with link to appropriate PRONOM page"""
     
     if (sys.version_info > (3, 0)):
-        with open(old_file, 'r', encoding='utf8') as in_file:
-            with open(new_file, 'w', encoding='utf8') as out_file:
-                for line in in_file:
-                    regex = r"fmt\/[0-9]+|x\-fmt\/[0-9]+" #regex to match fmt/# or x-fmt/#
-                    pronom_links_to_replace = re.findall(regex, line)
-                    new_line = line
-                    for match in pronom_links_to_replace:
-                        new_line = line.replace(match, "<a href=\"http://nationalarchives.gov.uk/PRONOM/" + 
-                                match + "\" target=\"_blank\">" + match + "</a>")
-                        line = new_line # allow for more than one match per line
-                    out_file.write(new_line)
+        in_file = open(old_file, 'r', encoding='utf8')
+        out_file = open(new_file, 'w', encoding='utf8')
     else:
-        with open(old_file, 'rb') as in_file:
-            with open(new_file, 'wb') as out_file:
-                for line in in_file:
-                    regex = r"fmt\/[0-9]+|x\-fmt\/[0-9]+" #regex to match fmt/# or x-fmt/#
-                    pronom_links_to_replace = re.findall(regex, line)
-                    new_line = line
-                    for match in pronom_links_to_replace:
-                        new_line = line.replace(match, "<a href=\"http://nationalarchives.gov.uk/PRONOM/" + 
-                                match + "\" target=\"_blank\">" + match + "</a>")
-                        line = new_line # allow for more than one match per line
-                    out_file.write(new_line)
+        in_file = open(old_file, 'rb')
+        out_file = open(new_file, 'wb')
+
+    for line in in_file:
+        regex = r"fmt\/[0-9]+|x\-fmt\/[0-9]+" #regex to match fmt/# or x-fmt/#
+        pronom_links_to_replace = re.findall(regex, line)
+        new_line = line
+        for match in pronom_links_to_replace:
+            new_line = line.replace(match, "<a href=\"http://nationalarchives.gov.uk/PRONOM/" + 
+                    match + "\" target=\"_blank\">" + match + "</a>")
+            line = new_line # allow for more than one match per line
+        out_file.write(new_line)
+
+    in_file.close()
+    out_file.close()
 
 def _make_parser(version):
     parser = argparse.ArgumentParser()
