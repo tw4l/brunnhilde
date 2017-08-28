@@ -80,8 +80,9 @@ class TestBrunnhildeIntegration(SelfCleaningTestCase):
         self.assertTrue(is_non_zero_file(os.path.join(self.dest_tmpdir, 'brunnhilde_test', 
             'csv_reports', 'years.csv')))
         # tree.txt
-        self.assertTrue(os.path.isfile(os.path.join(self.dest_tmpdir, 'brunnhilde_test', 
-            'tree.txt')))
+        if not sys.platform.startswith('win'):
+            self.assertTrue(os.path.isfile(os.path.join(self.dest_tmpdir, 'brunnhilde_test', 
+                'tree.txt')))
         # virus check log
         self.assertTrue(os.path.isfile(os.path.join(self.dest_tmpdir, 'brunnhilde_test', 
             'logs', 'viruscheck-log.txt')))
