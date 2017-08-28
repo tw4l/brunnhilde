@@ -84,26 +84,48 @@ def run_bulkext(source_dir, ssn_mode):
 
 def import_csv(cursor, conn, use_hash):
     """Import csv file into sqlite db"""
-    with open(sf_file, 'r') as f:
-        reader = csv.reader(x.replace('\0', '') for x in f) # replace null bytes with empty strings on read
-        header = True
-        for row in reader:
-            if header:
-                header = False # gather column names from first row of csv
-                sql = "DROP TABLE IF EXISTS siegfried"
-                cursor.execute(sql)
-                if use_hash == True:
-                    sql = "CREATE TABLE siegfried (filename text, filesize text, modified text, errors text, hash text, namespace text, id text, format text, version text, mime text, basis text, warning text)"
+    if (sys.version_info > (3, 0)):
+        with open(sf_file, 'r', encoding='utf8') as f:
+            reader = csv.reader(x.replace('\0', '') for x in f) # replace null bytes with empty strings on read
+            header = True
+            for row in reader:
+                if header:
+                    header = False # gather column names from first row of csv
+                    sql = "DROP TABLE IF EXISTS siegfried"
+                    cursor.execute(sql)
+                    if use_hash == True:
+                        sql = "CREATE TABLE siegfried (filename text, filesize text, modified text, errors text, hash text, namespace text, id text, format text, version text, mime text, basis text, warning text)"
+                    else:
+                        sql = "CREATE TABLE siegfried (filename text, filesize text, modified text, errors text, namespace text, id text, format text, version text, mime text, basis text, warning text)"
+                    cursor.execute(sql)
+                    insertsql = "INSERT INTO siegfried VALUES (%s)" % (", ".join([ "?" for column in row ]))
+                    rowlen = len(row)
                 else:
-                    sql = "CREATE TABLE siegfried (filename text, filesize text, modified text, errors text, namespace text, id text, format text, version text, mime text, basis text, warning text)"
-                cursor.execute(sql)
-                insertsql = "INSERT INTO siegfried VALUES (%s)" % (", ".join([ "?" for column in row ]))
-                rowlen = len(row)
-            else:
-                # skip lines that don't have right number of columns
-                if len(row) == rowlen:
-                    cursor.execute(insertsql, row)
-        conn.commit()
+                    # skip lines that don't have right number of columns
+                    if len(row) == rowlen:
+                        cursor.execute(insertsql, row)
+            conn.commit()
+    else:
+        with open(sf_file, 'rb') as f:
+            reader = csv.reader(x.replace('\0', '') for x in f) # replace null bytes with empty strings on read
+            header = True
+            for row in reader:
+                if header:
+                    header = False # gather column names from first row of csv
+                    sql = "DROP TABLE IF EXISTS siegfried"
+                    cursor.execute(sql)
+                    if use_hash == True:
+                        sql = "CREATE TABLE siegfried (filename text, filesize text, modified text, errors text, hash text, namespace text, id text, format text, version text, mime text, basis text, warning text)"
+                    else:
+                        sql = "CREATE TABLE siegfried (filename text, filesize text, modified text, errors text, namespace text, id text, format text, version text, mime text, basis text, warning text)"
+                    cursor.execute(sql)
+                    insertsql = "INSERT INTO siegfried VALUES (%s)" % (", ".join([ "?" for column in row ]))
+                    rowlen = len(row)
+                else:
+                    # skip lines that don't have right number of columns
+                    if len(row) == rowlen:
+                        cursor.execute(insertsql, row)
+            conn.commit()
 
 def get_stats(args, source_dir, scan_started, cursor, html, brunnhilde_version, siegfried_version, use_hash):
     """Get aggregate statistics and write to html report"""
@@ -366,7 +388,7 @@ def sqlite_to_csv(sql, path, header, cursor):
     """Write sql query result to csv"""
     # in python3, specify newline to prevent extra csv lines in windows
     if (sys.version_info > (3, 0)):
-        with open(path, 'w', newline='') as report:
+        with open(path, 'w', newline='', encoding='utf8') as report:
             w = csv.writer(report)
             w.writerow(header)
             for row in cursor.execute(sql):
@@ -381,90 +403,37 @@ def sqlite_to_csv(sql, path, header, cursor):
 
 def write_html(header, path, file_delimiter, html):
     """Write csv file to html table"""
-    with open(path, 'r') as in_file:
-        # count lines and then return to start of file
-        numline = len(in_file.readlines())
-        in_file.seek(0)
+    if (sys.version_info > (3, 0)):
+        in_file = open(path, 'r', encoding='utf8')
+    else:
+        in_file = open(path, 'rb')
+    # count lines and then return to start of file
+    numline = len(in_file.readlines())
+    in_file.seek(0)
 
-        #open csv reader
-        r = csv.reader(in_file, delimiter="%s" % file_delimiter)
+    #open csv reader
+    r = csv.reader(in_file, delimiter="%s" % file_delimiter)
 
-        # write header
-        html.write('\n<a name="%s"></a>' % header)
-        html.write('\n<h3>%s</h3>' % header)
-        if header == 'Duplicates':
-            html.write('\n<p><em>Duplicates are grouped by hash value.</em></p>')
-        elif header == 'Personally Identifiable Information (PII)':
-            html.write('\n<p><em>Potential PII in source, as identified by bulk_extractor.</em></p>')
-        
-        # if writing PII, handle separately
-        if header == 'Personally Identifiable Information (PII)':
-            if numline > 5: # aka more rows than just header
-                html.write('\n<table class="table table-striped table-bordered table-condensed">')
-                #write header
-                html.write('\n<tr>')
-                html.write('\n<td><strong>File</strong></td>')
-                html.write('\n<td><strong>Value Found</strong></td>')
-                html.write('\n<td><strong>Context</strong></td>')
-                # write data
-                for row in islice(r, 4, None): # skip header lines
-                    html.write('\n</tr>')
-                    for row in r:
-                        # write data
-                        html.write('\n<tr>')
-                        for column in row:
-                            html.write('\n<td>' + column + '</td>')
-                        html.write('\n</tr>')
-                    html.write('\n</table>')
-            else:
-                html.write('\nNone found.')
-
-        # if writing duplicates, handle separately
-        elif header == 'Duplicates':
-            if numline > 1: #aka more rows than just header
-                # read md5s from csv and write to list
-                hash_list = []
-                for row in r:
-                    if row:
-                        hash_list.append(row[4])
-                # deduplicate md5_list
-                hash_list = list(OrderedDict.fromkeys(hash_list))
-                hash_list.remove('Checksum')
-                # for each hash in md5_list, print header, file info, and list of matching files
-                for hash_value in hash_list:
-                    html.write('\n<p>Files matching checksum <strong>%s</strong>:</p>' % hash_value)
-                    html.write('\n<table class="table table-striped table-bordered table-condensed">')
-                    html.write('\n<tr>')
-                    html.write('\n<td><strong>Filename</strong></td><td><strong>Filesize</strong></td>')
-                    html.write('<td><strong>Date modified</strong></td><td><strong>Errors</strong></td>')
-                    html.write('<td><strong>Checksum</strong></td><td><strong>Namespace</strong></td>')
-                    html.write('<td><strong>ID</strong></td><td><strong>Format</strong></td>')
-                    html.write('<td><strong>Format version</strong></td><td><strong>MIME type</strong></td>')
-                    html.write('<td><strong>Basis for ID</strong></td><td><strong>Warning</strong></td>')
-                    html.write('\n</tr>')
-                    in_file.seek(0) # back to beginning of file
-                    for row in r:
-                        if row[4] == '%s' % hash_value:
-                            # write data
-                            html.write('\n<tr>')
-                            for column in row:
-                                html.write('\n<td>' + column + '</td>')
-                            html.write('\n</tr>')
-                    html.write('\n</table>')
-            else:
-                html.write('\nNone found.')
-
-        # otherwise write as normal
-        else:
-            if numline > 1: #aka more rows than just header
-                html.write('\n<table class="table table-striped table-bordered table-condensed">')
-                # write header row
-                html.write('\n<tr>')
-                row1 = next(r)
-                for column in row1:
-                    html.write('\n<td><strong>' + column + '</strong></td>')
+    # write header
+    html.write('\n<a name="%s"></a>' % header)
+    html.write('\n<h3>%s</h3>' % header)
+    if header == 'Duplicates':
+        html.write('\n<p><em>Duplicates are grouped by hash value.</em></p>')
+    elif header == 'Personally Identifiable Information (PII)':
+        html.write('\n<p><em>Potential PII in source, as identified by bulk_extractor.</em></p>')
+    
+    # if writing PII, handle separately
+    if header == 'Personally Identifiable Information (PII)':
+        if numline > 5: # aka more rows than just header
+            html.write('\n<table class="table table-striped table-bordered table-condensed">')
+            #write header
+            html.write('\n<tr>')
+            html.write('\n<td><strong>File</strong></td>')
+            html.write('\n<td><strong>Value Found</strong></td>')
+            html.write('\n<td><strong>Context</strong></td>')
+            # write data
+            for row in islice(r, 4, None): # skip header lines
                 html.write('\n</tr>')
-                # write data rows
                 for row in r:
                     # write data
                     html.write('\n<tr>')
@@ -472,11 +441,68 @@ def write_html(header, path, file_delimiter, html):
                         html.write('\n<td>' + column + '</td>')
                     html.write('\n</tr>')
                 html.write('\n</table>')
-            else:
-                html.write('\nNone found.')
-        
-        # write link to top
-        html.write('\n<p>(<a href="#top">Return to top</a>)</p>')
+        else:
+            html.write('\nNone found.')
+
+    # if writing duplicates, handle separately
+    elif header == 'Duplicates':
+        if numline > 1: #aka more rows than just header
+            # read md5s from csv and write to list
+            hash_list = []
+            for row in r:
+                if row:
+                    hash_list.append(row[4])
+            # deduplicate md5_list
+            hash_list = list(OrderedDict.fromkeys(hash_list))
+            hash_list.remove('Checksum')
+            # for each hash in md5_list, print header, file info, and list of matching files
+            for hash_value in hash_list:
+                html.write('\n<p>Files matching checksum <strong>%s</strong>:</p>' % hash_value)
+                html.write('\n<table class="table table-striped table-bordered table-condensed">')
+                html.write('\n<tr>')
+                html.write('\n<td><strong>Filename</strong></td><td><strong>Filesize</strong></td>')
+                html.write('<td><strong>Date modified</strong></td><td><strong>Errors</strong></td>')
+                html.write('<td><strong>Checksum</strong></td><td><strong>Namespace</strong></td>')
+                html.write('<td><strong>ID</strong></td><td><strong>Format</strong></td>')
+                html.write('<td><strong>Format version</strong></td><td><strong>MIME type</strong></td>')
+                html.write('<td><strong>Basis for ID</strong></td><td><strong>Warning</strong></td>')
+                html.write('\n</tr>')
+                in_file.seek(0) # back to beginning of file
+                for row in r:
+                    if row[4] == '%s' % hash_value:
+                        # write data
+                        html.write('\n<tr>')
+                        for column in row:
+                            html.write('\n<td>' + column + '</td>')
+                        html.write('\n</tr>')
+                html.write('\n</table>')
+        else:
+            html.write('\nNone found.')
+
+    # otherwise write as normal
+    else:
+        if numline > 1: #aka more rows than just header
+            html.write('\n<table class="table table-striped table-bordered table-condensed">')
+            # write header row
+            html.write('\n<tr>')
+            row1 = next(r)
+            for column in row1:
+                html.write('\n<td><strong>' + column + '</strong></td>')
+            html.write('\n</tr>')
+            # write data rows
+            for row in r:
+                # write data
+                html.write('\n<tr>')
+                for column in row:
+                    html.write('\n<td>' + column + '</td>')
+                html.write('\n</tr>')
+            html.write('\n</table>')
+        else:
+            html.write('\nNone found.')
+    
+    # write link to top
+    html.write('\n<p>(<a href="#top">Return to top</a>)</p>')
+    in_file.close()
 
 def close_html(html):
     """Write html closing tags"""
@@ -501,17 +527,31 @@ def process_content(args, source_dir, cursor, conn, html, brunnhilde_version, si
 
 def write_pronom_links(old_file, new_file):
     """Use regex to replace fmt/# and x-fmt/# PUIDs with link to appropriate PRONOM page"""
-    with open(old_file, 'r') as in_file:
-        with open(new_file, 'w') as out_file:
-            for line in in_file:
-                regex = r"fmt\/[0-9]+|x\-fmt\/[0-9]+" #regex to match fmt/# or x-fmt/#
-                pronom_links_to_replace = re.findall(regex, line)
-                new_line = line
-                for match in pronom_links_to_replace:
-                    new_line = line.replace(match, "<a href=\"http://nationalarchives.gov.uk/PRONOM/" + 
-                            match + "\" target=\"_blank\">" + match + "</a>")
-                    line = new_line # allow for more than one match per line
-                out_file.write(new_line)
+    
+    if (sys.version_info > (3, 0)):
+        with open(old_file, 'r', encoding='utf8') as in_file:
+            with open(new_file, 'w', encoding='utf8') as out_file:
+                for line in in_file:
+                    regex = r"fmt\/[0-9]+|x\-fmt\/[0-9]+" #regex to match fmt/# or x-fmt/#
+                    pronom_links_to_replace = re.findall(regex, line)
+                    new_line = line
+                    for match in pronom_links_to_replace:
+                        new_line = line.replace(match, "<a href=\"http://nationalarchives.gov.uk/PRONOM/" + 
+                                match + "\" target=\"_blank\">" + match + "</a>")
+                        line = new_line # allow for more than one match per line
+                    out_file.write(new_line)
+    else:
+        with open(old_file, 'rb') as in_file:
+            with open(new_file, 'wb') as out_file:
+                for line in in_file:
+                    regex = r"fmt\/[0-9]+|x\-fmt\/[0-9]+" #regex to match fmt/# or x-fmt/#
+                    pronom_links_to_replace = re.findall(regex, line)
+                    new_line = line
+                    for match in pronom_links_to_replace:
+                        new_line = line.replace(match, "<a href=\"http://nationalarchives.gov.uk/PRONOM/" + 
+                                match + "\" target=\"_blank\">" + match + "</a>")
+                        line = new_line # allow for more than one match per line
+                    out_file.write(new_line)
 
 def _make_parser(version):
     parser = argparse.ArgumentParser()
@@ -592,7 +632,10 @@ def main():
 
     # create html report
     temp_html = os.path.join(report_dir, 'temp.html')
-    html = open(temp_html, 'w')
+    if (sys.version_info > (3, 0)):
+        html = open(temp_html, 'w', encoding='utf8')
+    else:
+        html = open(temp_html, 'wb')
 
     # open sqlite db
     db = os.path.join(report_dir, 'siegfried.sqlite')
