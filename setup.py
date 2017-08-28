@@ -10,7 +10,7 @@ setup(
     scripts = ['brunnhilde.py'],
     description = 'A Siegfried-based digital archives reporting tool for directories and disk images',
     keywords = 'archives reporting characterization identification diskimages',
-    platforms = ['POSIX'],
+    platforms = ['POSIX', 'Windows'],
     test_suite='test',
     classifiers = [
         'Development Status :: 5 - Production/Stable',
@@ -21,11 +21,10 @@ setup(
         'Operating System :: MacOS',
         'Operating System :: MacOS :: MacOS X',
         'Operating System :: POSIX :: Linux',
-        'Topic :: Communications :: File Sharing',
+        'Operating System :: Microsoft :: Windows',
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
-        'Topic :: Database',
         'Topic :: System :: Archiving',
         'Topic :: System :: Filesystems',
         'Topic :: Utilities'
