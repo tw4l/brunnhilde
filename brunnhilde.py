@@ -561,7 +561,11 @@ def main():
 
         # export disk image contents to tempdir
         if args.hfs == True: # hfs disks
-            carvefiles = "bash /usr/share/hfsexplorer/bin/unhfs -v -resforks APPLEDOUBLE -o '%s' '%s'" % (tempdir, source)
+            if sys.platform.startswith('linux'):
+                carvefiles = 'bash /usr/share/hfsexplorer/bin/unhfs -v -resforks APPLEDOUBLE -o "%s" "%s"' % (tempdir, source)
+            elif sys.platform.startswith('darwin'):
+                carvefiles = 'bash /usr/local/hfsexplorer/bin/unhfs -v -resforks APPLEDOUBLE -o "%s" "%s"' % (tempdir, source)
+            #TODO: HANDLING FOR WINDOWS!
             print("\nAttempting to carve files from disk image using HFS Explorer.")
             try:
                 subprocess.call(carvefiles, shell=True)
