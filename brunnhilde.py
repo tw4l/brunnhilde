@@ -186,7 +186,7 @@ def get_stats(args, source_dir, scan_started, cursor, html, brunnhilde_version, 
         date_report_read = open(datemodified_path, 'r', newline='')
     else:
         date_report_read = open(datemodified_path, 'rb')
-    r = csv.reader(date_report)
+    r = csv.reader(date_report_read)
     dates = []
     for row in r:
         if row:
