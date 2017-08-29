@@ -1,8 +1,8 @@
 ## Brunnhilde - A reporting companion to Siegfried  
 
-### Version: Brunnhilde 1.6.0
+[![Build Status](https://travis-ci.org/timothyryanwalsh/brunnhilde.svg?branch=dev-nohash)](https://travis-ci.org/timothyryanwalsh/brunnhilde)
 
-**Update for 1.6.0 - 'none' hash option, basic Windows functionality, better Mac HFS handling**
+### Version: Brunnhilde 1.6.0
 
 Generates aggregate reports of files in a directory or disk image based on input from Richard Lehane's [Siegfried](http://www.itforarchivists.com/siegfried).  
 
