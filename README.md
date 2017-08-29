@@ -36,7 +36,7 @@ For a more detailed explanation of how multiple identifications are handled by S
 
 Brunnhilde and all of its dependencies are already installed in BitCurator version 1.7.106+. In versions 1.8.0+, a terminal launcher for Brunnhilde is included in the "Forensics and Reporting" folder on the BitCurator desktop.  
 
-Brunnhilde minimally requires that Python 2 or 3 and Siegfried are installed on your system. For more information, see "Dependencies" below.  
+Brunnhilde minimally requires that Python 2 or 3 and Siegfried are installed on your system to characterize directories of content. Characterizing disk images introduces additional dependencies. For more information, see "Dependencies" below.  
 
 `sudo pip install brunnhilde`  
 
@@ -176,7 +176,7 @@ To characterize HFS formatted disks in Brunnhilde, pass both the "-d" and "--hfs
 
 ### Dependencies  
 
-All dependencies are already installed in BitCurator 1.7.106+. See instructions below for installing dependencies if you wish to use Brunnhilde in macOS or a different Linux environment (Brunnhilde is not supported in Windows).  
+All dependencies are already installed in BitCurator 1.7.106+. See instructions below for installing dependencies if you wish to use Brunnhilde in a different environment Linux, Mac, or Windows).
 
 #### Core requirements
 * Python (tested in 2.7 and 3.5)
@@ -188,8 +188,15 @@ All dependencies are already installed in BitCurator 1.7.106+. See instructions 
 * tree: Installed by default in most Linux distros. On OS X, install using [Homebrew](http://brewformulas.org/tree). If tree is not installed on your machine, a blank tree.txt file will be created instead.  
 
 #### To process disk images  
-* [SleuthKit](http://www.sleuthkit.org/): Install from source or, in OS X, using [Homebrew](http://brewformulas.org/sleuthkit).
-* [HFSExplorer](https://sourceforge.net/projects/catacombae/files/HFSExplorer/0.23.1%20%28snapshot%202016-09-02%29/): Install from source.  
+* [SleuthKit](http://www.sleuthkit.org/)  
+    * Linux: Install from source.
+    * macOS: Install with [Homebrew](http://brewformulas.org/sleuthkit).  
+    * Windows: Download Windows binaries, install in Program Files, and add location of binaries to path.  
+* [HFSExplorer](https://sourceforge.net/projects/catacombae/files/HFSExplorer/0.23.1%20%28snapshot%202016-09-02%29/)  
+    * Linux: Download files and move to /usr/share/hfsexplorer.  
+    * macOS: Download files and move to /usr/local/hfsexplorer.  
+    * Windows: Use Windows installer and install at C:\Program Files (x86)\HFSExplorer.
+
 
 ### Future development to-dos
 
