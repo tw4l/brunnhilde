@@ -225,10 +225,18 @@ def get_stats(args, source_dir, scan_started, cursor, html, brunnhilde_version, 
 
     # calculate size from recursive dirwalk and format
     size_bytes = 0
-    for root, dirs, files in os.walk(source_dir):
-        for f in files:
-            fp = os.path.join(root, f)
-            size_bytes += os.path.getsize(fp)
+    if (sys.version_info > (3, 0)):
+        for root, dirs, files in os.walk(source_dir):
+            for f in files:
+                file_path = os.path.join(root, f)
+                file_info = os.stat(file_path)
+                size_bytes += file_info.st_size
+    else:
+        for root, dirs, files in os.walk(unicode(source_dir, 'utf-8')):
+            for f in files:
+                file_path = os.path.join(root, f)
+                file_info = os.stat(file_path)
+                size_bytes += file_info.st_size
     size = convert_size(size_bytes)
 
     # write html
