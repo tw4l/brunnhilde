@@ -692,7 +692,7 @@ def main():
 
             # generate DFXML with fiwalk
             print("\nAttempting to generate DFXML file from disk image with fiwalk.")
-            fiwalk_file = os.path.abspath(os.path.join(destination, 'dfxml.xml'))
+            fiwalk_file = os.path.abspath(os.path.join(report_dir, 'dfxml.xml'))
             try:
                 subprocess.check_output(['fiwalk', '-X', fiwalk_file, source])
                 print("\nDFXML file created.")
