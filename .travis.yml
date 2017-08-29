@@ -8,10 +8,6 @@ before_install:
   - wget -qO - https://bintray.com/user/downloadSubjectPublicKey?username=bintray | sudo apt-key add -
   - echo "deb http://dl.bintray.com/siegfried/debian wheezy main" | sudo tee -a /etc/apt/sources.list
   - sudo apt-get update && sudo apt-get install siegfried
-  - wget -v https://googledrive.com/host/0B3fBvzttpiiSMTdoaVExWWNsRjg/libewf-20140608.tar.gz
-  - tar -xvf libewf-20140608.tar.gz
-  - cd libewf-20140608 && ./configure && make && sudo make install
-  - cd ~
   - git clone git://github.com/sleuthkit/sleuthkit.git
   - cd sleuthkit && ./bootstrap && ./configure && make && sudo make install
 script:
