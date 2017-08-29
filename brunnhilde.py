@@ -643,9 +643,9 @@ def main():
                     carvefiles = 'bash /usr/share/hfsexplorer/bin/unhfs -v -o "%s" "%s"' % (tempdir, source)
             elif sys.platform.startswith('darwin'):
                 if args.resforks == True:
-                    carvefiles = 'bash /usr/local/hfsexplorer/bin/unhfs -v -resforks APPLEDOUBLE -o "%s" "%s"' % (tempdir, source)
+                    carvefiles = 'bash /usr/local/share/hfsexplorer/bin/unhfs -v -resforks APPLEDOUBLE -o "%s" "%s"' % (tempdir, source)
                 else:
-                    carvefiles = 'bash /usr/local/hfsexplorer/bin/unhfs -v -o "%s" "%s"' % (tempdir, source)
+                    carvefiles = 'bash /usr/local/share/hfsexplorer/bin/unhfs -v -o "%s" "%s"' % (tempdir, source)
             elif sys.platform.startswith('win'):
                 if args.resforks == True:
                     carvefiles = '"C:/Program Files (x86)/HFSExplorer/bin/unhfs.bat" -v -resforks APPLEDOUBLE -o "%s" "%s"' % (tempdir, source)
