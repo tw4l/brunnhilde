@@ -691,11 +691,13 @@ def main():
                 sys.exit()
 
             # generate DFXML with fiwalk
+            print("\nAttempting to generate DFXML file from disk image with fiwalk.")
             fiwalk_file = os.path.abspath(os.path.join(destination, 'dfxml.xml'))
             try:
                 subprocess.check_output(['fiwalk', '-X', fiwalk_file, source])
+                print("\nDFXML file created.")
             except subprocess.CalledProcessError as e:
-                print('ERROR: Fiwalk could not create DFXML for disk. STDERR: %s' % (e.output))
+                print('\nERROR: Fiwalk could not create DFXML for disk. STDERR: %s' % (e.output))
 
 
         # process tempdir
