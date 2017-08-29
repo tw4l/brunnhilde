@@ -183,9 +183,16 @@ All dependencies are already installed in BitCurator 1.7.106+. See instructions 
 * [Siegfried](http://www.itforarchivists.com/siegfried): Brunnhilde is now compatible with all version of Siegfried, including 1.6+. It does not support MIME-Info or FDD signatures: for Brunnhilde to work, Siegfried must be using the PRONOM signature file only. If you have been using MIME-Info or FDD signatures as a replacement for or alongside PRONOM with Siegfried 1.5/1.6 on your machine, entering `roy build -multi 0` in the terminal should return you to Siegfried's default PRONOM-only identification mode and allow Brunnhilde to work properly.   
 
 #### Optional  
-* [bulk_extractor](https://github.com/simsong/bulk_extractor): Can be built on Linux and OS X from source distribution found [here](https://github.com/simsong/bulk_extractor) or installed using [Homebrew](http://brewformulas.org/BulkExtractor).  
-* [ClamAV](https://www.clamav.net): Brunnhilde checks for viruses using ClamAV, which can be built from the source distribution found at [clamav.net](http://clamav.net) or using [Homebrew](http://brewformulas.org/Clamav).   
-* tree: Installed by default in most Linux distros. On OS X, install using [Homebrew](http://brewformulas.org/tree). If tree is not installed on your machine, a blank tree.txt file will be created instead.  
+* [bulk_extractor](https://github.com/simsong/bulk_extractor)  
+    * Linux: Build from source distribution found [here](https://github.com/simsong/bulk_extractor).  
+    * macOS (easier): Install using [Homebrew](http://brewformulas.org/BulkExtractor).  
+    * Windows: Install using [Windows installer](http://downloads.digitalcorpora.org/downloads/bulk_extractor/).  
+* [ClamAV](https://www.clamav.net): Virus checking  
+    * Linux: Build from the source distribution found at [clamav.net](http://clamav.net)  
+    * macOS: Install using [Homebrew](http://brewformulas.org/Clamav).   
+* tree: Installed by default in most Linux distros. 
+    * macOS: On OS X, install using [Homebrew](http://brewformulas.org/tree)
+    * Windows: n/a (Brunnhilde does not call tree when operating in Windows)  
 
 #### To process disk images  
 * [SleuthKit](http://www.sleuthkit.org/)  
