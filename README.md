@@ -36,7 +36,7 @@ For a more detailed explanation of how multiple identifications are handled by S
 
 Brunnhilde and all of its dependencies are already installed in BitCurator version 1.7.106+. In versions 1.8.0+, a terminal launcher for Brunnhilde is included in the "Forensics and Reporting" folder on the BitCurator desktop.  
 
-Brunnhilde minimally requires that Python 2 or 3 and Siegfried are installed on your system to characterize directories of content. Characterizing disk images introduces additional dependencies. For more information, see "Dependencies" below.  
+Brunnhilde minimally requires that Python 2 or 3 and Siegfried are installed on your system to characterize directories of content. Characterizing disk images introduces additional dependencies. For more information, see [Dependencies](https://github.com/timothyryanwalsh/brunnhilde/tree/dev-nohash#dependencies).  
 
 `sudo pip install brunnhilde`  
 
