@@ -50,7 +50,7 @@ If an older version of Brunnhilde is installed on your system, you can upgrade t
 ### Usage
 
 ```  
-usage: brunnhilde.py [-h] [-a] [-b] [--ssn_mode SSN_MODE] [-d] [--hfs]
+usage: brunnhilde.py [-h] [-a] [-b] [--ssn_mode SSN_MODE] [-d] [--hfs] [--resforks]
                      [--tsk_imgtype TSK_IMGTYPE] [--tsk_fstype TSK_FSTYPE]
                      [--tsk_sector_offset TSK_SECTOR_OFFSET] [--hash HASH]
                      [-n] [-r] [-t] [-V] [-w] [-z]
