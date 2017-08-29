@@ -40,6 +40,10 @@ Brunnhilde minimally requires that Python 2 or 3 and Siegfried are installed on 
 
 `sudo pip install brunnhilde`  
 
+Once installed, you can upgrade Brunnhilde to the latest version with:  
+
+`sudo pip install brunnhilde --upgrade`  
+
 Once installed, you can call brunnhilde with just `brunnhilde.py [arguments]`.  
 
 
