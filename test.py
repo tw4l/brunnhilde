@@ -121,8 +121,8 @@ class TestBrunnhildeIntegration(SelfCleaningTestCase):
             'carved_files', 'Tulips.jpg')))
     
     def test_integration_temp_files_deleted(self):
-        subprocess.call("python ./brunnhilde.py %s %s brunnhilde_test" % (self.src_tmpdir, 
-            self.dest_tmpdir), shell=True)
+        subprocess.call('python ./brunnhilde.py ./test-data/files/ "%s" brunnhilde_test' % (self.dest_tmpdir), 
+            shell=True)
         # temp.html
         self.assertFalse(os.path.isfile(os.path.join(self.dest_tmpdir, 'brunnhilde_test', 
             'temp.html')))
