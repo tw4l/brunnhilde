@@ -66,6 +66,7 @@ optional arguments:
   --ssn_mode SSN_MODE   Specify ssn_mode for Bulk Extractor (0, 1, or 2)
   -d, --diskimage       Use disk image instead of dir as input
   --hfs                 Use for raw disk images of HFS disks
+  --resforks            Extract AppleDouble resource forks from HFS disks
   --tsk_imgtype TSK_IMGTYPE
                         Specify format of image type for tsk_recover. See
                         tsk_recover man page for details

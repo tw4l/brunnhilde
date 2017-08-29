@@ -529,6 +529,7 @@ def _make_parser(version):
     parser.add_argument("--ssn_mode", help="Specify ssn_mode for Bulk Extractor (0, 1, or 2)", action="store", type=int)
     parser.add_argument("-d", "--diskimage", help="Use disk image instead of dir as input", action="store_true")
     parser.add_argument("--hfs", help="Use for raw disk images of HFS disks", action="store_true")
+    parser.add_argument("--resforks", help="Extract AppleDouble resource forks from HFS disks", action="store_true")
     parser.add_argument("--tsk_imgtype", help="Specify format of image type for tsk_recover. See tsk_recover man page for details", action="store")
     parser.add_argument("--tsk_fstype", help="Specify file system type for tsk_recover. See tsk_recover man page for details", action="store")
     parser.add_argument("--tsk_sector_offset", help="Sector offset for particular volume for tsk_recover to recover", action="store")
@@ -625,9 +626,15 @@ def main():
         # export disk image contents to tempdir
         if args.hfs == True: # hfs disks
             if sys.platform.startswith('linux'):
-                carvefiles = 'bash /usr/share/hfsexplorer/bin/unhfs -v -resforks APPLEDOUBLE -o "%s" "%s"' % (tempdir, source)
+                if args.resforks == True:
+                    carvefiles = 'bash /usr/share/hfsexplorer/bin/unhfs -v -resforks APPLEDOUBLE -o "%s" "%s"' % (tempdir, source)
+                else:
+                    carvefiles = 'bash /usr/share/hfsexplorer/bin/unhfs -v -o "%s" "%s"' % (tempdir, source)
             elif sys.platform.startswith('darwin'):
-                carvefiles = 'bash /usr/local/hfsexplorer/bin/unhfs -v -resforks APPLEDOUBLE -o "%s" "%s"' % (tempdir, source)
+                if args.resforks == True:
+                    carvefiles = 'bash /usr/local/hfsexplorer/bin/unhfs -v -resforks APPLEDOUBLE -o "%s" "%s"' % (tempdir, source)
+                else:
+                    carvefiles = 'bash /usr/local/hfsexplorer/bin/unhfs -v -o "%s" "%s"' % (tempdir, source)
             #TODO: HANDLING FOR WINDOWS!
             print("\nAttempting to carve files from disk image using HFS Explorer.")
             try:
