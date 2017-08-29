@@ -205,13 +205,6 @@ All dependencies are already installed in BitCurator 1.7.106+. See instructions 
     * macOS: Download files and move to /usr/local/hfsexplorer.  
     * Windows: Use Windows installer and install at C:\Program Files (x86)\HFSExplorer.
 
-
-### Future development to-dos
-
-* Add ability to use MIME-Info signature files (alone or alongside PRONOM) with Siegfried 1.5+  
-* Add ability to use FDD signature files (alone or alongside PRONOM) with Siegfried 1.6+  
-* Add support for disk images of DVDs using UDF file system    
-
 ### Thanks
 
 Thank you to Richard Lehane for writing Siegfried, Ross Spencer for ideas and help, Kevin Powell for suggesting the additions of ClamAV and bulk_extractor and writing the initial code to integrate these tools, and to the PRONOM team at the UK National Archives for building and maintaining such a wonderful tool.  
