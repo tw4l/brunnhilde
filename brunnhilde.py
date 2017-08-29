@@ -182,7 +182,7 @@ def get_stats(args, source_dir, scan_started, cursor, html, brunnhilde_version, 
         end_date = max(years, key=float)
     year_report_read.close()
 
-    # delete temporary uniqueyear"file from csv reports dir
+    # delete temporary uniqueyear file from csv reports dir
     os.remove(year_path)
 
     datemodified_sql = "SELECT DISTINCT modified FROM siegfried;" # min and max full modified date
@@ -691,7 +691,7 @@ def main():
                 sys.exit()
 
             # generate DFXML with fiwalk
-            print("\nAttempting to generate DFXML file from disk image with fiwalk.")
+            print("\nAttempting to generate DFXML file from disk image using fiwalk.")
             fiwalk_file = os.path.abspath(os.path.join(report_dir, 'dfxml.xml'))
             try:
                 subprocess.check_output(['fiwalk', '-X', fiwalk_file, source])
