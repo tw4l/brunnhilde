@@ -10,17 +10,17 @@ For the graphical user interface (GUI) version of Brunnhilde, see [Brunnhilde GU
 
 Brunnhilde runs Siegfried against a specified directory or disk image, loads the results into a sqlite3 database, and queries the database to generate reports to aid in triage, arrangement, and description of digital archives. The program will also check for viruses unless specified otherwise, and will optionally run bulk_extractor against the given source. Outputs include:  
 
-* "*basename*.html": Includes some provenance information on the scan itself, aggregate statistics for the material as a whole (number of files, begin and end dates, number of unique vs. duplicate files, etc.), and detailed reports on content found (file formats, file format versions, MIME types, last modified dates by year, unidentified files, Siegfried warnings/errors, duplicate files, and -optionally - potential personal identifiable information found by bulk_extractor). Named after basename passed to Brunnhilde as last argument.  
-* "csv_reports" folder: Contains CSV results queried from database on file formats, file format versions, MIME types, last modified dates by year, unidentified files, Siegfried warnings and errors, and duplicate files.  
-* "tree.txt": Tree report of the directory structure (of a directory or files within a disk image)
-* "siegfried.csv": Full CSV output from Siegfried
-* "siegfried.sqlite": SQLite3 database generated from Siegfried CSV  
+* `*basename*.html`: Includes some provenance information on the scan itself, aggregate statistics for the material as a whole (number of files, begin and end dates, number of unique vs. duplicate files, etc.), and detailed reports on content found (file formats, file format versions, MIME types, last modified dates by year, unidentified files, Siegfried warnings/errors, duplicate files, and -optionally - potential personal identifiable information found by bulk_extractor). Named after basename passed to Brunnhilde as last argument.  
+* `csv_reports` folder: Contains CSV results queried from database on file formats, file format versions, MIME types, last modified dates by year, unidentified files, Siegfried warnings and errors, and duplicate files.  
+* `siegfried.csv`: Full CSV output from Siegfried
+* `siegfried.sqlite`: SQLite3 database generated from Siegfried CSV  
 
 Optionally, outputs may also include:  
 
-* "bulk_extractor" folder: Contains bulk_extractor outputs (if selected).  
-* "carved_files" folder: Contains files carved from disk images by tsk_recover or HFS Explorer (if selected; can be deleted at end of process by passing the '-r' or '--remove files' flag to Brunnhilde).  
-* "logs" folder: Contains log files for ClamAV and bulk_extractor (if selected).  
+* `tree.txt`: Tree report of the directory structure of directory or file system on disk image (in Linux and macOS only)  
+* `bulk_extractor` folder: Contains bulk_extractor outputs (if selected).  
+* `carved_files` folder: Contains files carved from disk images by tsk_recover or HFS Explorer (if selected; can be deleted at end of process by passing the '-r' or '--remove files' flag to Brunnhilde).  
+* `logs` folder: Contains log files for ClamAV and bulk_extractor (if selected).  
 
 All outputs are placed into a new directory named after the identifier passed to Brunnhilde as the last argument.  
 
