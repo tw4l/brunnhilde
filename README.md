@@ -186,7 +186,7 @@ All dependencies are already installed in BitCurator 1.7.106+. See instructions 
 * [bulk_extractor](https://github.com/simsong/bulk_extractor)  
     * Linux: Build from source distribution found [here](https://github.com/simsong/bulk_extractor).  
     * macOS (easier): Install using [Homebrew](http://brewformulas.org/BulkExtractor).  
-    * Windows: Install using [Windows installer](http://downloads.digitalcorpora.org/downloads/bulk_extractor/).  
+    * Windows: Install using [Windows installer](http://downloads.digitalcorpora.org/downloads/bulk_extractor/). Make sure to select option to add bulk_extractor to path.  
 * [ClamAV](https://www.clamav.net): Virus checking  
     * Linux: Build from the source distribution found at [clamav.net](http://clamav.net)  
     * macOS: Install using [Homebrew](http://brewformulas.org/Clamav).   
