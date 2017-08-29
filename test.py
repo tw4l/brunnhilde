@@ -115,9 +115,9 @@ class TestBrunnhildeIntegration(SelfCleaningTestCase):
         self.assertTrue(is_non_zero_file(os.path.join(self.dest_tmpdir, 'brunnhilde_test', 
             'dfxml.xml')))
         # carved_files
-        self.assertTrue(is_non_zero_file(os.path.join(self.dest_tempdir, 'brunnhilde_test', 
+        self.assertTrue(is_non_zero_file(os.path.join(self.dest_tmpdir, 'brunnhilde_test', 
             'carved_files', 'file1.txt.txt')))
-        self.assertTrue(is_non_zero_file(os.path.join(self.dest_tempdir, 'brunnhilde_test', 
+        self.assertTrue(is_non_zero_file(os.path.join(self.dest_tmpdir, 'brunnhilde_test', 
             'carved_files', 'Tulips.jpg')))
     
     def test_integration_temp_files_deleted(self):
