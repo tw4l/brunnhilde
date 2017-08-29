@@ -10,10 +10,10 @@ A Siegfried-based digital archives reporting tool
 For information on usage and dependencies, see:
 github.com/timothyryanwalsh/brunnhilde
 
-Tested in Python 2.7, 3.5, and 3.6
+Python 2.7 & 3.4+
 
 The MIT License (MIT)
-Copyright (c) 2016 Tim Walsh
+Copyright (c) 2017 Tim Walsh
 http://bitarchivist.net
 
 """
