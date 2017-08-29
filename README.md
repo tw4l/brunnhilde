@@ -190,7 +190,8 @@ All dependencies are already installed in BitCurator 1.7.106+. See instructions 
 * [ClamAV](https://www.clamav.net): Virus checking  
     * Linux: Build from the source distribution found at [clamav.net](http://clamav.net)  
     * macOS: Install using [Homebrew](http://brewformulas.org/Clamav).   
-* tree: Installed by default in most Linux distros. 
+* tree  
+    * Linux: Installed by default in most Linux distros.  
     * macOS: On OS X, install using [Homebrew](http://brewformulas.org/tree)
     * Windows: n/a (Brunnhilde does not call tree when operating in Windows)  
 
