@@ -643,7 +643,11 @@ def main():
                     carvefiles = 'bash /usr/local/hfsexplorer/bin/unhfs -v -resforks APPLEDOUBLE -o "%s" "%s"' % (tempdir, source)
                 else:
                     carvefiles = 'bash /usr/local/hfsexplorer/bin/unhfs -v -o "%s" "%s"' % (tempdir, source)
-            #TODO: HANDLING FOR WINDOWS!
+            elif sys.platform.startswith('win'):
+                if args.resforks == True:
+                    carvefiles = '"C:/Program Files (x86)/HFSExplorer/bin/unhfs.bat" -v -resforks APPLEDOUBLE -o "%s" "%s"' % (tempdir, source)
+                else:
+                    carvefiles = '"C:/Program Files (x86)/HFSExplorer/bin/unhfs.bat" -v -o "%s" "%s"' % (tempdir, source)
             print("\nAttempting to carve files from disk image using HFS Explorer.")
             try:
                 subprocess.call(carvefiles, shell=True)
