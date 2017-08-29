@@ -179,7 +179,7 @@ To characterize HFS formatted disks in Brunnhilde, pass both the "-d" and "--hfs
 All dependencies are already installed in BitCurator 1.7.106+. See instructions below for installing dependencies if you wish to use Brunnhilde in a different environment Linux, Mac, or Windows).
 
 #### Core requirements
-* Python (tested in 2.7 and 3.5)
+* Python (2.7 or 3.4+; Python 3 is recommended)
 * [Siegfried](http://www.itforarchivists.com/siegfried): Brunnhilde is now compatible with all version of Siegfried, including 1.6+. It does not support MIME-Info or FDD signatures: for Brunnhilde to work, Siegfried must be using the PRONOM signature file only. If you have been using MIME-Info or FDD signatures as a replacement for or alongside PRONOM with Siegfried 1.5/1.6 on your machine, entering `roy build -multi 0` in the terminal should return you to Siegfried's default PRONOM-only identification mode and allow Brunnhilde to work properly.   
 
 #### Optional  
