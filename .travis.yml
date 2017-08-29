@@ -8,8 +8,6 @@ before_install:
   - wget -qO - https://bintray.com/user/downloadSubjectPublicKey?username=bintray | sudo apt-key add -
   - echo "deb http://dl.bintray.com/siegfried/debian wheezy main" | sudo tee -a /etc/apt/sources.list
   - sudo apt-get update && sudo apt-get install siegfried
-  - git clone git://github.com/sleuthkit/sleuthkit.git
-  - cd sleuthkit && ./bootstrap && ./configure && make && sudo make install
-  - cd ..
+  - sudo apt-get install sleuthkit
 script:
   - python test.py
