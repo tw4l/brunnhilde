@@ -80,7 +80,10 @@ def run_bulkext(source_dir, ssn_mode):
     except OSError as exception:
         if exception.errno != errno.EEXIST:
             raise
-    bulkext_command = 'bulk_extractor -S ssn_mode=%d -o "%s" -R "%s" | tee "%s"' % (ssn_mode, bulkext_dir, source_dir, bulkext_log)
+    if sys.platform.startswith('win'): # on windows, redirect be to file instead of using tee
+        bulkext_command = 'bulk_extractor -S ssn_mode=%d -o "%s" -R "%s" > "%s"' % (ssn_mode, bulkext_dir, source_dir, bulkext_log)
+    else:    
+        bulkext_command = 'bulk_extractor -S ssn_mode=%d -o "%s" -R "%s" | tee "%s"' % (ssn_mode, bulkext_dir, source_dir, bulkext_log)
     subprocess.call(bulkext_command, shell=True)
 
 def convert_size(size):
