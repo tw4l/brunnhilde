@@ -690,6 +690,14 @@ def main():
                 shutil.rmtree(report_dir)
                 sys.exit()
 
+            # generate DFXML with fiwalk
+            fiwalk_file = os.path.abspath(os.path.join(destination, 'dfxml.xml'))
+            try:
+                subprocess.check_output(['fiwalk', '-X', fiwalk_file, source])
+            except subprocess.CalledProcessError as e:
+                print('ERROR: Fiwalk could not create DFXML for disk. STDERR: %s' % (e.output))
+
+
         # process tempdir
         if args.noclam == False: # run clamAV virus check unless specified otherwise
             run_clamav(tempdir)
