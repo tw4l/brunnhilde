@@ -66,10 +66,13 @@ def run_clamav(source_dir):
     target.write("Date scanned: %s" % timestamp)
     target.close()
     # check log for infected files
-    if "Infected files: 0" not in open(virus_log).read():
-        print("\nWARNING: Infected file(s) found in %s. See %s for details." % (source_dir, virus_log))
+    if os.path.getsize(virus_log) > 0:
+        if "Infected files: 0" not in open(virus_log).read():
+            print("\nWARNING: Infected file(s) found in %s. See %s for details." % (source_dir, virus_log))
+        else:
+            print("\nNo infections found in %s." % source_dir)
     else:
-        print("\nNo infections found in %s." % source_dir)
+        print("\nVirus log empty.")
 
 def run_bulkext(source_dir, ssn_mode):
     """Run bulk extractor on directory"""
