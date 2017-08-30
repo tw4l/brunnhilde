@@ -19,7 +19,8 @@ Optionally, outputs may also include:
 
 * `tree.txt`: Tree report of the directory structure of directory or file system on disk image (in Linux and macOS only)  
 * `bulk_extractor` folder: Contains bulk_extractor outputs (if selected).  
-* `carved_files` folder: Contains files carved from disk images by tsk_recover or HFS Explorer (if selected; can be deleted at end of process by passing the '-r' or '--remove files' flag to Brunnhilde).  
+* `carved_files` folder: Contains files carved from disk images by tsk_recover or HFS Explorer (generated in -d mode; can be deleted at end of process by passing the '-r' or '--remove files' flag to Brunnhilde).  
+* `dfxml.xml`: A fiwalk-generated [Digital Forensics XML](http://www.forensicswiki.org/wiki/Category:Digital_Forensics_XML) file describing the volumes, filesystems, and files on a disk (generated in -d mode for non-HFS disk images).  
 * `logs` folder: Contains log files for ClamAV and bulk_extractor (if selected).  
 
 All outputs are placed into a new directory named after the identifier passed to Brunnhilde as the last argument.  
@@ -36,7 +37,7 @@ For a more detailed explanation of how multiple identifications are handled by S
 
 Brunnhilde and all of its dependencies are already installed in BitCurator version 1.7.106+. In versions 1.8.0+, a terminal launcher for Brunnhilde is included in the "Forensics and Reporting" folder on the BitCurator desktop.  
 
-Brunnhilde minimally requires that Python 2 or 3 and Siegfried are installed on your system to characterize directories of content. Characterizing disk images introduces additional dependencies. For more information, see [Dependencies](https://github.com/timothyryanwalsh/brunnhilde/tree/dev-nohash#dependencies).  
+Brunnhilde minimally requires that Python 2 or 3 and Siegfried are installed on your system to characterize directories of content. Characterizing disk images introduces additional dependencies. For more information, see [Dependencies](https://github.com/timothyryanwalsh/brunnhilde#dependencies).  
 
 `sudo pip install brunnhilde`  
 
@@ -126,7 +127,7 @@ Brunnhilde uses the md5 hash algorithm by default. Other options are sha1, sha25
 
 To change the type of hash used, pass '--hash HASH' as an argument to Brunnhilde, replacing HASH with your choice of sha1, sha256, or sha512.
 
-If the user specifies not to calculate checksums with '--hash none', the resulting CSV outputs and HTML report will not contain information calculated from hash values, namely information about duplicates in the source.
+If the user specifies not to calculate checksums with '--hash none', the resulting CSV outputs and HTML report will not contain information calculated from hash values, namely information about duplicate files in the source.
 
 ### Report completeness  
 
@@ -152,7 +153,7 @@ SSN recognition: you are now able to specify one of three SSN recognition modes:
 
 In -d mode, Brunnhilde uses SleuthKit's tsk_recover to export files from a disk image into a "carved files" directory for analysis. This works with raw images by default. In BitCurator or any other environment where libewf has been compiled into SleuthKit, Brunnhilde's -d mode also supports forensic disk image formats, including aff and ewf (E01). Due to the limitations of SleuthKit, Brunnhilde does not yet support characterizing disks that use the UDF filesystem.  
 
-**Note: tsk_recover does not retain file system dates, so the date reporting functionality of Brunnhilde is limited for non-HFS disk images. It is advised to create DFXML or similar files to retain/analyze file system metadata such as date stamps.**
+**Note: tsk_recover does not retain file system dates, so the date reporting functionality of Brunnhilde is limited for non-HFS disk images. It is advised to create DFXML or similar files to retain/analyze file system metadata such as date stamps. In Brunnhilde 1.6.0+, a fiwalk-generated DFXML file is created for all non-HFS disk images.**
 
 By default, Brunnhilde will keep a copy of the files exported from disk images in a "carved_files" directory. If you do not wish to keep a copy of these files after reporting is finished, you can pass the "-r" or "--removefiles" flags as arguments to Brunnhilde, which will cause it to delete the "carved_files" directory once all other tasks have finished.
 
@@ -164,19 +165,19 @@ Brunnhilde 1.5.3+ includes some options for more granular control of tsk_recover
 --tsk_sector_offset: Specify which volume on a disk to extract files from based on sector offset (see tsk_recover man page for more details)  
 
 An example command for these values might be:  
-`brunnhilde.py -d --tsk_fstype fat --tsk_imgtype ewf --tsk_sector_offset 59 sampleimage.E01 . test0`
+`brunnhilde.py -d --tsk_fstype fat --tsk_imgtype ewf --tsk_sector_offset 59 sampleimage.E01 . test`
 
 ### HFS-formatted disk images  
 
-**Important note: unhfs, the command-line version of HFSExplorer, until recently had a bug that prevented some files from being extracted from HFS disks. Be sure that you have the [latest version](https://sourceforge.net/projects/catacombae/files/HFSExplorer/0.23.1%20%28snapshot%202016-09-02%29/) of HFSExplorer installed. In BitCurator 1.7.106+, this issue is fixed in the standard installation.**  
+**Important note: unhfs, the command-line version of HFSExplorer, until recently had a bug that prevented some files from being extracted from HFS disks. Be sure that you have the [bugfix release](https://sourceforge.net/projects/catacombae/files/HFSExplorer/0.23.1%20%28snapshot%202016-09-02%29/) of HFSExplorer installed. In BitCurator 1.7.106+, this issue is fixed in the standard installation.**  
 
-In this patched release, unhfs.sh is renamed to unhfs (without a file extension). If file /usr/share/hfsexplorer/bin/unhfs.sh (with file extension) exists in your system, you must update HFSExplorer with the version linked above.  
+In this patched release, unhfs.sh is renamed to unhfs (without a file extension). If the hfsexplorer "bin" directory contains unhfs.sh (with file extension), you must update HFSExplorer with the version linked above.  
 
 In BitCurator versions before 1.7.106, installation of the latest release of HFSEexplorer must be done manually by replacing the contents of /usr/share/hfsexplorer with the downloaded and extracted source. In order to continue using the HFSExplorer GUI in BitCurator versions before 1.7.106 after updating HFSExplorer, right-click on the HFS Explorer icon in "Additional Tools", select "Properties", and amend the text in "Command" to:  
 
 `/usr/share/hfsexplorer/bin/./hfsexplorer %F`   
 
-To characterize HFS formatted disks in Brunnhilde, pass both the "-d" and "--hfs" flags as arguments, and be sure to use a raw disk image as the source (HFSExplorer is unable to process forensically packaged disk images). This functionality works "off the shelf" in BitCurator. Non-BitCurator environments will require you to install additional dependencies (HFSExplorer and Java).  
+To characterize HFS formatted disks in Brunnhilde, pass both the "-d" and "--hfs" flags as arguments, and be sure to use a raw disk image as the source (HFSExplorer is unable to process forensically packaged disk images). This functionality works "off the shelf" in BitCurator. Non-BitCurator environments will require you to install additional [dependencies](https://github.com/timothyryanwalsh/brunnhilde#dependencies).  
 
 ### Dependencies
 
@@ -191,7 +192,7 @@ For Brunnhilde to report on any directory of content, the following must be inst
 
 #### Additional dependencies
 
-Functions such as reporting on the contents of disk images, scanning for personally identifiable information (PII), and virus scanning introducing additioanl dependencies.
+Functions such as reporting on the contents of disk images, scanning for personally identifiable information (PII), and virus scanning introduce additional dependencies.
 
 * [SleuthKit](http://www.sleuthkit.org/): Carves files from and creates DFXML reports for disk images containing FAT, NTSF, HFS+, EXT2/3, ISO9660, UFS, RAW, SWAP, and YAFFS2 file systems. Note: SleuthKit works only with raw disk images by default, and has additional dependencies such as [libewf](https://github.com/libyal/libewf) and [afflib](https://github.com/sshock/AFFLIBv3) that may or may not be installed depending on installation method for working with forensically-packaged disk images.  
 * [HFSExplorer](http://www.catacombae.org/hfsexplorer/): Carves files from disk images containing HFS file system  
@@ -204,7 +205,7 @@ Functions such as reporting on the contents of disk images, scanning for persona
 *Note: Assumes Debian-based distro. If other, use appropriate package manager or build from source.*  
 
 * HFSExplorer: Download bin files from [bugfix snapshot](https://sourceforge.net/projects/catacombae/files/HFSExplorer/0.23.1%20%28snapshot%202016-09-02%29/) and move to /usr/share/hfsexplorer.  
-* bulk_extractor: Build from source distribution found [here](https://github.com/simsong/bulk_extractor).  
+* bulk_extractor: Build from source distribution using instructions found [here](https://github.com/simsong/bulk_extractor).  
 * Other dependencies:  
 ```
 # sleuthkit 
@@ -239,18 +240,16 @@ brew install tree
 
 #### Windows
 
-Windows support is currently limited. Most functions should work but are not tested as thoroughly as on Linux and Mac.
+*Note: Windows support for Brunnhilde is limited. Normal reporting of directories should work without issue. Scanning of disk images, virus scanning, and running bulk_extractor will require installation of the dependencies below and has not yet been thoroughly tested. Note that Brunnhilde does not call the true utility when run in Windows.*
 
 * SleuthKit: Download Windows binaries, install in Program Files, and add location of binaries to path. Download [fiwalk.exe](http://downloads.digitalcorpora.org/downloads/fiwalk/) separately, rename to simply 'fiwalk.exe' and move to same location as Sleuthkit binaries.  
 * HFSExplorer: Use Windows installer and install at C:\Program Files (x86)\HFSExplorer.  
 * bulk_extractor: Install using [Windows installer](http://downloads.digitalcorpora.org/downloads/bulk_extractor/). Make sure to select option to add bulk_extractor to path.  
-* ClamAV: INSTRUCTIONS TO COME  
-
-*Note: Brunnhilde does not call the tree utility in Windows*
+* ClamAV: Install using [Windows msi installer](https://www.clamav.net/downloads). See instructions [here](https://www.isode.com/Documentation/clamav.html) for additional help.
 
 ### Thanks
 
-Thank you to Richard Lehane for writing Siegfried, Ross Spencer for ideas and help, Kevin Powell for suggesting the additions of ClamAV and bulk_extractor and writing the initial code to integrate these tools, and to the PRONOM team at the UK National Archives for building and maintaining such a wonderful tool.  
+Thank you to Richard Lehane for writing Siegfried, Ross Spencer for ideas and help, Kevin Powell for suggesting the additions of ClamAV and bulk_extractor and writing the initial code to integrate these tools, Brian Dietz for suggesting improvements in tsk_recover and macOS functionality, and to the PRONOM team at the UK National Archives for building and maintaining such a wonderful tool.  
 
 ### Licensing  
 
