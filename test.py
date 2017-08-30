@@ -44,7 +44,7 @@ class TestBrunnhildeIntegration(SelfCleaningTestCase):
     """
 
     def test_integration_outputs_created(self):
-        subprocess.call('python ./brunnhilde.py ./test-data/files/ "%s" brunnhilde_test' % (self.dest_tmpdir), 
+        subprocess.call('python brunnhilde.py ./test-data/files/ "%s" brunnhilde_test' % (self.dest_tmpdir), 
             shell=True)
         # siegfried csv and sqlite db
         self.assertTrue(is_non_zero_file(os.path.join(self.dest_tmpdir, 'brunnhilde_test', 
@@ -80,7 +80,7 @@ class TestBrunnhildeIntegration(SelfCleaningTestCase):
             'logs', 'viruscheck-log.txt')))
 
     def test_integration_outputs_created_diskimage(self):
-        subprocess.call('python ./brunnhilde.py -d ./test-data/diskimages/sample-floppy-fat.dd "%s" brunnhilde_test' % (self.dest_tmpdir), 
+        subprocess.call('python brunnhilde.py -d ./test-data/diskimages/sample-floppy-fat.dd "%s" brunnhilde_test' % (self.dest_tmpdir), 
             shell=True)
         # siegfried csv and sqlite db
         self.assertTrue(is_non_zero_file(os.path.join(self.dest_tmpdir, 'brunnhilde_test', 
