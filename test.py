@@ -10,6 +10,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from os.path import join as j
 
 
 logging.basicConfig(filename='test.log', level=logging.DEBUG)
@@ -44,91 +45,98 @@ class TestBrunnhildeIntegration(SelfCleaningTestCase):
     """
 
     def test_integration_outputs_created(self):
-        subprocess.call('python brunnhilde.py ./test-data/files/ "%s" brunnhilde_test' % (self.dest_tmpdir), 
+        subprocess.call('python brunnhilde.py ./test-data/files/ "%s" test' % (self.dest_tmpdir), 
             shell=True)
         # siegfried csv and sqlite db
-        self.assertTrue(is_non_zero_file(os.path.join(self.dest_tmpdir, 'brunnhilde_test', 
+        self.assertTrue(is_non_zero_file(j(self.dest_tmpdir, 'test', 
             'siegfried.csv')))
-        self.assertTrue(is_non_zero_file(os.path.join(self.dest_tmpdir, 'brunnhilde_test', 
+        self.assertTrue(is_non_zero_file(j(self.dest_tmpdir, 'test', 
             'siegfried.sqlite')))
         # html report
-        self.assertTrue(is_non_zero_file(os.path.join(self.dest_tmpdir, 'brunnhilde_test', 
-            'brunnhilde_test.html')))
+        self.assertTrue(is_non_zero_file(j(self.dest_tmpdir, 'test', 
+            'test.html')))
         # csv reports
-        self.assertTrue(is_non_zero_file(os.path.join(self.dest_tmpdir, 'brunnhilde_test', 
+        self.assertTrue(is_non_zero_file(j(self.dest_tmpdir, 'test', 
             'csv_reports', 'duplicates.csv')))
-        self.assertTrue(is_non_zero_file(os.path.join(self.dest_tmpdir, 'brunnhilde_test', 
+        self.assertTrue(is_non_zero_file(j(self.dest_tmpdir, 'test', 
             'csv_reports', 'errors.csv')))
-        self.assertTrue(is_non_zero_file(os.path.join(self.dest_tmpdir, 'brunnhilde_test', 
+        self.assertTrue(is_non_zero_file(j(self.dest_tmpdir, 'test', 
             'csv_reports', 'formats.csv')))
-        self.assertTrue(is_non_zero_file(os.path.join(self.dest_tmpdir, 'brunnhilde_test', 
+        self.assertTrue(is_non_zero_file(j(self.dest_tmpdir, 'test', 
             'csv_reports', 'formatVersions.csv')))
-        self.assertTrue(is_non_zero_file(os.path.join(self.dest_tmpdir, 'brunnhilde_test', 
+        self.assertTrue(is_non_zero_file(j(self.dest_tmpdir, 'test', 
             'csv_reports', 'mimetypes.csv')))
-        self.assertTrue(is_non_zero_file(os.path.join(self.dest_tmpdir, 'brunnhilde_test', 
+        self.assertTrue(is_non_zero_file(j(self.dest_tmpdir, 'test', 
             'csv_reports', 'unidentified.csv')))
-        self.assertTrue(is_non_zero_file(os.path.join(self.dest_tmpdir, 'brunnhilde_test', 
+        self.assertTrue(is_non_zero_file(j(self.dest_tmpdir, 'test', 
             'csv_reports', 'warnings.csv')))
-        self.assertTrue(is_non_zero_file(os.path.join(self.dest_tmpdir, 'brunnhilde_test', 
+        self.assertTrue(is_non_zero_file(j(self.dest_tmpdir, 'test', 
             'csv_reports', 'years.csv')))
         # tree.txt
         if not sys.platform.startswith('win'):
-            self.assertTrue(os.path.isfile(os.path.join(self.dest_tmpdir, 'brunnhilde_test', 
+            self.assertTrue(os.path.isfile(j(self.dest_tmpdir, 'test', 
                 'tree.txt')))
         # virus check log
-        self.assertTrue(os.path.isfile(os.path.join(self.dest_tmpdir, 'brunnhilde_test', 
+        self.assertTrue(os.path.isfile(j(self.dest_tmpdir, 'test', 
             'logs', 'viruscheck-log.txt')))
 
     def test_integration_outputs_created_diskimage(self):
-        subprocess.call('python brunnhilde.py -d ./test-data/diskimages/sample-floppy-fat.dd "%s" brunnhilde_test' % (self.dest_tmpdir), 
+        subprocess.call('python brunnhilde.py -nd ./test-data/diskimages/sample-floppy-fat.dd "%s" test' % (self.dest_tmpdir), 
             shell=True)
         # siegfried csv and sqlite db
-        self.assertTrue(is_non_zero_file(os.path.join(self.dest_tmpdir, 'brunnhilde_test', 
+        self.assertTrue(is_non_zero_file(j(self.dest_tmpdir, 'test', 
             'siegfried.csv')))
-        self.assertTrue(is_non_zero_file(os.path.join(self.dest_tmpdir, 'brunnhilde_test', 
+        self.assertTrue(is_non_zero_file(j(self.dest_tmpdir, 'test', 
             'siegfried.sqlite')))
         # html report
-        self.assertTrue(is_non_zero_file(os.path.join(self.dest_tmpdir, 'brunnhilde_test', 
-            'brunnhilde_test.html')))
+        self.assertTrue(is_non_zero_file(j(self.dest_tmpdir, 'test', 
+            'test.html')))
         # csv reports
-        self.assertTrue(is_non_zero_file(os.path.join(self.dest_tmpdir, 'brunnhilde_test', 
+        self.assertTrue(is_non_zero_file(j(self.dest_tmpdir, 'test', 
             'csv_reports', 'duplicates.csv')))
-        self.assertTrue(is_non_zero_file(os.path.join(self.dest_tmpdir, 'brunnhilde_test', 
+        self.assertTrue(is_non_zero_file(j(self.dest_tmpdir, 'test', 
             'csv_reports', 'errors.csv')))
-        self.assertTrue(is_non_zero_file(os.path.join(self.dest_tmpdir, 'brunnhilde_test', 
+        self.assertTrue(is_non_zero_file(j(self.dest_tmpdir, 'test', 
             'csv_reports', 'formats.csv')))
-        self.assertTrue(is_non_zero_file(os.path.join(self.dest_tmpdir, 'brunnhilde_test', 
+        self.assertTrue(is_non_zero_file(j(self.dest_tmpdir, 'test', 
             'csv_reports', 'formatVersions.csv')))
-        self.assertTrue(is_non_zero_file(os.path.join(self.dest_tmpdir, 'brunnhilde_test', 
+        self.assertTrue(is_non_zero_file(j(self.dest_tmpdir, 'test', 
             'csv_reports', 'mimetypes.csv')))
-        self.assertTrue(is_non_zero_file(os.path.join(self.dest_tmpdir, 'brunnhilde_test', 
+        self.assertTrue(is_non_zero_file(j(self.dest_tmpdir, 'test', 
             'csv_reports', 'unidentified.csv')))
-        self.assertTrue(is_non_zero_file(os.path.join(self.dest_tmpdir, 'brunnhilde_test', 
+        self.assertTrue(is_non_zero_file(j(self.dest_tmpdir, 'test', 
             'csv_reports', 'warnings.csv')))
-        self.assertTrue(is_non_zero_file(os.path.join(self.dest_tmpdir, 'brunnhilde_test', 
+        self.assertTrue(is_non_zero_file(j(self.dest_tmpdir, 'test', 
             'csv_reports', 'years.csv')))
         # tree.txt
         if not sys.platform.startswith('win'):
-            self.assertTrue(os.path.isfile(os.path.join(self.dest_tmpdir, 'brunnhilde_test', 
+            self.assertTrue(os.path.isfile(j(self.dest_tmpdir, 'test', 
                 'tree.txt')))
         # dfxml
-        self.assertTrue(is_non_zero_file(os.path.join(self.dest_tmpdir, 'brunnhilde_test', 
+        self.assertTrue(is_non_zero_file(j(self.dest_tmpdir, 'test', 
             'dfxml.xml')))
         # carved_files
-        self.assertTrue(is_non_zero_file(os.path.join(self.dest_tmpdir, 'brunnhilde_test', 
+        self.assertTrue(is_non_zero_file(j(self.dest_tmpdir, 'test', 
             'carved_files', 'file1.txt.txt')))
-        self.assertTrue(is_non_zero_file(os.path.join(self.dest_tmpdir, 'brunnhilde_test', 
+        self.assertTrue(is_non_zero_file(j(self.dest_tmpdir, 'test', 
             'carved_files', 'Tulips.jpg')))
     
     def test_integration_temp_files_deleted(self):
-        subprocess.call('python ./brunnhilde.py ./test-data/files/ "%s" brunnhilde_test' % (self.dest_tmpdir), 
+        subprocess.call('python ./brunnhilde.py ./test-data/files/ "%s" test' % (self.dest_tmpdir), 
             shell=True)
         # temp.html
-        self.assertFalse(os.path.isfile(os.path.join(self.dest_tmpdir, 'brunnhilde_test', 
+        self.assertFalse(os.path.isfile(j(self.dest_tmpdir, 'test', 
             'temp.html')))
         # uniqueyears.csv
-        self.assertFalse(os.path.isfile(os.path.join(self.dest_tmpdir, 'brunnhilde_test', 
+        self.assertFalse(os.path.isfile(j(self.dest_tmpdir, 'test', 
             'csv_reports', 'uniqueyears.csv')))
+
+    def test_integration_clamav(self):
+        subprocess.call('python ./brunnhilde.py ./test-data/files/ "%s" test' % (self.dest_tmpdir), 
+            shell=True)
+        # virus log correctly written
+        self.assertTrue("Infected files: 0" in j(self.dest_tmpdir, 'test', 
+            'logs', 'viruscheck-log.txt'))
 
 
 if __name__ == '__main__':
