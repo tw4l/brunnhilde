@@ -107,7 +107,7 @@ Example commands:
 
 By default, Brunnhilde will use ClamAV to scan the contents of a directory or files in a disk image. Findings are written to a log and to the terminal. If any threats are found, Brunnhilde will print a warning to the terminal and direct the user to the ClamAV log file.  
 
-To disable virus scanning, pass '-n' or'--noclam' as an argument.  
+To disable virus scanning, pass '-n' or'--noclam' as an argument. Virus scanning is skipped in Windows regardless of the options passed to Brunnhilde.
 
 ### Siegfried options  
 
@@ -242,12 +242,11 @@ brew install tree
 
 #### Windows
 
-*Note: Windows support for Brunnhilde is limited. Normal reporting of directories should work without issue. Scanning of disk images, virus scanning, and running bulk_extractor will require installation of the dependencies below and has not yet been thoroughly tested. Note that Brunnhilde does not call the tree utility when run in Windows.*
+*Note: Windows support for Brunnhilde is limited. Normal reporting of directories should work without issue. Scanning of disk images, virus scanning, and running bulk_extractor will require installation of the dependencies below and has not yet been thoroughly tested. Note that Brunnhilde does not scan for viruses with ClamAV or call the tree utility when run in Windows.*
 
 * SleuthKit: Download Windows binaries, install in Program Files, and add location of binaries to path. Download [fiwalk.exe](http://downloads.digitalcorpora.org/downloads/fiwalk/) separately, rename to simply 'fiwalk.exe' and move to same location as Sleuthkit binaries.  
 * HFSExplorer: Use Windows installer and install at C:\Program Files (x86)\HFSExplorer.  
 * bulk_extractor: Install using [Windows installer](http://downloads.digitalcorpora.org/downloads/bulk_extractor/). Make sure to select option to add bulk_extractor to path.  
-* ClamAV: Install using [Windows msi installer](https://www.clamav.net/downloads). See instructions [here](https://www.isode.com/Documentation/clamav.html) for additional help.
 
 ### Thanks
 

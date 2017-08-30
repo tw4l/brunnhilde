@@ -60,8 +60,6 @@ def run_clamav(source_dir):
     print("\nRunning virus check on %s. This may take a few minutes." % source_dir)
     virus_log = os.path.join(log_dir, 'viruscheck-log.txt')
     clamav_command = 'clamscan -i -r "%s" | tee "%s"' % (source_dir, virus_log)
-    if sys.platform.startswith('win'): # on windows, redirect log to file instead of using tee
-        clamav_command = 'clamscan -i -r "%s" > "%s"' % (source_dir, virus_log)
     subprocess.call(clamav_command, shell=True)
     # add timestamp
     target = open(virus_log, 'a')
@@ -709,7 +707,9 @@ def main():
 
         # process tempdir
         if args.noclam == False: # run clamAV virus check unless specified otherwise
-            run_clamav(tempdir)
+            # skip clamav on Windows
+            if not sys.platform.startswith('win'):
+                run_clamav(tempdir)
         process_content(args, tempdir, cursor, conn, html, brunnhilde_version, siegfried_version, use_hash)
         if args.bulkextractor == True: # bulk extractor option is chosen
             run_bulkext(tempdir, ssn_mode)
@@ -723,7 +723,9 @@ def main():
             print("\nSource is not a Directory. If you're processing a disk image, place '-d' before source.")
             sys.exit()
         if args.noclam == False: # run clamAV virus check unless specified otherwise
-            run_clamav(source)
+            # skip clamav on Windows
+            if not sys.platform.startswith('win'):
+                run_clamav(source)
         process_content(args, source, cursor, conn, html, brunnhilde_version, siegfried_version, use_hash)
         if args.bulkextractor == True: # bulk extractor option is chosen
             run_bulkext(source, ssn_mode)
@@ -733,7 +735,7 @@ def main():
     html.close()
 
     # write new html file, with hrefs for PRONOM IDs
-    new_html = os.path.join(report_dir, '%s.html' % basename)
+    new_html = os.path.join(report_dir, '%s.html' % (basename))
     write_pronom_links(temp_html, new_html)
 
     # remove temp html file
