@@ -122,7 +122,7 @@ class TestBrunnhildeIntegration(SelfCleaningTestCase):
             'carved_files', 'Tulips.jpg')))
     
     def test_integration_temp_files_deleted(self):
-        subprocess.call('python ./brunnhilde.py ./test-data/files/ "%s" test' % (self.dest_tmpdir), 
+        subprocess.call('python brunnhilde.py ./test-data/files/ "%s" test' % (self.dest_tmpdir), 
             shell=True)
         # temp.html
         self.assertFalse(os.path.isfile(j(self.dest_tmpdir, 'test', 
@@ -132,11 +132,19 @@ class TestBrunnhildeIntegration(SelfCleaningTestCase):
             'csv_reports', 'uniqueyears.csv')))
 
     def test_integration_clamav(self):
-        subprocess.call('python ./brunnhilde.py ./test-data/files/ "%s" test' % (self.dest_tmpdir), 
+        subprocess.call('python brunnhilde.py ./test-data/files/ "%s" test' % (self.dest_tmpdir), 
             shell=True)
         # virus log correctly written
         virus_log = j(self.dest_tmpdir, 'test', 'logs', 'viruscheck-log.txt')
-        self.assertTrue("Scanned files: 2" in open(virus_log).read())
+        self.assertTrue("Scanned files: 4" in open(virus_log).read())
+        self.assertTrue("Infected files: 0" in open(virus_log).read())
+
+    def test_integration_clamav_diskimage(self):
+        subprocess.call('python brunnhilde.py -d ./test-data/diskimages/sample-floppy-fat.dd "%s" test' % (self.dest_tmpdir), 
+            shell=True)
+        # virus log correctly written
+        virus_log = j(self.dest_tmpdir, 'test', 'logs', 'viruscheck-log.txt')
+        self.assertTrue("Scanned files: 4" in open(virus_log).read())
         self.assertTrue("Infected files: 0" in open(virus_log).read())
 
 
