@@ -144,7 +144,7 @@ class TestBrunnhildeIntegration(SelfCleaningTestCase):
             shell=True)
         # virus log correctly written
         virus_log = j(self.dest_tmpdir, 'test', 'logs', 'viruscheck-log.txt')
-        self.assertTrue("Scanned files: 4" in open(virus_log).read())
+        self.assertTrue("Scanned files: 2" in open(virus_log).read())
         self.assertTrue("Infected files: 0" in open(virus_log).read())
 
 
