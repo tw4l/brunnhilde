@@ -60,6 +60,8 @@ def run_clamav(source_dir):
     print("\nRunning virus check on %s. This may take a few minutes." % source_dir)
     virus_log = os.path.join(log_dir, 'viruscheck-log.txt')
     clamav_command = 'clamscan -i -r "%s" | tee "%s"' % (source_dir, virus_log)
+    if sys.platform.startswith('win'): # on windows, redirect log to file instead of using tee
+        'clamscan -i -r "%s" > "%s"' % (source_dir, virus_log)
     subprocess.call(clamav_command, shell=True)
     # add timestamp
     target = open(virus_log, 'a')
@@ -83,10 +85,9 @@ def run_bulkext(source_dir, ssn_mode):
     except OSError as exception:
         if exception.errno != errno.EEXIST:
             raise
-    if sys.platform.startswith('win'): # on windows, redirect be to file instead of using tee
+    bulkext_command = 'bulk_extractor -S ssn_mode=%d -o "%s" -R "%s" | tee "%s"' % (ssn_mode, bulkext_dir, source_dir, bulkext_log)
+    if sys.platform.startswith('win'): # on windows, redirect log to file instead of using tee
         bulkext_command = 'bulk_extractor -S ssn_mode=%d -o "%s" -R "%s" > "%s"' % (ssn_mode, bulkext_dir, source_dir, bulkext_log)
-    else:    
-        bulkext_command = 'bulk_extractor -S ssn_mode=%d -o "%s" -R "%s" | tee "%s"' % (ssn_mode, bulkext_dir, source_dir, bulkext_log)
     subprocess.call(bulkext_command, shell=True)
 
 def convert_size(size):
