@@ -61,7 +61,7 @@ def run_clamav(source_dir):
     virus_log = os.path.join(log_dir, 'viruscheck-log.txt')
     clamav_command = 'clamscan -i -r "%s" | tee "%s"' % (source_dir, virus_log)
     if sys.platform.startswith('win'): # on windows, redirect log to file instead of using tee
-        'clamscan -i -r "%s" > "%s"' % (source_dir, virus_log)
+        clamav_command = 'clamscan -i -r "%s" > "%s"' % (source_dir, virus_log)
     subprocess.call(clamav_command, shell=True)
     # add timestamp
     target = open(virus_log, 'a')
