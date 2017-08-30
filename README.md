@@ -179,6 +179,8 @@ In BitCurator versions before 1.7.106, installation of the latest release of HFS
 
 To characterize HFS formatted disks in Brunnhilde, pass both the "-d" and "--hfs" flags as arguments, and be sure to use a raw disk image as the source (HFSExplorer is unable to process forensically packaged disk images). This functionality works "off the shelf" in BitCurator. Non-BitCurator environments will require you to install additional [dependencies](https://github.com/timothyryanwalsh/brunnhilde#dependencies).  
 
+To extract AppleDouble resource forks from HFS-formatted disk images, pass the "--resforks" flag in addition to "-d" and "--hfs".
+
 ### Dependencies
 
 All dependencies are already installed in BitCurator 1.7.106+. See instructions below for installing dependencies if you wish to use Brunnhilde in a different environment (Linux, Mac, or Windows).
