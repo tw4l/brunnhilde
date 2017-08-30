@@ -199,19 +199,10 @@ Functions such as reporting on the contents of disk images, scanning for persona
 * [ClamAV](https://www.clamav.net): Scans for viruses  
 * [tree](https://linux.die.net/man/1/tree): Reports on directory structure
 
-#### Linux
+#### Linux  
 
-* SleuthKit
+Assumes Debian-based distro. If other, use appropriate package manager or build from source.  
 
-```
-git clone git://github.com/sleuthkit/sleuthkit.git
-cd sleuthkit
-./bootstrap
-./configure
-make
-sudo make install
-sudo ldconfig
-```  
 * HFSExplorer
 
 Download bin files from [bugfix snapshot](https://sourceforge.net/projects/catacombae/files/HFSExplorer/0.23.1%20%28snapshot%202016-09-02%29/) and move to /usr/share/hfsexplorer.
@@ -220,39 +211,42 @@ Download bin files from [bugfix snapshot](https://sourceforge.net/projects/catac
 
 Build from source distribution found [here](https://github.com/simsong/bulk_extractor).
 
-* ClamAV
+* Other dependencies
 
-  * Ubuntu/Debian: `sudo apt-get install clamav && sudo freshclam`  
-  * Other distros: Build from the source distribution found at [clamav.net](http://clamav.net)  
+```
+# sleuthkit 
+git clone git://github.com/sleuthkit/sleuthkit.git
+cd sleuthkit
+./bootstrap
+./configure
+make
+sudo make install
+sudo ldconfig
 
-* tree
+# clamav
+sudo apt-get install clamav
+sudo freshclam
 
-  * Ubuntu/Debian: `sudo apt-get install tree`  
-  * Other distros: Use package manager associated with distro.
+# tree
+sudo apt-get install tree
+```  
 
 #### macOS
 
 If not already installed on your system, first install [Homebrew](https://brew.sh/).
 
-* SleuthKit
-
-`brew install sleuthkit`
-
 * HFSExplorer
 
 Download bin files from [bugfix snapshot](https://sourceforge.net/projects/catacombae/files/HFSExplorer/0.23.1%20%28snapshot%202016-09-02%29/) and move to /usr/local/share/hfsexplorer.
 
-* bulk_extractor
+* Other dependencies
 
-`brew install bulkextractor`
-
-* ClamAV
-
-`brew install clamav` 
-
-* tree
-
-`brew install tree`
+```
+brew install sleuthkit
+brew install bulkextractor
+brew install clamav
+brew install tree
+```
 
 #### Windows
 
