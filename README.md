@@ -203,11 +203,9 @@ Functions such as reporting on the contents of disk images, scanning for persona
 
 *Note: Assumes Debian-based distro. If other, use appropriate package manager or build from source.*  
 
-HFSExplorer: Download bin files from [bugfix snapshot](https://sourceforge.net/projects/catacombae/files/HFSExplorer/0.23.1%20%28snapshot%202016-09-02%29/) and move to /usr/share/hfsexplorer.
-
-bulk_extractor: Build from source distribution found [here](https://github.com/simsong/bulk_extractor).
-
-Other dependencies:  
+* HFSExplorer: Download bin files from [bugfix snapshot](https://sourceforge.net/projects/catacombae/files/HFSExplorer/0.23.1%20%28snapshot%202016-09-02%29/) and move to /usr/share/hfsexplorer.  
+* bulk_extractor: Build from source distribution found [here](https://github.com/simsong/bulk_extractor).  
+* Other dependencies:  
 ```
 # sleuthkit 
 git clone git://github.com/sleuthkit/sleuthkit.git
@@ -230,9 +228,8 @@ sudo apt-get install tree
 
 If not already installed on your system, first install [Homebrew](https://brew.sh/).
 
-HFSExplorer: Download bin files from [bugfix snapshot](https://sourceforge.net/projects/catacombae/files/HFSExplorer/0.23.1%20%28snapshot%202016-09-02%29/) and move to /usr/local/share/hfsexplorer.
-
-Other dependencies:  
+* HFSExplorer: Download bin files from [bugfix snapshot](https://sourceforge.net/projects/catacombae/files/HFSExplorer/0.23.1%20%28snapshot%202016-09-02%29/) and move to /usr/local/share/hfsexplorer.  
+* Other dependencies:  
 ```
 brew install sleuthkit
 brew install bulkextractor
@@ -244,13 +241,10 @@ brew install tree
 
 Windows support is currently limited. Most functions should work but are not tested as thoroughly as on Linux and Mac.
 
-SleuthKit: Download Windows binaries, install in Program Files, and add location of binaries to path. Download [fiwalk.exe](http://downloads.digitalcorpora.org/downloads/fiwalk/) separately, rename to simply 'fiwalk.exe' and move to same location as Sleuthkit binaries.
-
-HFSExplorer: Use Windows installer and install at C:\Program Files (x86)\HFSExplorer.
-
-bulk_extractor: Install using [Windows installer](http://downloads.digitalcorpora.org/downloads/bulk_extractor/). Make sure to select option to add bulk_extractor to path. 
-
-ClamAV: INSTRUCTIONS TO COME
+* SleuthKit: Download Windows binaries, install in Program Files, and add location of binaries to path. Download [fiwalk.exe](http://downloads.digitalcorpora.org/downloads/fiwalk/) separately, rename to simply 'fiwalk.exe' and move to same location as Sleuthkit binaries.  
+* HFSExplorer: Use Windows installer and install at C:\Program Files (x86)\HFSExplorer.  
+* bulk_extractor: Install using [Windows installer](http://downloads.digitalcorpora.org/downloads/bulk_extractor/). Make sure to select option to add bulk_extractor to path.  
+* ClamAV: INSTRUCTIONS TO COME  
 
 *Note: Brunnhilde does not call the tree utility in Windows*
 
