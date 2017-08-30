@@ -193,7 +193,8 @@ All dependencies are already installed in BitCurator 1.7.106+. See instructions 
     * macOS (easier): Install using [Homebrew](http://brewformulas.org/BulkExtractor).  
     * Windows: Install using [Windows installer](http://downloads.digitalcorpora.org/downloads/bulk_extractor/). Make sure to select option to add bulk_extractor to path.  
 * [ClamAV](https://www.clamav.net): Virus checking  
-    * Linux: Build from the source distribution found at [clamav.net](http://clamav.net)  
+    * Linux (Ubuntu/Debian): `sudo apt-get install clamav && sudo freshclam` 
+    * Linux (other): Build from the source distribution found at [clamav.net](http://clamav.net)  
     * macOS: Install using [Homebrew](http://brewformulas.org/Clamav).   
 * [tree](https://linux.die.net/man/1/tree)  
     * Linux: Installed by default in most Linux distros.  
