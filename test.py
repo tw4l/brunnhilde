@@ -21,6 +21,7 @@ logging.getLogger().addHandler(stderr)
 def is_non_zero_file(fpath):  
     return os.path.isfile(fpath) and os.path.getsize(fpath) > 0
 
+
 class SelfCleaningTestCase(unittest.TestCase):
     """TestCase subclass which cleans up self.tmpdir after each test"""
 
@@ -36,8 +37,8 @@ class SelfCleaningTestCase(unittest.TestCase):
         if os.path.isdir(self.dest_tmpdir):
             shutil.rmtree(self.dest_tmpdir)
 
-
         super(SelfCleaningTestCase, self).tearDown()
+
 
 class TestBrunnhildeIntegration(SelfCleaningTestCase):
     """
@@ -45,7 +46,7 @@ class TestBrunnhildeIntegration(SelfCleaningTestCase):
     """
 
     def test_integration_outputs_created(self):
-        subprocess.call('python brunnhilde.py ./test-data/files/ "%s" test' % (self.dest_tmpdir), 
+        subprocess.call('python brunnhilde.py -n ./test-data/files/ "%s" test' % (self.dest_tmpdir), 
             shell=True)
         # siegfried csv and sqlite db
         self.assertTrue(is_non_zero_file(j(self.dest_tmpdir, 'test', 
@@ -76,9 +77,6 @@ class TestBrunnhildeIntegration(SelfCleaningTestCase):
         if not sys.platform.startswith('win'):
             self.assertTrue(os.path.isfile(j(self.dest_tmpdir, 'test', 
                 'tree.txt')))
-        # virus check log
-        self.assertTrue(os.path.isfile(j(self.dest_tmpdir, 'test', 
-            'logs', 'viruscheck-log.txt')))
 
     def test_integration_outputs_created_diskimage(self):
         subprocess.call('python brunnhilde.py -nd ./test-data/diskimages/sample-floppy-fat.dd "%s" test' % (self.dest_tmpdir), 
@@ -122,7 +120,7 @@ class TestBrunnhildeIntegration(SelfCleaningTestCase):
             'carved_files', 'Tulips.jpg')))
     
     def test_integration_temp_files_deleted(self):
-        subprocess.call('python brunnhilde.py ./test-data/files/ "%s" test' % (self.dest_tmpdir), 
+        subprocess.call('python brunnhilde.py -n ./test-data/files/ "%s" test' % (self.dest_tmpdir), 
             shell=True)
         # temp.html
         self.assertFalse(os.path.isfile(j(self.dest_tmpdir, 'test', 
