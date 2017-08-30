@@ -178,38 +178,91 @@ In BitCurator versions before 1.7.106, installation of the latest release of HFS
 
 To characterize HFS formatted disks in Brunnhilde, pass both the "-d" and "--hfs" flags as arguments, and be sure to use a raw disk image as the source (HFSExplorer is unable to process forensically packaged disk images). This functionality works "off the shelf" in BitCurator. Non-BitCurator environments will require you to install additional dependencies (HFSExplorer and Java).  
 
-### Dependencies  
+### Dependencies
 
-All dependencies are already installed in BitCurator 1.7.106+. See instructions below for installing dependencies if you wish to use Brunnhilde in a different environment Linux, Mac, or Windows).
+All dependencies are already installed in BitCurator 1.7.106+. See instructions below for installing dependencies if you wish to use Brunnhilde in a different environment (Linux, Mac, or Windows).
 
-#### Core requirements
+#### Core requirements (all operating systems)  
+
 * Python (2.7 or 3.4+; Python 3 is recommended)
 * [Siegfried](http://www.itforarchivists.com/siegfried): Brunnhilde is now compatible with all version of Siegfried, including 1.6+. It does not support MIME-Info or FDD signatures: for Brunnhilde to work, Siegfried must be using the PRONOM signature file only. If you have been using MIME-Info or FDD signatures as a replacement for or alongside PRONOM with Siegfried 1.5/1.6 on your machine, entering `roy build -multi 0` in the terminal should return you to Siegfried's default PRONOM-only identification mode and allow Brunnhilde to work properly.   
 
-#### Optional  
-* [bulk_extractor](https://github.com/simsong/bulk_extractor)  
-    * Linux (Ubuntu/Debian): `sudo apt-get install sleuthkit`   
-    * Linux (other): Build from source distribution found [here](https://github.com/simsong/bulk_extractor).  
-    * macOS (easier): Install using [Homebrew](http://brewformulas.org/BulkExtractor).  
-    * Windows: Install using [Windows installer](http://downloads.digitalcorpora.org/downloads/bulk_extractor/). Make sure to select option to add bulk_extractor to path.  
-* [ClamAV](https://www.clamav.net): Virus checking  
-    * Linux (Ubuntu/Debian): `sudo apt-get install clamav && sudo freshclam` 
-    * Linux (other): Build from the source distribution found at [clamav.net](http://clamav.net)  
-    * macOS: Install using [Homebrew](http://brewformulas.org/Clamav).   
-* [tree](https://linux.die.net/man/1/tree)  
-    * Linux: Installed by default in most Linux distros.  
-    * macOS: On OS X, install using [Homebrew](http://brewformulas.org/tree)
-    * Windows: n/a (Brunnhilde does not call tree when operating in Windows)  
+#### Linux
 
-#### To process disk images  
-* [SleuthKit](http://www.sleuthkit.org/)  
-    * Linux: Install from source.
-    * macOS: Install with [Homebrew](http://brewformulas.org/sleuthkit).  
-    * Windows: Download Windows binaries, install in Program Files, and add location of binaries to path. Download [fiwalk.exe](http://downloads.digitalcorpora.org/downloads/fiwalk/) separately, rename to simply 'fiwalk.exe' and move to same location as Sleuthkit binaries.
-* [HFSExplorer](https://sourceforge.net/projects/catacombae/files/HFSExplorer/0.23.1%20%28snapshot%202016-09-02%29/)  
-    * Linux: Download files and move to /usr/share/hfsexplorer.  
-    * macOS: Download files and move to /usr/local/hfsexplorer.  
-    * Windows: Use Windows installer and install at C:\Program Files (x86)\HFSExplorer.
+**[SleuthKit](http://www.sleuthkit.org/):** *Carves files from and creates DFXML reports for disk images containing FAT, NTSF, HFS+, EXT2/3, ISO9660, UFS, RAW, SWAP, and YAFFS2 file systems*
+
+```
+git clone git://github.com/sleuthkit/sleuthkit.git
+cd sleuthkit
+./bootstrap
+./configure
+make
+sudo make install
+sudo ldconfig
+```  
+**[HFSExplorer](https://sourceforge.net/projects/catacombae/files/HFSExplorer/0.23.1%20%28snapshot%202016-09-02%29/):** *Carves files from disk images containing HFS file system*
+
+Download files and move to /usr/share/hfsexplorer.
+
+**[bulk_extractor](https://github.com/simsong/bulk_extractor):** *Scans for PII*
+
+Build from source distribution found [here](https://github.com/simsong/bulk_extractor).
+
+**[ClamAV](https://www.clamav.net):** *Scans for viruses*
+
+* Ubuntu/Debian: `sudo apt-get install clamav && sudo freshclam`  
+* Other distros: Build from the source distribution found at [clamav.net](http://clamav.net)  
+
+**[tree](https://linux.die.net/man/1/tree):** *Report on directory structure*
+
+* Ubuntu/Debian: `sudo apt-get install tree`  
+* Other distros: Use package manager associated with distro.
+
+#### macOS
+
+If not already installed on your system, first install [Homebrew](https://brew.sh/).
+
+**[SleuthKit](http://www.sleuthkit.org/):** *Carves files from and creates DFXML reports for disk images containing FAT, NTSF, HFS+, EXT2/3, ISO9660, UFS, RAW, SWAP, and YAFFS2 file systems*
+
+`brew install sleuthkit`
+
+**[HFSExplorer](https://sourceforge.net/projects/catacombae/files/HFSExplorer/0.23.1%20%28snapshot%202016-09-02%29/):** *Carves files from disk images containing HFS file system*
+
+Download files and move to /usr/local/share/hfsexplorer.
+
+**[bulk_extractor](https://github.com/simsong/bulk_extractor):** *Scans for PII*
+
+`brew install bulkextractor`
+
+**[ClamAV](https://www.clamav.net):** *Scans for viruses*
+
+`brew install clamav` 
+
+**[tree](https://linux.die.net/man/1/tree):** *Report on directory structure*
+
+`brew install tree`
+
+#### Windows
+
+Windows support is currently limited. Most functions should work but are not tested as thoroughly as on Linux and Mac.
+
+**[SleuthKit](http://www.sleuthkit.org/):** *Carves files from and creates DFXML reports for disk images containing FAT, NTSF, HFS+, EXT2/3, ISO9660, UFS, RAW, SWAP, and YAFFS2 file systems*
+
+Download Windows binaries, install in Program Files, and add location of binaries to path. Download [fiwalk.exe](http://downloads.digitalcorpora.org/downloads/fiwalk/) separately, rename to simply 'fiwalk.exe' and move to same location as Sleuthkit binaries.
+
+**[HFSExplorer](https://sourceforge.net/projects/catacombae/files/HFSExplorer/0.23.1%20%28snapshot%202016-09-02%29/):** *Carves files from disk images containing HFS file system*
+
+Use Windows installer and install at C:\Program Files (x86)\HFSExplorer.
+
+**[bulk_extractor](https://github.com/simsong/bulk_extractor):** *Scans for PII*
+
+Install using [Windows installer](http://downloads.digitalcorpora.org/downloads/bulk_extractor/). Make sure to select option to add bulk_extractor to path. 
+
+**[ClamAV](https://www.clamav.net):** *Scans for viruses*
+
+INSTRUCTIONS TO COME
+
+*Note: Brunnhilde does not call the tree utility in Windows*
 
 ### Thanks
 
