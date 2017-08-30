@@ -135,8 +135,9 @@ class TestBrunnhildeIntegration(SelfCleaningTestCase):
         subprocess.call('python ./brunnhilde.py ./test-data/files/ "%s" test' % (self.dest_tmpdir), 
             shell=True)
         # virus log correctly written
-        self.assertTrue("Infected files: 0" in j(self.dest_tmpdir, 'test', 
-            'logs', 'viruscheck-log.txt'))
+        virus_log = j(self.dest_tmpdir, 'test', 'logs', 'viruscheck-log.txt')
+        self.assertTrue("Scanned files: 2" in open(virus_log).read())
+        self.assertTrue("Infected files: 0" in open(virus_log).read())
 
 
 if __name__ == '__main__':
