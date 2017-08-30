@@ -204,7 +204,7 @@ All dependencies are already installed in BitCurator 1.7.106+. See instructions 
 * [SleuthKit](http://www.sleuthkit.org/)  
     * Linux: Install from source.
     * macOS: Install with [Homebrew](http://brewformulas.org/sleuthkit).  
-    * Windows: Download Windows binaries, install in Program Files, and add location of binaries to path.  
+    * Windows: Download Windows binaries, install in Program Files, and add location of binaries to path. Download [fiwalk.exe](http://downloads.digitalcorpora.org/downloads/fiwalk/) separately, rename to simply 'fiwalk.exe' and move to same location as Sleuthkit binaries.
 * [HFSExplorer](https://sourceforge.net/projects/catacombae/files/HFSExplorer/0.23.1%20%28snapshot%202016-09-02%29/)  
     * Linux: Download files and move to /usr/share/hfsexplorer.  
     * macOS: Download files and move to /usr/local/hfsexplorer.  
