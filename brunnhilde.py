@@ -692,9 +692,9 @@ def main():
 
             # generate DFXML with fiwalk
             print("\nAttempting to generate DFXML file from disk image using fiwalk.")
-            fiwalk_command = 'fiwalk -X "%s" "%s"' % (os.path.join(report_dir, 'dfxml.xml'), source)
+            fiwalk_file = os.path.join(report_dir, 'dfxml.xml')
             try:
-                subprocess.call(fiwalk_command, shell=True)
+                subprocess.check_output(['fiwalk', '-X', fiwalk_file, source])
                 print("\nDFXML file created.")
             except subprocess.CalledProcessError as e:
                 print('\nERROR: Fiwalk could not create DFXML for disk. STDERR: %s' % (e.output))
