@@ -203,7 +203,7 @@ Functions such as reporting on the contents of disk images, scanning for persona
 
 #### Linux
 
-**SleuthKit**
+* SleuthKit
 
 ```
 git clone git://github.com/sleuthkit/sleuthkit.git
@@ -214,45 +214,45 @@ make
 sudo make install
 sudo ldconfig
 ```  
-**[HFSExplorer]**
+* HFSExplorer
 
 Download bin files from [bugfix snapshot](https://sourceforge.net/projects/catacombae/files/HFSExplorer/0.23.1%20%28snapshot%202016-09-02%29/) and move to /usr/share/hfsexplorer.
 
-**[bulk_extractor]**
+* bulk_extractor
 
 Build from source distribution found [here](https://github.com/simsong/bulk_extractor).
 
-**[ClamAV]**
+* ClamAV
 
-* Ubuntu/Debian: `sudo apt-get install clamav && sudo freshclam`  
-* Other distros: Build from the source distribution found at [clamav.net](http://clamav.net)  
+  * Ubuntu/Debian: `sudo apt-get install clamav && sudo freshclam`  
+  * Other distros: Build from the source distribution found at [clamav.net](http://clamav.net)  
 
-**[tree]**
+* tree
 
-* Ubuntu/Debian: `sudo apt-get install tree`  
-* Other distros: Use package manager associated with distro.
+  * Ubuntu/Debian: `sudo apt-get install tree`  
+  * Other distros: Use package manager associated with distro.
 
 #### macOS
 
 If not already installed on your system, first install [Homebrew](https://brew.sh/).
 
-**[SleuthKit]**
+* SleuthKit
 
 `brew install sleuthkit`
 
-**[HFSExplorer]**
+* HFSExplorer
 
 Download bin files from [bugfix snapshot](https://sourceforge.net/projects/catacombae/files/HFSExplorer/0.23.1%20%28snapshot%202016-09-02%29/) and move to /usr/local/share/hfsexplorer.
 
-**[bulk_extractor]**
+* bulk_extractor
 
 `brew install bulkextractor`
 
-**[ClamAV]**
+* ClamAV
 
 `brew install clamav` 
 
-**[tree]**
+* tree
 
 `brew install tree`
 
@@ -260,19 +260,19 @@ Download bin files from [bugfix snapshot](https://sourceforge.net/projects/catac
 
 Windows support is currently limited. Most functions should work but are not tested as thoroughly as on Linux and Mac.
 
-**[SleuthKit]**
+* SleuthKit
 
 Download Windows binaries, install in Program Files, and add location of binaries to path. Download [fiwalk.exe](http://downloads.digitalcorpora.org/downloads/fiwalk/) separately, rename to simply 'fiwalk.exe' and move to same location as Sleuthkit binaries.
 
-**[HFSExplorer]**
+* HFSExplorer
 
 Use Windows installer and install at C:\Program Files (x86)\HFSExplorer.
 
-**[bulk_extractor]**
+* bulk_extractor
 
 Install using [Windows installer](http://downloads.digitalcorpora.org/downloads/bulk_extractor/). Make sure to select option to add bulk_extractor to path. 
 
-**[ClamAV]**
+* ClamAV
 
 INSTRUCTIONS TO COME
 
