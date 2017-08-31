@@ -538,9 +538,9 @@ def write_pronom_links(old_file, new_file):
 def _make_parser(version):
     parser = argparse.ArgumentParser()
     parser.add_argument("-a", "--allocated", help="Instruct tsk_recover to export only allocated files (recovers all files by default)", action="store_true")
-    parser.add_argument("-b", "--bulkextractor", help="Run Bulk Extractor on source", action="store_true")
+    parser.add_argument("-b", "--bulkextractor", help="Run Bulk Extractor on source (Linux and macOS only)", action="store_true")
     parser.add_argument("--ssn_mode", help="Specify ssn_mode for Bulk Extractor (0, 1, or 2)", action="store", type=int)
-    parser.add_argument("-d", "--diskimage", help="Use disk image instead of dir as input", action="store_true")
+    parser.add_argument("-d", "--diskimage", help="Use disk image instead of dir as input (Linux and macOS only)", action="store_true")
     parser.add_argument("--hfs", help="Use for raw disk images of HFS disks", action="store_true")
     parser.add_argument("--resforks", help="Extract AppleDouble resource forks from HFS disks", action="store_true")
     parser.add_argument("--tsk_imgtype", help="Specify format of image type for tsk_recover. See tsk_recover man page for details", action="store")
@@ -631,7 +631,8 @@ def main():
         
         # throw error message and exit if run in Windows
         if sys.platform.startswith('win'):
-            print("Disk images not supported as inputs in Windows. Ending process.")
+            print("\nDisk images not supported as inputs in Windows. Ending process.")
+            shutil.rmtree(report_dir)
             sys.exit(1)
 
         # make tempdir
@@ -726,8 +727,9 @@ def main():
                 run_clamav(source)
         process_content(args, source, cursor, conn, html, brunnhilde_version, siegfried_version, use_hash)
         if args.bulkextractor == True: # bulk extractor option is chosen
-            run_bulkext(source, ssn_mode)
-            write_html('Personally Identifiable Information (PII)', '%s' % os.path.join(bulkext_dir, 'pii.txt'), '\t', html)
+            if not sys.platform.startswith('win'): # skip in Windows
+                run_bulkext(source, ssn_mode)
+                write_html('Personally Identifiable Information (PII)', '%s' % os.path.join(bulkext_dir, 'pii.txt'), '\t', html)
 
     # close HTML file
     html.close()
