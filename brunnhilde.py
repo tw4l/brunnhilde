@@ -535,7 +535,12 @@ def write_pronom_links(old_file, new_file):
     in_file.close()
     out_file.close()
 
-def close_on_sysexit(html, conn, )
+def close_files_conns_on_exit(html, conn, cursor, report_dir):
+    cursor.close()
+    conn.close()
+    html.close()
+    shutil.rmtree(report_dir)
+
 
 def _make_parser(version):
     parser = argparse.ArgumentParser()
@@ -634,10 +639,7 @@ def main():
         # throw error message and exit if run in Windows
         if sys.platform.startswith('win'):
             print("\nDisk images not supported as inputs in Windows. Ending process.")
-            cursor.close()
-            conn.close()
-            html.close()
-            shutil.rmtree(report_dir)
+            close_files_conns_on_exit(html, conn, cursor, report_dir)
             sys.exit(1)
 
         # make tempdir
@@ -667,10 +669,7 @@ def main():
             except subprocess.CalledProcessError as e:
                 print(e.output)
                 print("\nBrunnhilde was unable to export files from disk image. Ending process.")
-                cursor.close()
-                conn.close()
-                html.close()
-                shutil.rmtree(report_dir)
+                close_files_conns_on_exit(html, conn, cursor, report_dir)
                 sys.exit(1)
 
         else: # non-hfs disks (note: no UDF support yet)
@@ -699,10 +698,7 @@ def main():
             except subprocess.CalledProcessError as e:
                 print(e.output)
                 print("\nBrunnhilde was unable to export files from disk image. Ending process.")
-                cursor.close()
-                conn.close()
-                html.close()
-                shutil.rmtree(report_dir)
+                close_files_conns_on_exit(html, conn, cursor, report_dir)
                 sys.exit(1)
 
             # generate DFXML with fiwalk
