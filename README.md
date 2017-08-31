@@ -196,7 +196,7 @@ For Brunnhilde to report on any directory of content, the following must be inst
 * Python (2.7 or 3.4+; Python 3 is recommended)
 * [Siegfried](http://www.itforarchivists.com/siegfried): Brunnhilde is now compatible with all version of Siegfried, including 1.6+. It does not support MIME-Info or FDD signatures: for Brunnhilde to work, Siegfried must be using the PRONOM signature file only. If you have been using MIME-Info or FDD signatures as a replacement for or alongside PRONOM with Siegfried 1.5/1.6 on your machine, entering `roy build -multi 0` in the terminal should return you to Siegfried's default PRONOM-only identification mode and allow Brunnhilde to work properly.     
 
-#### Additional dependencies
+#### Additional dependencies (for full functionality in Linux and macOS)
 
 Functions such as reporting on the contents of disk images, scanning for personally identifiable information (PII), and virus scanning introduce additional dependencies.
 
