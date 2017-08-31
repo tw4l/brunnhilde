@@ -293,6 +293,8 @@ def get_stats(args, source_dir, scan_started, cursor, html, brunnhilde_version, 
     html.write('\n<h2>Virus scan report</h2>')
     if args.noclam == True:
         html.write('\n<p>Virus scan skipped.</p>')
+    elif sys.platform.startswith('win'):
+        html.write('\n<p>Virus scan skipped.</p>')
     else:
         with open(os.path.join(log_dir, 'viruscheck-log.txt')) as f:
             virus_report = f.read()
