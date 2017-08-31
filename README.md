@@ -101,9 +101,7 @@ In Brunnhilde 1.4.1+, Brunnhilde will accept absolute or relative paths for sour
 Example commands:  
 `brunnhilde.py -z "/home/bcadmin/Desktop/Folder to Scan" /home/bcadmin/Desktop brunnhilde-test-0` :  will result in a new directory "brunnhilde-test-0" on the BitCurator desktop containing various reports on input source "Folder to Scan".  
 
-`brunnhilde.py -nz . /Users/twalsh/Desktop/ ARCH123456` : will result in new directory "ARCH123456" on Mac desktop containing various reports on current working directory (-n skips ClamAV virus scan).  
-
-Note: Use of disk images as source, scanning for viruses, and calling bulk_extractor are supported in Linux and macOS only.
+`brunnhilde.py -nz . /Users/twalsh/Desktop/ ARCH123456` : will result in new directory "ARCH123456" on Mac desktop containing various reports on current working directory (-n skips ClamAV virus scan).
 
 ### Virus scanning  
 
@@ -151,6 +149,8 @@ SSN recognition: you are now able to specify one of three SSN recognition modes:
 -S ssn_mode=2 No dashes required. Allow any 9-digit number that matches SSN allocation range.  
 ```
 
+Calling bulk_extractor from Brunnhilde is not supported in Windows.
+
 ### Using disk images as input  
 
 In -d mode, Brunnhilde uses SleuthKit's tsk_recover to export files from a disk image into a "carved files" directory for analysis. This works with raw images by default. In BitCurator or any other environment where libewf has been compiled into SleuthKit, Brunnhilde's -d mode also supports forensic disk image formats, including aff and ewf (E01). Due to the limitations of SleuthKit, Brunnhilde does not yet support characterizing disks that use the UDF filesystem.  
@@ -168,6 +168,8 @@ Brunnhilde 1.5.3+ includes some options for more granular control of tsk_recover
 
 An example command for these values might be:  
 `brunnhilde.py -d --tsk_fstype fat --tsk_imgtype ewf --tsk_sector_offset 59 sampleimage.E01 . test`
+
+Disk image mode is not supported in Windows.
 
 ### HFS-formatted disk images  
 
