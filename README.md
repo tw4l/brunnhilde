@@ -67,9 +67,9 @@ optional arguments:
   -h, --help            show this help message and exit
   -a, --allocated       Instruct tsk_recover to export only allocated files
                         (recovers all files by default)
-  -b, --bulkextractor   Run Bulk Extractor on source
+  -b, --bulkextractor   Run Bulk Extractor on source (Linux and macOS only)
   --ssn_mode SSN_MODE   Specify ssn_mode for Bulk Extractor (0, 1, or 2)
-  -d, --diskimage       Use disk image instead of dir as input
+  -d, --diskimage       Use disk image instead of dir as input (Linux and macOS only)
   --hfs                 Use for raw disk images of HFS disks
   --resforks            Extract AppleDouble resource forks from HFS disks
   --tsk_imgtype TSK_IMGTYPE
