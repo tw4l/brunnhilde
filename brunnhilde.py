@@ -737,6 +737,8 @@ def main():
             if not sys.platform.startswith('win'): # skip in Windows
                 run_bulkext(source, ssn_mode)
                 write_html('Personally Identifiable Information (PII)', '%s' % os.path.join(bulkext_dir, 'pii.txt'), '\t', html)
+            else:
+                print("\nBulk Extractor not supported on Windows. Skipping.")
 
     # close HTML file
     html.close()
