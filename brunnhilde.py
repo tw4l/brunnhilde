@@ -650,9 +650,9 @@ def main():
                     carvefiles = 'bash /usr/local/share/hfsexplorer/bin/unhfs -v -o "%s" "%s"' % (tempdir, source)
             elif sys.platform.startswith('win'):
                 if args.resforks == True:
-                    carvefiles = '"C:/Program Files (x86)/HFSExplorer/bin/unhfs.bat" -v -resforks APPLEDOUBLE -o "%s" "%s"' % (tempdir, source)
+                    carvefiles = '"C:/Program Files/HFSExplorer/bin/unhfs.bat" -v -resforks APPLEDOUBLE -o "%s" "%s"' % (tempdir, source)
                 else:
-                    carvefiles = '"C:/Program Files (x86)/HFSExplorer/bin/unhfs.bat" -v -o "%s" "%s"' % (tempdir, source)
+                    carvefiles = '"C:/Program Files/HFSExplorer/bin/unhfs.bat" -v -o "%s" "%s"' % (tempdir, source)
             print("\nAttempting to carve files from disk image using HFS Explorer.")
             try:
                 subprocess.call(carvefiles, shell=True)
