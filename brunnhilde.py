@@ -535,6 +535,8 @@ def write_pronom_links(old_file, new_file):
     in_file.close()
     out_file.close()
 
+def close_on_sysexit(html, conn, )
+
 def _make_parser(version):
     parser = argparse.ArgumentParser()
     parser.add_argument("-a", "--allocated", help="Instruct tsk_recover to export only allocated files (recovers all files by default)", action="store_true")
@@ -634,6 +636,7 @@ def main():
             print("\nDisk images not supported as inputs in Windows. Ending process.")
             cursor.close()
             conn.close()
+            html.close()
             shutil.rmtree(report_dir)
             sys.exit(1)
 
@@ -666,6 +669,7 @@ def main():
                 print("\nBrunnhilde was unable to export files from disk image. Ending process.")
                 cursor.close()
                 conn.close()
+                html.close()
                 shutil.rmtree(report_dir)
                 sys.exit(1)
 
@@ -697,6 +701,7 @@ def main():
                 print("\nBrunnhilde was unable to export files from disk image. Ending process.")
                 cursor.close()
                 conn.close()
+                html.close()
                 shutil.rmtree(report_dir)
                 sys.exit(1)
 
