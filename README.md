@@ -103,6 +103,8 @@ Example commands:
 
 `brunnhilde.py -nz . /Users/twalsh/Desktop/ ARCH123456` : will result in new directory "ARCH123456" on Mac desktop containing various reports on current working directory (-n skips ClamAV virus scan).  
 
+Note: Use of disk images as source, scanning for viruses, and calling bulk_extractor are supported in Linux and macOS only.
+
 ### Virus scanning  
 
 By default, Brunnhilde will use ClamAV to scan the contents of a directory or files in a disk image. Findings are written to a log and to the terminal. If any threats are found, Brunnhilde will print a warning to the terminal and direct the user to the ClamAV log file.  
