@@ -134,16 +134,18 @@ class TestBrunnhildeIntegration(SelfCleaningTestCase):
             shell=True)
         # virus log correctly written
         virus_log = j(self.dest_tmpdir, 'test', 'logs', 'viruscheck-log.txt')
-        self.assertTrue("Scanned files: 4" in open(virus_log).read())
-        self.assertTrue("Infected files: 0" in open(virus_log).read())
+        with open(virus_log, 'r') as f:
+            self.assertTrue("Scanned files: 4" in f.read())
+            self.assertTrue("Infected files: 0" in f.read())
 
     def test_integration_clamav_diskimage(self):
         subprocess.call('python brunnhilde.py -d ./test-data/diskimages/sample-floppy-fat.dd "%s" test' % (self.dest_tmpdir), 
             shell=True)
         # virus log correctly written
         virus_log = j(self.dest_tmpdir, 'test', 'logs', 'viruscheck-log.txt')
-        self.assertTrue("Scanned files: 2" in open(virus_log).read())
-        self.assertTrue("Infected files: 0" in open(virus_log).read())
+        with open(virus_log, 'r') as f:
+            self.assertTrue("Scanned files: 2" in f.read())
+            self.assertTrue("Infected files: 0" in f.read())
 
 
 if __name__ == '__main__':
