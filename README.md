@@ -233,7 +233,7 @@ sudo apt-get install tree
 
 #### macOS
 
-If not already installed on your system, first install [Homebrew](https://brew.sh/).
+*Note: If not already installed on your system, first install [Homebrew](https://brew.sh/).*
 
 * HFSExplorer: Download bin files from [bugfix snapshot](https://sourceforge.net/projects/catacombae/files/HFSExplorer/0.23.1%20%28snapshot%202016-09-02%29/), unzip, rename directory to 'hfsexplorer' and move to /usr/local/share.  
 * Other dependencies:  
