@@ -84,8 +84,6 @@ def run_bulkext(source_dir, ssn_mode):
         if exception.errno != errno.EEXIST:
             raise
     bulkext_command = 'bulk_extractor -S ssn_mode=%d -o "%s" -R "%s" | tee "%s"' % (ssn_mode, bulkext_dir, source_dir, bulkext_log)
-    if sys.platform.startswith('win'): # on windows, redirect log to file instead of using tee
-        bulkext_command = 'bulk_extractor -S ssn_mode=%d -o "%s" -R "%s" > "%s"' % (ssn_mode, bulkext_dir, source_dir, bulkext_log)
     subprocess.call(bulkext_command, shell=True)
 
 def convert_size(size):
@@ -630,6 +628,12 @@ def main():
 
     # characterize source
     if args.diskimage == True: # source is a disk image
+        
+        # throw error message and exit if run in Windows
+        if sys.platform.startswith('win'):
+            print("Disk images not supported as inputs in Windows. Ending process.")
+            sys.exit(1)
+
         # make tempdir
         tempdir = os.path.join(report_dir, 'carved_files')
         try:
@@ -650,11 +654,6 @@ def main():
                     carvefiles = 'bash /usr/local/share/hfsexplorer/bin/unhfs -v -resforks APPLEDOUBLE -o "%s" "%s"' % (tempdir, source)
                 else:
                     carvefiles = 'bash /usr/local/share/hfsexplorer/bin/unhfs -v -o "%s" "%s"' % (tempdir, source)
-            elif sys.platform.startswith('win'):
-                if args.resforks == True:
-                    carvefiles = '"C:/Program Files/HFSExplorer/bin/unhfs.bat" -v -resforks APPLEDOUBLE -o "%s" "%s"' % (tempdir, source)
-                else:
-                    carvefiles = '"C:/Program Files/HFSExplorer/bin/unhfs.bat" -v -o "%s" "%s"' % (tempdir, source)
             print("\nAttempting to carve files from disk image using HFS Explorer.")
             try:
                 subprocess.call(carvefiles, shell=True)
@@ -663,7 +662,7 @@ def main():
                 print(e.output)
                 print("\nBrunnhilde was unable to export files from disk image. Ending process.")
                 shutil.rmtree(report_dir)
-                sys.exit()
+                sys.exit(1)
 
         else: # non-hfs disks (note: no UDF support yet)
             print("\nAttempting to carve files from disk image using tsk_recover.")
@@ -692,16 +691,13 @@ def main():
                 print(e.output)
                 print("\nBrunnhilde was unable to export files from disk image. Ending process.")
                 shutil.rmtree(report_dir)
-                sys.exit()
+                sys.exit(1)
 
             # generate DFXML with fiwalk
             print("\nAttempting to generate DFXML file from disk image using fiwalk.")
             fiwalk_file = os.path.join(report_dir, 'dfxml.xml')
-            fiwalk_bin = 'fiwalk'
-            if sys.platform.startswith('win'):
-                fiwalk_bin = 'fiwalk.exe'
             try:
-                subprocess.check_output([fiwalk_bin, '-X', fiwalk_file, source])
+                subprocess.check_output(['fiwalk', '-X', fiwalk_file, source])
                 print("\nDFXML file created.")
             except subprocess.CalledProcessError as e:
                 print('\nERROR: Fiwalk could not create DFXML for disk. STDERR: %s' % (e.output))

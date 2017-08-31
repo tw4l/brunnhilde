@@ -242,11 +242,7 @@ brew install tree
 
 #### Windows
 
-*Note: Windows support for Brunnhilde is limited. Normal reporting of directories should work without issue. Scanning of disk images and running bulk_extractor will require installation of the dependencies below and has not yet been thoroughly tested. Note that Brunnhilde does not scan for viruses with ClamAV or call the tree utility when run in Windows.*
-
-* SleuthKit: Download Windows binaries, install in Program Files, and add location of binaries to path. Download [fiwalk.exe](http://downloads.digitalcorpora.org/downloads/fiwalk/) separately, rename to simply 'fiwalk.exe' and move to same location as Sleuthkit binaries.  
-* HFSExplorer: Use Windows installer and install at C:\Program Files\HFSExplorer.  
-* bulk_extractor: Install using [Windows installer](http://downloads.digitalcorpora.org/downloads/bulk_extractor/). Make sure to select option to add bulk_extractor to path.  
+*Note: Windows support for Brunnhilde is limited. Normal reporting of directories should work without issue. Scanning of disk images, virus scanning, generating tree reports, and running bulk_extractor are not currently supported in Windows.*
 
 ### Thanks
 
