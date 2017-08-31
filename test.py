@@ -136,6 +136,7 @@ class TestBrunnhildeIntegration(SelfCleaningTestCase):
         virus_log = j(self.dest_tmpdir, 'test', 'logs', 'viruscheck-log.txt')
         with open(virus_log, 'r') as f:
             self.assertTrue("Scanned files: 4" in f.read())
+        with open(virus_log, 'r') as f:
             self.assertTrue("Infected files: 0" in f.read())
 
     def test_integration_clamav_diskimage(self):
@@ -145,6 +146,7 @@ class TestBrunnhildeIntegration(SelfCleaningTestCase):
         virus_log = j(self.dest_tmpdir, 'test', 'logs', 'viruscheck-log.txt')
         with open(virus_log, 'r') as f:
             self.assertTrue("Scanned files: 2" in f.read())
+        with open(virus_log, 'r') as f:
             self.assertTrue("Infected files: 0" in f.read())
 
 
