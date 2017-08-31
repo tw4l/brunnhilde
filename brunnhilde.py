@@ -632,6 +632,8 @@ def main():
         # throw error message and exit if run in Windows
         if sys.platform.startswith('win'):
             print("\nDisk images not supported as inputs in Windows. Ending process.")
+            cursor.close()
+            conn.close()
             shutil.rmtree(report_dir)
             sys.exit(1)
 
@@ -662,6 +664,8 @@ def main():
             except subprocess.CalledProcessError as e:
                 print(e.output)
                 print("\nBrunnhilde was unable to export files from disk image. Ending process.")
+                cursor.close()
+                conn.close()
                 shutil.rmtree(report_dir)
                 sys.exit(1)
 
@@ -691,6 +695,8 @@ def main():
             except subprocess.CalledProcessError as e:
                 print(e.output)
                 print("\nBrunnhilde was unable to export files from disk image. Ending process.")
+                cursor.close()
+                conn.close()
                 shutil.rmtree(report_dir)
                 sys.exit(1)
 
