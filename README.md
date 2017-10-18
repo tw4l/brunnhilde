@@ -51,10 +51,11 @@ If an older version of Brunnhilde is installed on your system, you can upgrade t
 ### Usage
 
 ```  
-usage: brunnhilde.py [-h] [-a] [-b] [--ssn_mode SSN_MODE] [-d] [--hfs] [--resforks]
-                     [--tsk_imgtype TSK_IMGTYPE] [--tsk_fstype TSK_FSTYPE]
+usage: brunnhilde.py [-h] [-a] [-b] [--ssn_mode SSN_MODE] [-d] [--hfs]
+                     [--resforks] [--tsk_imgtype TSK_IMGTYPE]
+                     [--tsk_fstype TSK_FSTYPE]
                      [--tsk_sector_offset TSK_SECTOR_OFFSET] [--hash HASH]
-                     [-n] [-r] [-t] [-V] [-w] [-z]
+                     [--largefiles] [-n] [-r] [-t] [-V] [-w] [-z]
                      source destination basename
 
 positional arguments:
@@ -69,7 +70,8 @@ optional arguments:
                         (recovers all files by default)
   -b, --bulkextractor   Run Bulk Extractor on source (Linux and macOS only)
   --ssn_mode SSN_MODE   Specify ssn_mode for Bulk Extractor (0, 1, or 2)
-  -d, --diskimage       Use disk image instead of dir as input (Linux and macOS only)
+  -d, --diskimage       Use disk image instead of dir as input (Linux and
+                        macOS only)
   --hfs                 Use for raw disk images of HFS disks
   --resforks            Extract AppleDouble resource forks from HFS disks
   --tsk_imgtype TSK_IMGTYPE
@@ -82,6 +84,7 @@ optional arguments:
                         Sector offset for particular volume for tsk_recover to
                         recover
   --hash HASH           Specify hash algorithm
+  --largefiles          Enable virus scanning of large files
   -n, --noclam          Skip ClamScan Virus Check
   -r, --removefiles     Delete 'carved_files' directory when done (disk image
                         input only)
@@ -90,7 +93,6 @@ optional arguments:
   -w, --showwarnings    Add Siegfried warnings to HTML report
   -z, --scanarchives    Decompress and scan zip, tar, gzip, warc, arc with
                         Siegfried
-
 
 ```  
   
@@ -106,6 +108,8 @@ Example commands:
 ### Virus scanning  
 
 By default, Brunnhilde will use ClamAV to scan the contents of a directory or files in a disk image. Findings are written to a log and to the terminal. If any threats are found, Brunnhilde will print a warning to the terminal and direct the user to the ClamAV log file.  
+
+By default, the maximum filesize and scansize for ClamAV are limited. To enable scanning of large files and large numbers of files, pass '--largefiles' as an argument. This will enable scans of unlimited size and scanning of files up to 4GB (files larger than 4GB are not supported by clamscan).
 
 To disable virus scanning, pass '-n' or'--noclam' as an argument. Virus scanning is skipped in Windows regardless of the options passed to Brunnhilde.
 
