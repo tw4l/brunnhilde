@@ -59,7 +59,7 @@ def run_clamav(source_dir):
     timestamp = str(datetime.datetime.now())
     print("\nRunning virus check on %s. This may take a few minutes." % source_dir)
     virus_log = os.path.join(log_dir, 'viruscheck-log.txt')
-    clamav_command = 'clamscan -i -r "%s" | tee "%s"' % (source_dir, virus_log)
+    clamav_command = 'clamscan -i -r "%s" --max-scansize=0 --max-filesize=0 | tee "%s"' % (source_dir, virus_log)
     subprocess.call(clamav_command, shell=True)
     # add timestamp
     target = open(virus_log, 'a')
@@ -568,7 +568,7 @@ def _make_parser(version):
 
 def main():
     # system info
-    brunnhilde_version = 'brunnhilde 1.6.0'
+    brunnhilde_version = 'brunnhilde 1.6.1'
     siegfried_version = subprocess.check_output(["sf", "-version"]).decode()
 
     parser = _make_parser(brunnhilde_version)
