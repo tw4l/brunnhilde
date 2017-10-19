@@ -84,7 +84,7 @@ optional arguments:
                         Sector offset for particular volume for tsk_recover to
                         recover
   --hash HASH           Specify hash algorithm
-  --largefiles          Enable virus scanning of large files
+  -l, --largefiles      Enable virus scanning of large files
   -n, --noclam          Skip ClamScan Virus Check
   -r, --removefiles     Delete 'carved_files' directory when done (disk image
                         input only)
