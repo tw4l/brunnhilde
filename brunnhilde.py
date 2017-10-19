@@ -54,12 +54,15 @@ def run_siegfried(args, source_dir, use_hash):
     print("\nCharacterization complete. Processing results.")
     return sf_command
 
-def run_clamav(source_dir):
+def run_clamav(args, source_dir):
     """Run ClamAV on directory"""
     timestamp = str(datetime.datetime.now())
     print("\nRunning virus check on %s. This may take a few minutes." % source_dir)
     virus_log = os.path.join(log_dir, 'viruscheck-log.txt')
-    clamav_command = 'clamscan -i -r "%s" | tee "%s"' % (source_dir, virus_log)
+    if args.largefiles == True:
+        clamav_command = 'clamscan -i -r "%s" --max-scansize=0 --max-filesize=0 | tee "%s"' % (source_dir, virus_log)
+    else:
+        clamav_command = 'clamscan -i -r "%s" | tee "%s"' % (source_dir, virus_log)
     subprocess.call(clamav_command, shell=True)
     # add timestamp
     target = open(virus_log, 'a')
@@ -554,6 +557,7 @@ def _make_parser(version):
     parser.add_argument("--tsk_fstype", help="Specify file system type for tsk_recover. See tsk_recover man page for details", action="store")
     parser.add_argument("--tsk_sector_offset", help="Sector offset for particular volume for tsk_recover to recover", action="store")
     parser.add_argument("--hash", help="Specify hash algorithm", dest="hash", action="store", type=str)
+    parser.add_argument("-l", "--largefiles", help="Enable virus scanning of large files", action="store_true")
     parser.add_argument("-n", "--noclam", help="Skip ClamScan Virus Check", action="store_true")
     parser.add_argument("-r", "--removefiles", help="Delete 'carved_files' directory when done (disk image input only)", action="store_true")
     parser.add_argument("-t", "--throttle", help="Pause for 1s between Siegfried scans", action="store_true")
@@ -568,7 +572,7 @@ def _make_parser(version):
 
 def main():
     # system info
-    brunnhilde_version = 'brunnhilde 1.6.0'
+    brunnhilde_version = 'brunnhilde 1.6.1'
     siegfried_version = subprocess.check_output(["sf", "-version"]).decode()
 
     parser = _make_parser(brunnhilde_version)
@@ -715,7 +719,7 @@ def main():
         if args.noclam == False: # run clamAV virus check unless specified otherwise
             # skip clamav on Windows
             if not sys.platform.startswith('win'):
-                run_clamav(tempdir)
+                run_clamav(args, tempdir)
         process_content(args, tempdir, cursor, conn, html, brunnhilde_version, siegfried_version, use_hash)
         if args.bulkextractor == True: # bulk extractor option is chosen
             run_bulkext(tempdir, ssn_mode)
@@ -731,7 +735,7 @@ def main():
         if args.noclam == False: # run clamAV virus check unless specified otherwise
             # skip clamav on Windows
             if not sys.platform.startswith('win'):
-                run_clamav(source)
+                run_clamav(args, source)
         process_content(args, source, cursor, conn, html, brunnhilde_version, siegfried_version, use_hash)
         if args.bulkextractor == True: # bulk extractor option is chosen
             if not sys.platform.startswith('win'): # skip in Windows
