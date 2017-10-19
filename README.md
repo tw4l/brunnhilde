@@ -109,7 +109,7 @@ Example commands:
 
 By default, Brunnhilde will use ClamAV to scan the contents of a directory or files in a disk image. Findings are written to a log and to the terminal. If any threats are found, Brunnhilde will print a warning to the terminal and direct the user to the ClamAV log file.  
 
-By default, the maximum filesize and scansize for ClamAV are limited. To enable scanning of large files and large numbers of files, pass '--largefiles' as an argument. This will enable scans of unlimited size and scanning of files up to 4GB (files larger than 4GB are not supported by clamscan).
+By default, the maximum filesize and scansize for ClamAV are limited. In Brunnhilde 1.6.1+, to enable scanning of large files and large numbers of files, pass '--largefiles' as an argument. This will enable scans of unlimited size and scanning of files up to 4GB (files larger than 4GB are not supported by clamscan).
 
 To disable virus scanning, pass '-n' or'--noclam' as an argument. Virus scanning is skipped in Windows regardless of the options passed to Brunnhilde.
 
