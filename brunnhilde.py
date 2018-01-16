@@ -107,7 +107,11 @@ def import_csv(cursor, conn, use_hash):
         f = open(sf_file, 'r', encoding='utf8')
     else:
         f = open(sf_file, 'rb')
-    reader = csv.reader(x.replace('\0', '') for x in f) # replace null bytes with empty strings on read
+    try:
+        reader = csv.reader(x.replace('\0', '') for x in f) # replace null bytes with empty strings on read
+    except UnicodeDecodeError:
+        f = (x.encode('utf-8').strip() for x in f) # skip non-utf8 encodable characters
+        reader = csv.reader(x.replace('\0', '') for x in f) # replace null bytes with empty strings on read
     header = True
     for row in reader:
         if header:
@@ -241,8 +245,11 @@ def get_stats(args, source_dir, scan_started, cursor, html, brunnhilde_version, 
         for root, dirs, files in os.walk(unicode(source_dir, 'utf-8')):
             for f in files:
                 file_path = os.path.join(root, f)
-                file_info = os.stat(file_path)
-                size_bytes += file_info.st_size
+                try:
+                    file_info = os.stat(file_path)
+                    size_bytes += file_info.st_size
+                except OSError as e: # report when Brunnhilde can't find file
+                    print("\nOSError: %s. File size of this file not included in Brunnhilde HTML report statistics." % (e))
     size = convert_size(size_bytes)
 
     # write html
@@ -572,7 +579,7 @@ def _make_parser(version):
 
 def main():
     # system info
-    brunnhilde_version = 'brunnhilde 1.6.1'
+    brunnhilde_version = 'brunnhilde 1.6.2'
     siegfried_version = subprocess.check_output(["sf", "-version"]).decode()
 
     parser = _make_parser(brunnhilde_version)
