@@ -2,7 +2,7 @@
 
 ### Version: Brunnhilde 1.6.2
 
-[![Build Status](https://travis-ci.org/timothyryanwalsh/brunnhilde.svg?branch=master)](https://travis-ci.org/timothyryanwalsh/brunnhilde) [![Coverage Status](https://coveralls.io/repos/github/timothyryanwalsh/brunnhilde/badge.svg?branch=master)](https://coveralls.io/github/timothyryanwalsh/brunnhilde?branch=master)
+[![Build Status](https://travis-ci.org/timothyryanwalsh/brunnhilde.svg?branch=master)](https://travis-ci.org/timothyryanwalsh/brunnhilde)
 
 Generates aggregate reports of files in a directory or disk image based on input from Richard Lehane's [Siegfried](http://www.itforarchivists.com/siegfried).  
 
