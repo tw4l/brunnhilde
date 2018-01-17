@@ -14,6 +14,6 @@ before_install:
 install:
   - pip install coveralls
 script:
-  - coverage run --source=brunnhilde setup.py test
+  - coverage run --source=brunnhilde.py setup.py test
 after_sucess:
     coveralls
