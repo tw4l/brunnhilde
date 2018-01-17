@@ -12,7 +12,7 @@ before_install:
   - cd sleuthkit && ./bootstrap && ./configure && make && sudo make install && sudo ldconfig
   - cd ..
 install:
-  - pip install coveralls
+  - pip install coveralls coverage
 script:
   - coverage run --source=brunnhilde.py setup.py test
 after_sucess:
