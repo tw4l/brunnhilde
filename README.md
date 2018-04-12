@@ -255,8 +255,3 @@ brew install tree
 ### Thanks
 
 Thank you to Richard Lehane for writing Siegfried, Ross Spencer for ideas and help, Kevin Powell for suggesting the additions of ClamAV and bulk_extractor and writing the initial code to integrate these tools, Brian Dietz for suggesting improvements in tsk_recover and macOS functionality, and to the PRONOM team at the UK National Archives for building and maintaining such a wonderful tool.  
-
-### Licensing  
-
-The MIT License (MIT)  
-Copyright (c) 2017 Tim Walsh
