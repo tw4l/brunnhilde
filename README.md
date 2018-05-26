@@ -252,6 +252,13 @@ brew install tree
 
 *Note: Windows support for Brunnhilde is limited. Normal reporting of directories should work without issue. Scanning of disk images, virus scanning, generating tree reports, and running bulk_extractor are not currently supported in Windows.*
 
+### Creators
+
+* Canadian Centre for Architecture
+* Tim Walsh
+
+This project was intiially developed in 2016-2017 for the [Canadian Centre for Architecture](https://cca.qc.ca) by Tim Walsh, Digital Archivist, as part of the development of the Archaeology of the Digital project.
+
 ### Thanks
 
 Thank you to Richard Lehane for writing Siegfried, Ross Spencer for ideas and help, Kevin Powell for suggesting the additions of ClamAV and bulk_extractor and writing the initial code to integrate these tools, Brian Dietz for suggesting improvements in tsk_recover and macOS functionality, and to the PRONOM team at the UK National Archives for building and maintaining such a wonderful tool.  
