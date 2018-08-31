@@ -272,7 +272,7 @@ def get_stats(args, source_dir, scan_started, cursor, html, brunnhilde_version, 
     html.write('\n<a class="nav-item nav-link" href="#Provenance">Provenance</a>')
     html.write('\n<a class="nav-item nav-link" href="#Stats">Statistics</a>')
     html.write('\n<a class="nav-item nav-link" href="#File formats">File formats</a>')
-    html.write('\n<a class="nav-item nav-link" href="#File formats and versions">Versions</a>')
+    html.write('\n<a class="nav-item nav-link" href="#File format versions">Versions</a>')
     html.write('\n<a class="nav-item nav-link" href="#MIME types">MIME types</a>')
     html.write('\n<a class="nav-item nav-link" href="#Last modified dates by year">Dates</a>')
     html.write('\n<a class="nav-item nav-link" href="#Unidentified">Unidentified</a>')
@@ -366,7 +366,7 @@ def generate_reports(args, cursor, html, use_hash):
     path = os.path.join(csv_dir, 'formatVersions.csv')
     version_header = ['Format', 'ID', 'Version', 'Count']
     sqlite_to_csv(sql, path, version_header, cursor)
-    write_html('File formats and versions', path, ',', html)
+    write_html('File format versions', path, ',', html)
 
     # sorted mimetype list report
     sql = "SELECT mime, COUNT(*) as 'num' FROM siegfried GROUP BY mime ORDER BY num DESC"
