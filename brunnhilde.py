@@ -780,7 +780,7 @@ def main():
     html.close()
 
     # write new html file, with hrefs for PRONOM IDs
-    new_html = os.path.join(report_dir, '%s.html' % (basename))
+    new_html = os.path.join(report_dir, 'report.html')
     write_pronom_links(temp_html, new_html)
 
     # remove temp html file
