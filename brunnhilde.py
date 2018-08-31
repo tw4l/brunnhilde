@@ -455,16 +455,19 @@ def write_html(header, path, file_delimiter, html):
             # for each hash in md5_list, print header, file info, and list of matching files
             for hash_value in hash_list:
                 html.write('\n<p>Files matching checksum <strong>%s</strong>:</p>' % hash_value)
-                html.write('\n<table class="table table-striped table-bordered table-condensed">')
+                html.write('\n<table class="table table-sm table-responsive table-bordered table-hover">')
+                html.write('\n<thead>')
                 html.write('\n<tr>')
-                html.write('\n<td><strong>Filename</strong></td><td><strong>Filesize</strong></td>')
-                html.write('<td><strong>Date modified</strong></td><td><strong>Errors</strong></td>')
-                html.write('<td><strong>Checksum</strong></td><td><strong>Namespace</strong></td>')
-                html.write('<td><strong>ID</strong></td><td><strong>Format</strong></td>')
-                html.write('<td><strong>Format version</strong></td><td><strong>MIME type</strong></td>')
-                html.write('<td><strong>Basis for ID</strong></td><td><strong>Warning</strong></td>')
+                html.write('\n<th>Filename</th><th>Filesize</th>')
+                html.write('<th>Date modified</th><th>Errors</th>')
+                html.write('<th>Checksum</th><th>Namespace</th>')
+                html.write('<th>ID</th><th>Format</th>')
+                html.write('<th>Format version</th><th>MIME type</th>')
+                html.write('<th>Basis for ID</th><th>Warning</th>')
                 html.write('\n</tr>')
+                html.write('\n</thead>')
                 in_file.seek(0) # back to beginning of file
+                html.write('\n<tbody>')
                 for row in r:
                     if row[4] == '%s' % hash_value:
                         # write data
@@ -472,6 +475,7 @@ def write_html(header, path, file_delimiter, html):
                         for column in row:
                             html.write('\n<td>' + column + '</td>')
                         html.write('\n</tr>')
+                html.write('\n</tbody>')
                 html.write('\n</table>')
         else:
             html.write('\nNone found.')
