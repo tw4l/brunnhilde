@@ -270,7 +270,7 @@ def get_stats(args, source_dir, scan_started, cursor, html, brunnhilde_version, 
     html.write('\n<div class="collapse navbar-collapse" id="navbarNavAltMarkup">')
     html.write('\n<div class="navbar-nav">')
     html.write('\n<a class="nav-item nav-link" href="#Provenance">Provenance</a>')
-    html.write('\n<a class="nav-item nav-link" href="#Stats">Stats</a>')
+    html.write('\n<a class="nav-item nav-link" href="#Stats">Statistics</a>')
     html.write('\n<a class="nav-item nav-link" href="#File formats">File formats</a>')
     html.write('\n<a class="nav-item nav-link" href="#File formats and versions">Versions</a>')
     html.write('\n<a class="nav-item nav-link" href="#MIME types">MIME types</a>')
@@ -297,7 +297,7 @@ def get_stats(args, source_dir, scan_started, cursor, html, brunnhilde_version, 
     html.write('\n<p><strong>Siegfried command:</strong> %s</p>' % sf_command)
     html.write('\n<p><strong>Scan started:</strong> %s</p>' % scan_started)
     html.write('\n<a name="Stats"></a>')
-    html.write('\n<h2>Stats</h2>')
+    html.write('\n<h2>Statistics</h2>')
     html.write('\n<h4>Overview</h4>')
     html.write('\n<p><strong>Total files:</strong> %s</p>' % num_files)
     html.write('\n<p><strong>Total size:</strong> %s</p>' % size)
@@ -524,11 +524,13 @@ def write_html(header, path, file_delimiter, html):
     in_file.close()
 
 def close_html(html):
-    """Write html closing tags"""
+    """Add JavaScript and write html closing tags"""
     html.write('\n</div>')
     html.write('\n<script src="./assets/js/jquery-3.3.1.slim.min.js"></script>')
     html.write('\n<script src="./assets/js/popper.min.js"></script>')
     html.write('\n<script src="./assets/js/bootstrap.min.js"></script>')
+    html.write('\n<script>$(".navbar-nav .nav-link").on("click", function(){ $(".navbar-nav").find(".active").removeClass("active"); $(this).addClass("active"); });</script>')
+    html.write('\n<script>$(".navbar-brand").on("click", function(){ $(".navbar-nav").find(".active").removeClass("active"); });</script>')
     html.write('\n</body>')
     html.write('\n</html>')
 
