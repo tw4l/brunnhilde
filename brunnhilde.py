@@ -417,7 +417,7 @@ def write_html(header, path, file_delimiter, html):
 
     # write header
     html.write('\n<a name="%s"></a>' % header)
-    html.write('\n<h3>%s</h3>' % header)
+    html.write('\n<h4>%s</h4>' % header)
     if header == 'Duplicates':
         html.write('\n<p><em>Duplicates are grouped by hash value.</em></p>')
     elif header == 'Personally Identifiable Information (PII)':
