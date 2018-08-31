@@ -422,22 +422,26 @@ def write_html(header, path, file_delimiter, html):
     # if writing PII, handle separately
     if header == 'Personally Identifiable Information (PII)':
         if numline > 5: # aka more rows than just header
-            html.write('\n<table class="table table-striped table-bordered table-condensed">')
+            html.write('\n<table class="table table-sm table-responsive table-hover">')
             #write header
+            html.write('\n<thead>')
             html.write('\n<tr>')
-            html.write('\n<td><strong>File</strong></td>')
-            html.write('\n<td><strong>Value Found</strong></td>')
-            html.write('\n<td><strong>Context</strong></td>')
+            html.write('\n<th>File</th>')
+            html.write('\n<th>Value Found</th>')
+            html.write('\n<th>Context</th>')
+            html.write('\n</tr>')
+            html.write('\n</thead>')
             # write data
+            html.write('\n<tbody>')
             for row in islice(r, 4, None): # skip header lines
-                html.write('\n</tr>')
                 for row in r:
                     # write data
                     html.write('\n<tr>')
                     for column in row:
                         html.write('\n<td>' + column + '</td>')
                     html.write('\n</tr>')
-                html.write('\n</table>')
+            html.write('\n</tbody>')
+            html.write('\n</table>')
         else:
             html.write('\nNone found.')
 
@@ -483,7 +487,12 @@ def write_html(header, path, file_delimiter, html):
     # otherwise write as normal
     else:
         if numline > 1: #aka more rows than just header
-            html.write('\n<table class="table table-sm table-responsive table-bordered table-hover">')
+            # add borders to table for full-width tables only
+            full_width_table_headers = ['Unidentified', 'Warnings', 'Errors']
+            if header in full_width_table_headers:
+                html.write('\n<table class="table table-sm table-responsive table-bordered table-hover">')
+            else:
+                html.write('\n<table class="table table-sm table-responsive table-hover">')
             # write header row
             html.write('\n<thead>')
             html.write('\n<tr>')
