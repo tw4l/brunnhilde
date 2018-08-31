@@ -288,16 +288,28 @@ def get_stats(args, source_dir, scan_started, cursor, html, brunnhilde_version, 
     html.write('\n</nav>')
     # content
     html.write('\n<div class="container-fluid">')
+    html.write('\n<h1 style="text-align: center; margin-bottom: 40px;">Brunnhilde HTML report</h1>')
+    # provenance
     html.write('\n<a name="Provenance" style="padding-top: 40px;"></a>')
-    html.write('\n<h2>Provenance</h2>')
+    html.write('\n<div class="container-fluid" style="margin-bottom: 40px;">')
+    html.write('\n<div class="card">')
+    html.write('\n<h2 class="card-header">Provenance</h2>')
+    html.write('\n<div class="card-body">')
     html.write('\n<p><strong>Input source (directory or disk image):</strong> %s</p>' % source)
     html.write('\n<p><strong>Accession/identifier:</strong> %s</p>' % basename)
     html.write('\n<p><strong>Brunnhilde version:</strong> %s</p>' % brunnhilde_version)
     html.write('\n<p><strong>Siegfried version:</strong> %s</p>' % siegfried_version)
     html.write('\n<p><strong>Siegfried command:</strong> %s</p>' % sf_command)
     html.write('\n<p><strong>Scan started:</strong> %s</p>' % scan_started)
+    html.write('\n</div>')
+    html.write('\n</div>')
+    html.write('\n</div>')
+    # statistics
     html.write('\n<a name="Stats" style="padding-top: 40px;"></a>')
-    html.write('\n<h2>Statistics</h2>')
+    html.write('\n<div class="container-fluid" style="margin-bottom: 40px;">')
+    html.write('\n<div class="card">')
+    html.write('\n<h2 class="card-header">Statistics</h2>')
+    html.write('\n<div class="card-body">')
     html.write('\n<h4>Overview</h4>')
     html.write('\n<p><strong>Total files:</strong> %s</p>' % num_files)
     html.write('\n<p><strong>Total size:</strong> %s</p>' % size)
@@ -324,7 +336,14 @@ def get_stats(args, source_dir, scan_started, cursor, html, brunnhilde_version, 
         with open(os.path.join(log_dir, 'viruscheck-log.txt')) as f:
             virus_report = f.read()
         html.write('\n<p>%s</p>' % virus_report)
-    html.write('\n<h2>Detailed reports</h2>')
+    html.write('\n</div>')
+    html.write('\n</div>')
+    html.write('\n</div>')
+    # detailed reports
+    html.write('\n<div class="container-fluid" style="margin-bottom: 40px;">')
+    html.write('\n<div class="card">')
+    html.write('\n<h2 class="card-header">Detailed reports</h2>')
+    html.write('\n<div class="card-body">')
 
 def generate_reports(args, cursor, html, use_hash):
     """Run sql queries on db to generate reports, write to csv and html"""
@@ -519,12 +538,13 @@ def write_html(header, path, file_delimiter, html):
         else:
             html.write('\nNone found.')
     
-    # write link to top
-    html.write('\n<p>(<a href="#top">Return to top</a>)</p>')
     in_file.close()
 
 def close_html(html):
     """Add JavaScript and write html closing tags"""
+    html.write('\n</div>')
+    html.write('\n</div>')
+    html.write('\n</div>')
     html.write('\n</div>')
     html.write('\n<script src="./assets/js/jquery-3.3.1.slim.min.js"></script>')
     html.write('\n<script src="./assets/js/popper.min.js"></script>')
