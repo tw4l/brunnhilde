@@ -260,7 +260,7 @@ def get_stats(args, source_dir, scan_started, cursor, html, brunnhilde_version, 
     html.write('\n<meta http-equiv="Content-Type" content="text/html; charset=utf-8">')
     html.write('\n<link rel="stylesheet" href="./assets/css/bootstrap.min.css">')
     html.write('\n</head>')
-    html.write('\n<body style="margin:5px; padding-top: 60px">')
+    html.write('\n<body style="padding-top: 60px">')
     # navbar
     html.write('\n<nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">')
     html.write('\n<a class="navbar-brand" href="#">Brunnhilde</a>')
@@ -287,6 +287,7 @@ def get_stats(args, source_dir, scan_started, cursor, html, brunnhilde_version, 
     html.write('\n</div>')
     html.write('\n</nav>')
     # content
+    html.write('\n<div class="container-fluid">')
     html.write('\n<a name="Provenance"></a>')
     html.write('\n<h2>Provenance</h2>')
     html.write('\n<p><strong>Input source (directory or disk image):</strong> %s</p>' % source)
@@ -524,6 +525,7 @@ def write_html(header, path, file_delimiter, html):
 
 def close_html(html):
     """Write html closing tags"""
+    html.write('\n</div>')
     html.write('\n<script src="./assets/js/jquery-3.3.1.slim.min.js"></script>')
     html.write('\n<script src="./assets/js/popper.min.js"></script>')
     html.write('\n<script src="./assets/js/bootstrap.min.js"></script>')
