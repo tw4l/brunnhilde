@@ -581,6 +581,7 @@ def _make_parser(version):
     parser.add_argument("--tsk_fstype", help="Specify file system type for tsk_recover. See tsk_recover man page for details", action="store")
     parser.add_argument("--tsk_sector_offset", help="Sector offset for particular volume for tsk_recover to recover", action="store")
     parser.add_argument("--hash", help="Specify hash algorithm", dest="hash", action="store", type=str)
+    parser.add_argument("-k", "--keepsqlite", help="Retain Brunnhilde-generated sqlite db after processing", action="store_true")
     parser.add_argument("-l", "--largefiles", help="Enable virus scanning of large files", action="store_true")
     parser.add_argument("-n", "--noclam", help="Skip ClamScan Virus Check", action="store_true")
     parser.add_argument("-r", "--removefiles", help="Delete 'carved_files' directory when done (disk image input only)", action="store_true")
@@ -784,6 +785,10 @@ def main():
 
     # remove temp html file
     os.remove(temp_html)
+
+    # remove sqlite db unless user selected to retain
+    if not args.keepsqlite:
+        os.remove(os.path.join(report_dir, 'siegfried.sqlite'))
 
     # close database connections
     cursor.close()
