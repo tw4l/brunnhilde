@@ -260,7 +260,7 @@ def get_stats(args, source_dir, scan_started, cursor, html, brunnhilde_version, 
     html.write('\n<meta http-equiv="Content-Type" content="text/html; charset=utf-8">')
     html.write('\n<link rel="stylesheet" href="./assets/css/bootstrap.min.css">')
     html.write('\n</head>')
-    html.write('\n<body style="padding-top: 60px">')
+    html.write('\n<body style="padding-top: 80px">')
     # navbar
     html.write('\n<nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">')
     html.write('\n<a class="navbar-brand" href="#">Brunnhilde</a>')
@@ -288,7 +288,7 @@ def get_stats(args, source_dir, scan_started, cursor, html, brunnhilde_version, 
     html.write('\n</nav>')
     # content
     html.write('\n<div class="container-fluid">')
-    html.write('\n<a name="Provenance"></a>')
+    html.write('\n<a name="Provenance" style="padding-top: 40px;"></a>')
     html.write('\n<h2>Provenance</h2>')
     html.write('\n<p><strong>Input source (directory or disk image):</strong> %s</p>' % source)
     html.write('\n<p><strong>Accession/identifier:</strong> %s</p>' % basename)
@@ -296,7 +296,7 @@ def get_stats(args, source_dir, scan_started, cursor, html, brunnhilde_version, 
     html.write('\n<p><strong>Siegfried version:</strong> %s</p>' % siegfried_version)
     html.write('\n<p><strong>Siegfried command:</strong> %s</p>' % sf_command)
     html.write('\n<p><strong>Scan started:</strong> %s</p>' % scan_started)
-    html.write('\n<a name="Stats"></a>')
+    html.write('\n<a name="Stats" style="padding-top: 40px;"></a>')
     html.write('\n<h2>Statistics</h2>')
     html.write('\n<h4>Overview</h4>')
     html.write('\n<p><strong>Total files:</strong> %s</p>' % num_files)
@@ -417,7 +417,7 @@ def write_html(header, path, file_delimiter, html):
     r = csv.reader(in_file, delimiter="%s" % file_delimiter)
 
     # write header
-    html.write('\n<a name="%s"></a>' % header)
+    html.write('\n<a name="%s" style="padding-top: 40px;"></a>' % header)
     html.write('\n<h4>%s</h4>' % header)
     if header == 'Duplicates':
         html.write('\n<p><em>Duplicates are grouped by hash value.</em></p>')
