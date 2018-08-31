@@ -304,15 +304,14 @@ def get_stats(args, source_dir, scan_started, cursor, html, brunnhilde_version, 
     html.write('\n<p><strong>Earliest date:</strong> %s</p>' % earliest_date)
     html.write('\n<p><strong>Latest date:</strong> %s</p>' % latest_date)
     if use_hash == True:
-        html.write('\n<h4>File contents</h4>')
+        html.write('\n<h4>File counts and contents</h4>')
+        html.write('\n<p><em>Calculated by hash value. Empty files are not counted in first three categories. Total files = distinct + duplicate + empty files.</em></p>')
         html.write('\n<p><strong>Distinct files:</strong> %s</p>' % distinct_files)
         html.write('\n<p><strong>Distinct files with duplicates:</strong> %s</p>' % distinct_dupes)
         html.write('\n<p><strong>Duplicate files:</strong> %s</p>' % duplicate_copies)
     else:
         html.write('\n<h4>File contents</h4>')
     html.write('\n<p><strong>Empty files:</strong> %s</p>' % empty_files)
-    if use_hash == True:
-        html.write('\n<p><em>Calculated by hash value. Empty files are not counted in first three categories. Total files = distinct + duplicate + empty files.</em></p>')
     html.write('\n<h4>Format identification</h4>')
     html.write('\n<p><strong>Identified file formats:</strong> %s</p>' % num_formats)
     html.write('\n<p><strong>Unidentified files:</strong> %s</p>' % unidentified_files)
