@@ -258,7 +258,7 @@ def get_stats(args, source_dir, scan_started, cursor, html, brunnhilde_version, 
     html.write('\n<head>')
     html.write('\n<title>Brunnhilde report for: %s</title>' % basename)
     html.write('\n<meta http-equiv="Content-Type" content="text/html; charset=utf-8">')
-    html.write('\n<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">')
+    html.write('\n<link rel="stylesheet" href="./assets/css/bootstrap.min.css">')
     html.write('\n</head>')
     html.write('\n<body style="margin:5px">')
     html.write('\n<h1>Brunnhilde HTML report</h1>')
@@ -630,6 +630,13 @@ def main():
         except OSError as exception:
             if exception.errno != errno.EEXIST:
                 raise
+
+    # copy assets
+    assets = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'assets')
+    assets_target = os.path.join(report_dir, 'assets')
+    if os.path.exists(assets_target):
+        shutil.rmtree(assets_target)
+    shutil.copytree(assets, assets_target)
 
     # create html report
     temp_html = os.path.join(report_dir, 'temp.html')
