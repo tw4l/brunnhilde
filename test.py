@@ -51,11 +51,9 @@ class TestBrunnhildeIntegration(SelfCleaningTestCase):
         # siegfried csv and sqlite db
         self.assertTrue(is_non_zero_file(j(self.dest_tmpdir, 'test', 
             'siegfried.csv')))
-        self.assertTrue(is_non_zero_file(j(self.dest_tmpdir, 'test', 
-            'siegfried.sqlite')))
         # html report
         self.assertTrue(is_non_zero_file(j(self.dest_tmpdir, 'test', 
-            'test.html')))
+            'report.html')))
         # csv reports
         self.assertTrue(is_non_zero_file(j(self.dest_tmpdir, 'test', 
             'csv_reports', 'duplicates.csv')))
@@ -84,11 +82,9 @@ class TestBrunnhildeIntegration(SelfCleaningTestCase):
         # siegfried csv and sqlite db
         self.assertTrue(is_non_zero_file(j(self.dest_tmpdir, 'test', 
             'siegfried.csv')))
-        self.assertTrue(is_non_zero_file(j(self.dest_tmpdir, 'test', 
-            'siegfried.sqlite')))
         # html report
         self.assertTrue(is_non_zero_file(j(self.dest_tmpdir, 'test', 
-            'test.html')))
+            'report.html')))
         # csv reports
         self.assertTrue(is_non_zero_file(j(self.dest_tmpdir, 'test', 
             'csv_reports', 'duplicates.csv')))
@@ -148,6 +144,12 @@ class TestBrunnhildeIntegration(SelfCleaningTestCase):
             self.assertTrue("Scanned files: 2" in f.read())
         with open(virus_log, 'r') as f:
             self.assertTrue("Infected files: 0" in f.read())
+
+    def test_integration_retain_sqlite_db(self):
+        subprocess.call('python brunnhilde.py -k ./test-data/files/ "%s" test' % (self.dest_tmpdir), 
+            shell=True)
+        self.assertTrue(is_non_zero_file(j(self.dest_tmpdir, 'test', 
+            'siegfried.sqlite')))
 
 
 if __name__ == '__main__':
