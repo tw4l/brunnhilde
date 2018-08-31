@@ -18,7 +18,7 @@ Optionally, outputs may also include:
 
 * `tree.txt`: Tree report of the directory structure of directory or file system on disk image (in Linux and macOS only)  
 * `bulk_extractor` folder: Contains bulk_extractor outputs (if selected).  
-* `carved_files` folder: Contains files carved from disk images by tsk_recover or HFS Explorer (generated in -d mode; can be deleted at end of process by passing the '-r' or '--remove files' flag to Brunnhilde).  
+* `carved_files` folder: Contains files carved from disk images by tsk_recover or HFS Explorer (generated in `-d` mode; can be deleted at end of process by passing the `-r` or `--remove files` flag to Brunnhilde).  
 * `dfxml.xml`: A fiwalk-generated [Digital Forensics XML](http://www.forensicswiki.org/wiki/Category:Digital_Forensics_XML) file describing the volumes, filesystems, and files on a disk (generated in -d mode for non-HFS disk images).  
 * `logs` folder: Contains log files for ClamAV and bulk_extractor (if selected).  
 * `siegfried.sqlite`: SQLite3 database generated from Siegfried CSV (deleted at end of processing by default, but may be retained by using the `-k` flag.)
