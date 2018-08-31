@@ -1,6 +1,6 @@
 ## Brunnhilde - A reporting companion to Siegfried  
 
-### Version: Brunnhilde 1.6.2
+### Version: Brunnhilde 1.7.0
 
 [![Build Status](https://travis-ci.org/timothyryanwalsh/brunnhilde.svg?branch=master)](https://travis-ci.org/timothyryanwalsh/brunnhilde)
 
@@ -12,8 +12,7 @@ Brunnhilde runs Siegfried against a specified directory or disk image, loads the
 
 * `*basename*.html`: Includes some provenance information on the scan itself, aggregate statistics for the material as a whole (number of files, begin and end dates, number of unique vs. duplicate files, etc.), and detailed reports on content found (file formats, file format versions, MIME types, last modified dates by year, unidentified files, Siegfried warnings/errors, duplicate files, and -optionally - potential personal identifiable information found by bulk_extractor). Named after basename passed to Brunnhilde as last argument.  
 * `csv_reports` folder: Contains CSV results queried from database on file formats, file format versions, MIME types, last modified dates by year, unidentified files, Siegfried warnings and errors, and duplicate files.  
-* `siegfried.csv`: Full CSV output from Siegfried
-* `siegfried.sqlite`: SQLite3 database generated from Siegfried CSV  
+* `siegfried.csv`: Full CSV output from Siegfried  
 
 Optionally, outputs may also include:  
 
@@ -22,6 +21,7 @@ Optionally, outputs may also include:
 * `carved_files` folder: Contains files carved from disk images by tsk_recover or HFS Explorer (generated in -d mode; can be deleted at end of process by passing the '-r' or '--remove files' flag to Brunnhilde).  
 * `dfxml.xml`: A fiwalk-generated [Digital Forensics XML](http://www.forensicswiki.org/wiki/Category:Digital_Forensics_XML) file describing the volumes, filesystems, and files on a disk (generated in -d mode for non-HFS disk images).  
 * `logs` folder: Contains log files for ClamAV and bulk_extractor (if selected).  
+* `siegfried.sqlite`: SQLite3 database generated from Siegfried CSV (deleted at end of processing by default, but may be retained by using the `-k` flag.)
 
 All outputs are placed into a new directory named after the identifier passed to Brunnhilde as the last argument.  
 
@@ -84,6 +84,7 @@ optional arguments:
                         Sector offset for particular volume for tsk_recover to
                         recover
   --hash HASH           Specify hash algorithm
+  -k, --keepsqlite      Retain Brunnhilde-generated sqlite db after processing
   -l, --largefiles      Enable virus scanning of large files
   -n, --noclam          Skip ClamScan Virus Check
   -r, --removefiles     Delete 'carved_files' directory when done (disk image
@@ -96,9 +97,9 @@ optional arguments:
 
 ```  
   
-For file paths containing spaces in directory names, enclose the entire path in single or double quotes, or (in versions 1.4.1+) make sure spaces are escaped properly (e.g. `CCA\ Finding\ Aid\ Demo\`).  
+For file paths containing spaces in directory names, enclose the entire path in single or double quotes or make sure spaces are escaped properly (e.g. `CCA\ Finding\ Aid\ Demo\`).  
 
-In Brunnhilde 1.4.1+, Brunnhilde will accept absolute or relative paths for source and destination.  
+Brunnhilde will accept absolute or relative paths for source and destination.  
 
 Example commands:  
 `brunnhilde.py -z "/home/bcadmin/Desktop/Folder to Scan" /home/bcadmin/Desktop brunnhilde-test-0` :  will result in a new directory "brunnhilde-test-0" on the BitCurator desktop containing various reports on input source "Folder to Scan".  
@@ -109,9 +110,9 @@ Example commands:
 
 By default, Brunnhilde will use ClamAV to scan the contents of a directory or files in a disk image. Findings are written to a log and to the terminal. If any threats are found, Brunnhilde will print a warning to the terminal and direct the user to the ClamAV log file.  
 
-By default, the maximum filesize and scansize for ClamAV are limited. In Brunnhilde 1.6.1+, to enable scanning of large files and large numbers of files, pass '--largefiles' as an argument. This will enable scans of unlimited size and scanning of files up to 4GB (files larger than 4GB are not supported by clamscan).
+By default, the maximum filesize and scansize for ClamAV are limited. To enable scanning of large files and large numbers of files, pass '--largefiles' as an argument. This will enable scans of unlimited size and scanning of files up to 4GB (files larger than 4GB are not supported by clamscan).
 
-To disable virus scanning, pass '-n' or'--noclam' as an argument. Virus scanning is skipped in Windows regardless of the options passed to Brunnhilde.
+To disable virus scanning, pass `-n` or `--noclam` as an argument. Virus scanning is skipped in Windows regardless of the options passed to Brunnhilde.
 
 ### Siegfried options  
 
@@ -121,29 +122,29 @@ By default, Brunnhilde uses the following Siegfried command:
 sf -csv -hash md5 DIR > CSV  
 ```  
 
-To enable scanning of archive files (zip, tar, gzip, warc, arc), pass '-z' or '--scanarchives' as an argument.  
+To enable scanning of archive files (zip, tar, gzip, warc, arc), pass `-z` or `--scanarchives` as an argument.  
 
-To force Siegfried to pause for 1 second between file scans, pass '-t' or '--throttle' as an argument.  
+To force Siegfried to pause for 1 second between file scans, pass `-t` or `--throttle` as an argument.  
 
 ### Specifying hash type  
 
 Brunnhilde uses the md5 hash algorithm by default. Other options are sha1, sha256, sha512, or none.  
 
-To change the type of hash used, pass '--hash HASH' as an argument to Brunnhilde, replacing HASH with your choice of sha1, sha256, or sha512.
+To change the type of hash used, pass `--hash HASH` as an argument to Brunnhilde, replacing HASH with your choice of sha1, sha256, or sha512.
 
-If the user specifies not to calculate checksums with '--hash none', the resulting CSV outputs and HTML report will not contain information calculated from hash values, namely information about duplicate files in the source.
+If the user specifies not to calculate checksums with `--hash none`, the resulting CSV outputs and HTML report will not contain information calculated from hash values, namely information about duplicate files in the source.
 
 ### Report completeness  
 
-In order to to keep the HTML from being excessively large, Brunnhilde 1.3.0+ no longer includes Siegfried warnings in the HTML report by default (the CSV is still created).  
+In order to to keep the HTML from being excessively large, Brunnhilde does not include Siegfried warnings in the HTML report by default (the CSV is still created).  
 
-To include Siegfried warnings in the report, pass '-w' or '--showwarnings' as an argument.
+To include Siegfried warnings in the report, pass `-w` or `--showwarnings` as an argument.
 
 ### bulk_extractor  
 
-To enable scanning of files with bulk_extractor, pass '-b' or '--bulkextractor' as arguments. This is disabled by default. Results are written to a 'bulk_extractor' sub-directory. In addition, running bulk_extractor adds a "Personal Identifiable Information (PII)" section to the HTML report to enable quick scanning of these results.  
+To enable scanning of files with bulk_extractor, pass `-b` or `--bulkextractor` as arguments. This is disabled by default. Results are written to a 'bulk_extractor' sub-directory. In addition, running bulk_extractor adds a "Personal Identifiable Information (PII)" section to the HTML report to enable quick scanning of these results.  
 
-In Brunnhilde 1.5.1+, specify the ssn_mode passed to bulk_extractor with `--ssn_mode INT`. Valid choices are 0, 1, or 2. If not specified, Brunnhilde will default to 1. See the following explanation of the modes from the [bulkextractor 1.5 release notes](https://github.com/simsong/bulk_extractor/blob/master/doc/announce/announce_1.5.md):
+Specify the ssn_mode passed to bulk_extractor with `--ssn_mode INT`. Valid choices are 0, 1, or 2. If not specified, Brunnhilde will default to 1. See the following explanation of the modes from the [bulkextractor 1.5 release notes](https://github.com/simsong/bulk_extractor/blob/master/doc/announce/announce_1.5.md):
 
 ```
 SSN recognition: you are now able to specify one of three SSN recognition modes:  
@@ -157,18 +158,18 @@ Calling bulk_extractor from Brunnhilde is not supported in Windows.
 
 ### Using disk images as input  
 
-In -d mode, Brunnhilde uses SleuthKit's tsk_recover to export files from a disk image into a "carved files" directory for analysis. This works with raw images by default. In BitCurator or any other environment where libewf has been compiled into SleuthKit, Brunnhilde's -d mode also supports forensic disk image formats, including aff and ewf (E01). Due to the limitations of SleuthKit, Brunnhilde does not yet support characterizing disks that use the UDF filesystem.  
+In `-d` mode, Brunnhilde uses SleuthKit's tsk_recover to export files from a disk image into a "carved files" directory for analysis. This works with raw images by default. In BitCurator or any other environment where libewf has been compiled into SleuthKit, Brunnhilde's -d mode also supports forensic disk image formats, including aff and ewf (E01). Due to the limitations of SleuthKit, Brunnhilde does not yet support characterizing disks that use the UDF filesystem.  
 
 **Note: tsk_recover does not retain file system dates, so the date reporting functionality of Brunnhilde is limited for non-HFS disk images. It is advised to create DFXML or similar files to retain/analyze file system metadata such as date stamps. In Brunnhilde 1.6.0+, a fiwalk-generated DFXML file is created for all non-HFS disk images.**
 
-By default, Brunnhilde will keep a copy of the files exported from disk images in a "carved_files" directory. If you do not wish to keep a copy of these files after reporting is finished, you can pass the "-r" or "--removefiles" flags as arguments to Brunnhilde, which will cause it to delete the "carved_files" directory once all other tasks have finished.
+By default, Brunnhilde will keep a copy of the files exported from disk images in a "carved_files" directory. If you do not wish to keep a copy of these files after reporting is finished, you can pass the `-r` or `--removefiles` flags as arguments to Brunnhilde, which will cause it to delete the "carved_files" directory once all other tasks have finished.
 
-Brunnhilde 1.5.3+ includes some options for more granular control of tsk_recover:
+Brunnhilde also includes some options for more granular control of tsk_recover:
 
--a: Export only allocated files (by default, Brunnhilde passes the -e option to tsk_recover, instructing it to extract all files from disk images, including deleted files, for reporting)  
---tsk_fstype: Specify file system type in image (if not specified, tsk_recover will make best guess; to see possible values, type `tsk_recover -f list` in a terminal)  
---tsk_imgtype: Specify disk image type (if not specified, tsk_recover will make best guess; to see possible values, type `tsk_recover -i list` in a terminal)  
---tsk_sector_offset: Specify which volume on a disk to extract files from based on sector offset (see tsk_recover man page for more details)  
+`-a`: Export only allocated files (by default, Brunnhilde passes the -e option to tsk_recover, instructing it to extract all files from disk images, including deleted files, for reporting)  
+`--tsk_fstype`: Specify file system type in image (if not specified, tsk_recover will make best guess; to see possible values, type `tsk_recover -f list` in a terminal)  
+`--tsk_imgtype`: Specify disk image type (if not specified, tsk_recover will make best guess; to see possible values, type `tsk_recover -i list` in a terminal)  
+`--tsk_sector_offset`: Specify which volume on a disk to extract files from based on sector offset (see tsk_recover man page for more details)  
 
 An example command for these values might be:  
 `brunnhilde.py -d --tsk_fstype fat --tsk_imgtype ewf --tsk_sector_offset 59 sampleimage.E01 . test`
@@ -179,15 +180,9 @@ Disk image mode is not supported in Windows.
 
 **Important note: unhfs, the command-line version of HFSExplorer, until recently had a bug that prevented some files from being extracted from HFS disks. Be sure that you have the [bugfix release](https://sourceforge.net/projects/catacombae/files/HFSExplorer/0.23.1%20%28snapshot%202016-09-02%29/) of HFSExplorer installed. In BitCurator 1.7.106+, this issue is fixed in the standard installation.**  
 
-In this patched release, unhfs.sh is renamed to unhfs (without a file extension). If the hfsexplorer "bin" directory contains unhfs.sh (with file extension), you must update HFSExplorer with the version linked above.  
+To characterize HFS formatted disks in Brunnhilde, pass both the `-d` and `--hfs` flags as arguments, and be sure to use a raw disk image as the source (HFSExplorer is unable to process forensically packaged disk images). This functionality works "off the shelf" in BitCurator. Non-BitCurator environments will require you to install additional [dependencies](https://github.com/timothyryanwalsh/brunnhilde#dependencies).  
 
-In BitCurator versions before 1.7.106, installation of the latest release of HFSEexplorer must be done manually by replacing the contents of /usr/share/hfsexplorer with the downloaded and extracted source. In order to continue using the HFSExplorer GUI in BitCurator versions before 1.7.106 after updating HFSExplorer, right-click on the HFS Explorer icon in "Additional Tools", select "Properties", and amend the text in "Command" to:  
-
-`/usr/share/hfsexplorer/bin/./hfsexplorer %F`   
-
-To characterize HFS formatted disks in Brunnhilde, pass both the "-d" and "--hfs" flags as arguments, and be sure to use a raw disk image as the source (HFSExplorer is unable to process forensically packaged disk images). This functionality works "off the shelf" in BitCurator. Non-BitCurator environments will require you to install additional [dependencies](https://github.com/timothyryanwalsh/brunnhilde#dependencies).  
-
-To extract AppleDouble resource forks from HFS-formatted disk images, pass the "--resforks" flag in addition to "-d" and "--hfs".
+To extract AppleDouble resource forks from HFS-formatted disk images, pass the `--resforks` flag in addition to `-d` and `--hfs`.
 
 ### Dependencies
 
