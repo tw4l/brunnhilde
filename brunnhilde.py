@@ -479,20 +479,24 @@ def write_html(header, path, file_delimiter, html):
     # otherwise write as normal
     else:
         if numline > 1: #aka more rows than just header
-            html.write('\n<table class="table table-striped table-bordered table-condensed">')
+            html.write('\n<table class="table table-sm table-responsive table-bordered table-hover">')
             # write header row
+            html.write('\n<thead>')
             html.write('\n<tr>')
             row1 = next(r)
             for column in row1:
-                html.write('\n<td><strong>' + column + '</strong></td>')
+                html.write('\n<th>' + column + '</th>')
             html.write('\n</tr>')
+            html.write('\n</thead>')
             # write data rows
+            html.write('\n<tbody>')
             for row in r:
                 # write data
                 html.write('\n<tr>')
                 for column in row:
                     html.write('\n<td>' + column + '</td>')
                 html.write('\n</tr>')
+            html.write('\n</tbody>')
             html.write('\n</table>')
         else:
             html.write('\nNone found.')
