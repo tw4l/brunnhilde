@@ -256,7 +256,7 @@ def get_stats(args, source_dir, scan_started, cursor, html, brunnhilde_version, 
     html.write('<!DOCTYPE html>')
     html.write('\n<html lang="en">')
     html.write('\n<head>')
-    html.write('\n<title>Brunnhilde report for: %s</title>' % basename)
+    html.write('\n<title>Brunnhilde report: %s</title>' % basename)
     html.write('\n<meta http-equiv="Content-Type" content="text/html; charset=utf-8">')
     html.write('\n<link rel="stylesheet" href="./assets/css/bootstrap.min.css">')
     html.write('\n</head>')
