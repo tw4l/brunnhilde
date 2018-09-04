@@ -193,7 +193,8 @@ All dependencies are already installed in BitCurator 1.7.106+. See instructions 
 For Brunnhilde to report on any directory of content, the following must be installed in addition to Brunnhilde:
 
 * Python (2.7 or 3.4+; Python 3 is recommended)
-* [Siegfried](http://www.itforarchivists.com/siegfried): Brunnhilde is now compatible with all version of Siegfried, including 1.6+. It does not support MIME-Info or FDD signatures: for Brunnhilde to work, Siegfried must be using the PRONOM signature file only. If you have been using MIME-Info or FDD signatures as a replacement for or alongside PRONOM with Siegfried 1.5/1.6 on your machine, entering `roy build -multi 0` in the terminal should return you to Siegfried's default PRONOM-only identification mode and allow Brunnhilde to work properly.     
+* [Siegfried](http://www.itforarchivists.com/siegfried): Brunnhilde is now compatible with all version of Siegfried, including 1.6+. It does not support MIME-Info or FDD signatures: for Brunnhilde to work, Siegfried must be using the PRONOM signature file only. If you have been using MIME-Info or FDD signatures as a replacement for or alongside PRONOM with Siegfried 1.5/1.6 on your machine, entering `roy build -multi 0` in the terminal should return you to Siegfried's default PRONOM-only identification mode and allow Brunnhilde to work properly.  
+* [wget Python module](https://pypi.org/project/wget/): For downloading CSS and JS files for HTML report from this repository. This should be automatically installed as a dependency when Brunnhilde is installed via pip.
 
 #### Additional dependencies (for full functionality in Linux and macOS)
 
