@@ -30,6 +30,7 @@ import shutil
 import sqlite3
 import subprocess
 import sys
+import wget
 
 def run_siegfried(args, source_dir, use_hash):
     """Run siegfried on directory"""
@@ -506,7 +507,7 @@ def write_html(header, path, file_delimiter, html):
                 html.write('\n</tbody>')
                 html.write('\n</table>')
         else:
-            html.write('\nNone found.')
+            html.write('\nNone found.\n<br><br>')
 
     # otherwise write as normal
     else:
@@ -536,7 +537,7 @@ def write_html(header, path, file_delimiter, html):
             html.write('\n</tbody>')
             html.write('\n</table>')
         else:
-            html.write('\nNone found.')
+            html.write('\nNone found.\n<br><br>')
     
     in_file.close()
 
@@ -628,7 +629,7 @@ def _make_parser(version):
 
 def main():
     # system info
-    brunnhilde_version = 'brunnhilde 1.7.0'
+    brunnhilde_version = 'brunnhilde 1.7.1'
     siegfried_version = subprocess.check_output(["sf", "-version"]).decode()
 
     parser = _make_parser(brunnhilde_version)
@@ -680,12 +681,31 @@ def main():
             if exception.errno != errno.EEXIST:
                 raise
 
-    # copy assets
-    assets = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'assets')
+    # create assets dirs
     assets_target = os.path.join(report_dir, 'assets')
     if os.path.exists(assets_target):
         shutil.rmtree(assets_target)
-    shutil.copytree(assets, assets_target)
+    css = os.path.join(assets_target, 'css')
+    js = os.path.join(assets_target, 'js')
+    for newdir in assets_target, css, js:
+        os.makedirs(newdir)
+
+    # download assets
+    bootstrap_css_url = 'https://github.com/timothyryanwalsh/brunnhilde/blob/master/assets/css/bootstrap.min.css'
+    bootstrap_js_url = 'https://github.com/timothyryanwalsh/brunnhilde/blob/master/assets/js/bootstrap.min.js'
+    jquery_url = 'https://github.com/timothyryanwalsh/brunnhilde/blob/master/assets/js/jquery-3.3.1.slim.min.js'
+    popper_url = 'https://github.com/timothyryanwalsh/brunnhilde/blob/master/assets/js/popper.min.js'
+
+    print("\nDownloading CSS and JS files from Github...")
+    try:
+        wget.download(bootstrap_css_url, os.path.join(css, 'bootstrap.min.css'))
+        wget.download(bootstrap_js_url, os.path.join(js, 'bootstrap.min.js'))
+        wget.download(jquery_url, os.path.join(js, 'jquery-3.3.1.slim.min.js'))
+        wget.download(popper_url, os.path.join(js, 'popper.min.js'))
+        print("\nDownloads complete.")
+    except Exception:
+        print("Unable to download required CSS and JS files. Please ensure your internet connection is working and try again.")
+        sys.exit(1)
 
     # create html report
     temp_html = os.path.join(report_dir, 'temp.html')
