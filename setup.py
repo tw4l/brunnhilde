@@ -7,7 +7,7 @@ setup(
     author = 'Tim Walsh',
     author_email = 'timothyryanwalsh@gmail.com',
     py_modules = ['brunnhilde'],
-    scripts = ['brunnhilde.py', 'assets'],
+    scripts = ['brunnhilde.py'],
     description = 'A Siegfried-based digital archives reporting tool for directories and disk images',
     keywords = 'archives reporting characterization identification diskimages',
     platforms = ['POSIX', 'Windows'],
