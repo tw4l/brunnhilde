@@ -239,7 +239,7 @@ sudo apt-get install tree
 * Other dependencies:  
 ```
 brew install sleuthkit
-brew install bulkextractor
+brew install bulk_extractor
 brew install clamav
 brew install tree
 ```
