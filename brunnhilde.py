@@ -283,7 +283,7 @@ def get_stats(args, source_dir, scan_started, cursor, html, brunnhilde_version, 
     if use_hash == True:
         html.write('\n<a class="nav-item nav-link" href="#Duplicates">Duplicates</a>')
     if args.bulkextractor == True:
-        html.write('\n<a class="nav-item nav-link" href="#PII">PII</a>')
+        html.write('\n<a class="nav-item nav-link" href="#SSNs">SSNs</a>')
     html.write('\n</div>')
     html.write('\n</div>')
     html.write('\n</nav>')
@@ -441,18 +441,18 @@ def write_html(header, path, file_delimiter, html):
     html.write('\n<h4>%s</h4>' % header)
     if header == 'Duplicates':
         html.write('\n<p><em>Duplicates are grouped by hash value.</em></p>')
-    elif header == 'Personally Identifiable Information (PII)':
-        html.write('\n<p><em>Potential PII in source, as identified by bulk_extractor.</em></p>')
+    elif header == 'SSNs':
+        html.write('\n<p><em>Potential Social Security Numbers identified by bulk_extractor.</em></p>')
     
     # if writing PII, handle separately
-    if header == 'Personally Identifiable Information (PII)':
+    if header == 'SSNs':
         if numline > 5: # aka more rows than just header
             html.write('\n<table class="table table-sm table-responsive table-hover">')
             #write header
             html.write('\n<thead>')
             html.write('\n<tr>')
             html.write('\n<th>File</th>')
-            html.write('\n<th>Value Found</th>')
+            html.write('\n<th>Feature</th>')
             html.write('\n<th>Context</th>')
             html.write('\n</tr>')
             html.write('\n</thead>')
@@ -560,13 +560,19 @@ def make_tree(source_dir):
     tree_command = 'tree -tDhR "%s" > "%s"' % (source_dir, os.path.join(report_dir, 'tree.txt'))
     subprocess.call(tree_command, shell=True)
 
-def process_content(args, source_dir, cursor, conn, html, brunnhilde_version, siegfried_version, use_hash):
+def process_content(args, source_dir, cursor, conn, html, brunnhilde_version, siegfried_version, use_hash, ssn_mode):
     """Run through main processing flow on specified directory"""
     scan_started = str(datetime.datetime.now()) # get time
     run_siegfried(args, source_dir, use_hash) # run siegfried
     import_csv(cursor, conn, use_hash) # load csv into sqlite db
     get_stats(args, source_dir, scan_started, cursor, html, brunnhilde_version, siegfried_version, use_hash) # get aggregate stats and write to html file
     generate_reports(args, cursor, html, use_hash) # run sql queries, print to html and csv
+    if args.bulkextractor == True: # bulk extractor option is chosen
+        if not sys.platform.startswith('win'): # skip in Windows
+            run_bulkext(source_dir, ssn_mode)
+            write_html('SSNs', '%s' % os.path.join(bulkext_dir, 'pii.txt'), '\t', html)
+        else:
+            print("\nBulk Extractor not supported on Windows. Skipping.")
     close_html(html) # close HTML file tags
     if not sys.platform.startswith('win'):
         make_tree(source_dir) # create tree.txt on mac and linux machines
@@ -706,7 +712,7 @@ def main():
         # copy
         try:
             shutil.copytree(src, assets_target)
-            print('\nBrunnhilde CSS and JS assets successfully copied to destination from "%s".' % (os.path.abspath(args.load_assets)))
+            print('\nAssets successfully copied to destination from "%s".' % (os.path.abspath(args.load_assets)))
         except (shutil.Error, OSError) as e:
             print("\nERROR: Unable to copy assets from --load_assets path. Detailed output: %s" % (e))
             sys.exit(1)
@@ -737,7 +743,7 @@ def main():
                 download_asset_file(a['url'], a['filepath'])
             print("\nDownloads complete.")
         except Exception:
-            print("\nERROR: Unable to download required CSS and JS files. Please ensure your internet connection is working and try again or specify the path to where files can be copied from locally with the --load_assets argument.")
+            print("\nERROR: Unable to download required CSS and JS files. Please ensure your internet connection is working and try again.")
             sys.exit(1)
 
         # save a copy locally if option is selected by user
@@ -750,9 +756,9 @@ def main():
             # copy
             try:
                 shutil.copytree(assets_target, new_dir)
-                print('\nBrunnhilde CSS and JS assets saved locally. To use these in subsequent runs rather than downloading the files from Github, use this argument: --load_assets "%s"' % (user_path))
+                print('\nBrunnhilde assets saved locally. To use these in subsequent runs, use this argument: --load_assets "%s"' % (user_path))
             except shutil.Error as e:
-                print("\nERROR: Unable to copy CSS and JS assets to --save_assets path. Detailed output: %s" % (e))         
+                print("\nERROR: Unable to copy assets to --save_assets path. Detailed output: %s" % (e))         
 
     # create html report
     temp_html = os.path.join(report_dir, 'temp.html')
@@ -850,10 +856,7 @@ def main():
             # skip clamav on Windows
             if not sys.platform.startswith('win'):
                 run_clamav(args, tempdir)
-        process_content(args, tempdir, cursor, conn, html, brunnhilde_version, siegfried_version, use_hash)
-        if args.bulkextractor == True: # bulk extractor option is chosen
-            run_bulkext(tempdir, ssn_mode)
-            write_html('Personally Identifiable Information (PII)', '%s' % os.path.join(bulkext_dir, 'pii.txt'), '\t', html)
+        process_content(args, tempdir, cursor, conn, html, brunnhilde_version, siegfried_version, use_hash, ssn_mode)
         if args.removefiles == True:
             shutil.rmtree(tempdir)
 
@@ -866,13 +869,7 @@ def main():
             # skip clamav on Windows
             if not sys.platform.startswith('win'):
                 run_clamav(args, source)
-        process_content(args, source, cursor, conn, html, brunnhilde_version, siegfried_version, use_hash)
-        if args.bulkextractor == True: # bulk extractor option is chosen
-            if not sys.platform.startswith('win'): # skip in Windows
-                run_bulkext(source, ssn_mode)
-                write_html('Personally Identifiable Information (PII)', '%s' % os.path.join(bulkext_dir, 'pii.txt'), '\t', html)
-            else:
-                print("\nBulk Extractor not supported on Windows. Skipping.")
+        process_content(args, source, cursor, conn, html, brunnhilde_version, siegfried_version, use_hash, ssn_mode)
 
     # close HTML file
     html.close()
