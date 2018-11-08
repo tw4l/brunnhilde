@@ -135,6 +135,16 @@ class TestBrunnhildeIntegration(SelfCleaningTestCase):
         with open(virus_log, 'r') as f:
             self.assertTrue("Infected files: 0" in f.read())
 
+    def test_integration_clamav_largefiles(self):
+        subprocess.call('python brunnhilde.py -l ./test-data/files/ "%s" test' % (self.dest_tmpdir), 
+            shell=True)
+        # virus log correctly written
+        virus_log = j(self.dest_tmpdir, 'test', 'logs', 'viruscheck-log.txt')
+        with open(virus_log, 'r') as f:
+            self.assertTrue("Scanned files: 4" in f.read())
+        with open(virus_log, 'r') as f:
+            self.assertTrue("Infected files: 0" in f.read())
+
     def test_integration_clamav_diskimage(self):
         subprocess.call('python brunnhilde.py -d ./test-data/diskimages/sample-floppy-fat.dd "%s" test' % (self.dest_tmpdir), 
             shell=True)
