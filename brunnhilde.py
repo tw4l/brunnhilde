@@ -737,7 +737,7 @@ def main():
                 download_asset_file(a['url'], a['filepath'])
             print("\nDownloads complete.")
         except Exception:
-            print("\nERROR: Unable to download required CSS and JS files. Please ensure your internet connection is working and try again.")
+            print("\nERROR: Unable to download required CSS and JS files. Please ensure your internet connection is working and try again or specify the path to where files can be copied from locally with the --load_assets argument.")
             sys.exit(1)
 
         # save a copy locally if option is selected by user
