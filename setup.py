@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name = 'brunnhilde',
-    version = '1.7.2',
+    version = '1.8.0',
     url = 'https://github.com/timothyryanwalsh/brunnhilde',
     author = 'Tim Walsh',
     author_email = 'timothyryanwalsh@gmail.com',
@@ -11,7 +11,7 @@ setup(
     description = 'A Siegfried-based digital archives reporting tool for directories and disk images',
     keywords = 'archives reporting characterization identification diskimages',
     platforms = ['POSIX', 'Windows'],
-    install_requires=['wget'],
+    install_requires=['requests'],
     test_suite='test',
     classifiers = [
         'Development Status :: 5 - Production/Stable',

@@ -1,6 +1,6 @@
 ## Brunnhilde - A reporting companion to Siegfried  
 
-### Version: Brunnhilde 1.7.2
+### Version: Brunnhilde 1.8.0
 
 [![Build Status](https://travis-ci.org/timothyryanwalsh/brunnhilde.svg?branch=master)](https://travis-ci.org/timothyryanwalsh/brunnhilde)
 
