@@ -199,12 +199,12 @@ All dependencies are already installed in BitCurator 1.7.106+. See instructions 
 
 #### Internet connection
 
-In order to ensure that the CSS and JavaScript files needed for the Brunnhilde HTML report are included with the report and thus not a preservation risk themselves, these files are downloaded from this Github repository every time Brunnhilde runs.
+In order to ensure that the CSS and JavaScript files needed for the Brunnhilde HTML report are included with the report and thus not a preservation risk, these assets are downloaded from this Github repository every time Brunnhilde runs.
 
 If you want to run Brunnhilde without an internet connection:
 
-* The first time you run Brunnhilde, use the `save_assets` argument to specify a directory to which Brunnhilde can copy the CSS and JS assets needed for the report. This can be a relative or absolute path. Ideally this path should be memorable and should not yet exist.
-* In subsequent runs, use the `load_assets` argument to specify a directory from which Brunnhilde can copy the CSS and JS assets rather than downloading them from Github. This removes the need for an internet connection when running Brunnhilde after the first time.
+* The first time you run Brunnhilde, use the `--save_assets` argument to specify a directory to which Brunnhilde can copy the CSS and JS assets needed for the report. This can be a relative or absolute path. Ideally this path should be memorable and should not yet exist.
+* In subsequent runs, use the `--load_assets` argument to specify a directory from which Brunnhilde can copy the CSS and JS assets rather than downloading them from Github. This removes the need for an internet connection when running Brunnhilde after the first time.
 
 #### Core requirements (all operating systems)  
 
