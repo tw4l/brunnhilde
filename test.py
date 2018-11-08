@@ -151,6 +151,15 @@ class TestBrunnhildeIntegration(SelfCleaningTestCase):
         self.assertTrue(is_non_zero_file(j(self.dest_tmpdir, 'test', 
             'siegfried.sqlite')))
 
+    def test_integration_save_load_assets(self):
+        assets_dir = os.path.join(self.dest_tmpdir, 'assets_test')
+        subprocess.call('python brunnhilde.py --save_assets "%s" ./test-data/files/ "%s" save-test' % (assets_dir, self.dest_tmpdir), 
+            shell=True)
+        subprocess.call('python brunnhilde.py --load_assets "%s" ./test-data/files/ "%s" load-test' % (assets_dir, self.dest_tmpdir), 
+            shell=True)
+        self.assertTrue(is_non_zero_file(j(self.dest_tmpdir, 'load-test', 
+            'report.html')))
+
 
 if __name__ == '__main__':
     unittest.main()
