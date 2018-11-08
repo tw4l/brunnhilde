@@ -55,7 +55,8 @@ usage: brunnhilde.py [-h] [-a] [-b] [--ssn_mode SSN_MODE] [-d] [--hfs]
                      [--resforks] [--tsk_imgtype TSK_IMGTYPE]
                      [--tsk_fstype TSK_FSTYPE]
                      [--tsk_sector_offset TSK_SECTOR_OFFSET] [--hash HASH]
-                     [--largefiles] [-n] [-r] [-t] [-V] [-w] [-z]
+                     [-k] [-l] [-n] [-r] [-t] [-V] [-w] [-z]
+                     [--save_assets SAVE_ASSETS] [--load_assets LOAD_ASSETS]
                      source destination basename
 
 positional arguments:
@@ -94,6 +95,14 @@ optional arguments:
   -w, --showwarnings    Add Siegfried warnings to HTML report
   -z, --scanarchives    Decompress and scan zip, tar, gzip, warc, arc with
                         Siegfried
+  --save_assets SAVE_ASSETS
+                        Specify filepath location to save JS/CSS files for use
+                        in subsequent runs (this directory should not yet
+                        exist)
+  --load_assets LOAD_ASSETS
+                        Specify filepath location of JS/CSS files to copy to
+                        destination (instead of downloading)
+
 
 ```  
   
@@ -187,6 +196,15 @@ To extract AppleDouble resource forks from HFS-formatted disk images, pass the `
 ### Dependencies
 
 All dependencies are already installed in BitCurator 1.7.106+. See instructions below for installing dependencies if you wish to use Brunnhilde in a different environment (Linux, Mac, or Windows).
+
+#### Internet connection
+
+In order to ensure that the CSS and JavaScript files needed for the Brunnhilde HTML report are included with the report and thus not a preservation risk themselves, these files are downloaded from this Github repository every time Brunnhilde runs.
+
+If you want to run Brunnhilde without an internet connection:
+
+* The first time you run Brunnhilde, use the `save_assets` argument to specify a directory to which Brunnhilde can copy the CSS and JS assets needed for the report. This can be a relative or absolute path. Ideally this path should be memorable and should not yet exist.
+* In subsequent runs, use the `load_assets` argument to specify a directory from which Brunnhilde can copy the CSS and JS assets rather than downloading them from Github. This removes the need for an internet connection when running Brunnhilde after the first time.
 
 #### Core requirements (all operating systems)  
 

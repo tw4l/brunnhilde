@@ -606,7 +606,6 @@ def close_files_conns_on_exit(html, conn, cursor, report_dir):
     html.close()
     shutil.rmtree(report_dir)
 
-
 def _make_parser(version):
     parser = argparse.ArgumentParser()
     parser.add_argument("-a", "--allocated", help="Instruct tsk_recover to export only allocated files (recovers all files by default)", action="store_true")
@@ -627,6 +626,8 @@ def _make_parser(version):
     parser.add_argument("-V", "--version", help="Display Brunnhilde version", action="version", version="%s" % version)
     parser.add_argument("-w", "--showwarnings", help="Add Siegfried warnings to HTML report", action="store_true")
     parser.add_argument("-z", "--scanarchives", help="Decompress and scan zip, tar, gzip, warc, arc with Siegfried", action="store_true")
+    parser.add_argument("--save_assets", help="Specify filepath location to save JS/CSS files for use in subsequent runs (this directory should not yet exist)", action="store")
+    parser.add_argument("--load_assets", help="Specify filepath location of JS/CSS files to copy to destination (instead of downloading)", action="store")
     parser.add_argument("source", help="Path to source directory or disk image")
     parser.add_argument("destination", help="Path to destination for reports")
     parser.add_argument("basename", help="Accession number or identifier, used as basename for outputs")
@@ -696,33 +697,62 @@ def main():
     for newdir in assets_target, css, js:
         os.makedirs(newdir)
 
-    # download assets
-    assets_to_download = [
-        {
-            'filepath': os.path.join(css, 'bootstrap.min.css'),
-            'url': 'https://github.com/timothyryanwalsh/brunnhilde/blob/master/assets/css/bootstrap.min.css'
-        },
-        {
-            'filepath': os.path.join(js, 'bootstrap.min.js'),
-            'url': 'https://github.com/timothyryanwalsh/brunnhilde/blob/master/assets/js/bootstrap.min.js'
-        },
-        {
-            'filepath': os.path.join(js, 'jquery-3.3.1.slim.min.js'),
-            'url': 'https://github.com/timothyryanwalsh/brunnhilde/blob/master/assets/js/jquery-3.3.1.slim.min.js'
-        },
-        {
-            'filepath': os.path.join(js, 'popper.min.js'),
-            'url': 'https://github.com/timothyryanwalsh/brunnhilde/blob/master/assets/js/popper.min.js'
-        }
-    ]
-    print("\nDownloading CSS and JS files from Github...")
-    try:
-        for a in assets_to_download:
-            download_asset_file(a['url'], a['filepath'])
-        print("\nDownloads complete.")
-    except Exception:
-        print("\nERROR: Unable to download required CSS and JS files. Please ensure your internet connection is working and try again.")
-        sys.exit(1)
+    # use local copies of JS/CSS assets if path specified by user
+    if args.load_assets:
+        src = os.path.join(os.path.abspath(args.load_assets), 'brunnhilde_assets')
+        # delete directory if already exists
+        if os.path.exists(assets_target):
+            shutil.rmtree(assets_target)
+        # copy
+        try:
+            shutil.copytree(src, assets_target)
+            print('\nBrunnhilde CSS and JS assets successfully copied to destination from "%s".' % (os.path.abspath(args.load_assets)))
+        except (shutil.Error, OSError) as e:
+            print("\nERROR: Unable to copy assets from --load_assets path. Detailed output: %s" % (e))
+            sys.exit(1)
+
+    # otherwise, download from github
+    else:
+        assets_to_download = [
+            {
+                'filepath': os.path.join(css, 'bootstrap.min.css'),
+                'url': 'https://github.com/timothyryanwalsh/brunnhilde/blob/master/assets/css/bootstrap.min.css'
+            },
+            {
+                'filepath': os.path.join(js, 'bootstrap.min.js'),
+                'url': 'https://github.com/timothyryanwalsh/brunnhilde/blob/master/assets/js/bootstrap.min.js'
+            },
+            {
+                'filepath': os.path.join(js, 'jquery-3.3.1.slim.min.js'),
+                'url': 'https://github.com/timothyryanwalsh/brunnhilde/blob/master/assets/js/jquery-3.3.1.slim.min.js'
+            },
+            {
+                'filepath': os.path.join(js, 'popper.min.js'),
+                'url': 'https://github.com/timothyryanwalsh/brunnhilde/blob/master/assets/js/popper.min.js'
+            }
+        ]
+        print("\nDownloading CSS and JS files from Github...")
+        try:
+            for a in assets_to_download:
+                download_asset_file(a['url'], a['filepath'])
+            print("\nDownloads complete.")
+        except Exception:
+            print("\nERROR: Unable to download required CSS and JS files. Please ensure your internet connection is working and try again.")
+            sys.exit(1)
+
+        # save a copy locally if option is selected by user
+        if args.save_assets:
+            user_path = os.path.abspath(args.save_assets)
+            new_dir = os.path.join(user_path, 'brunnhilde_assets')
+            # overwrite if exists
+            if os.path.exists(new_dir):
+                shutil.rmtree(new_dir)
+            # copy
+            try:
+                shutil.copytree(assets_target, new_dir)
+                print('\nBrunnhilde CSS and JS assets saved locally. To use these in subsequent runs rather than downloading the files from Github, use this argument: --load_assets "%s"' % (user_path))
+            except shutil.Error as e:
+                print("\nERROR: Unable to copy CSS and JS assets to --save_assets path. Detailed output: %s" % (e))         
 
     # create html report
     temp_html = os.path.join(report_dir, 'temp.html')
