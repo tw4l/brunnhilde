@@ -26,11 +26,11 @@ from itertools import islice
 import math
 import os
 import re
+import requests
 import shutil
 import sqlite3
 import subprocess
 import sys
-import wget
 
 def run_siegfried(args, source_dir, use_hash):
     """Run siegfried on directory"""
@@ -594,6 +594,12 @@ def write_pronom_links(old_file, new_file):
     in_file.close()
     out_file.close()
 
+def download_asset_file(asset_url, asset_filepath):
+    """Download file from asset_url and write to asset_filepath"""
+    r = requests.get(asset_url)
+    with open(asset_filepath, "wb") as f:
+        f.write(r.content)
+
 def close_files_conns_on_exit(html, conn, cursor, report_dir):
     cursor.close()
     conn.close()
@@ -691,17 +697,28 @@ def main():
         os.makedirs(newdir)
 
     # download assets
-    bootstrap_css_url = 'https://github.com/timothyryanwalsh/brunnhilde/blob/master/assets/css/bootstrap.min.css'
-    bootstrap_js_url = 'https://github.com/timothyryanwalsh/brunnhilde/blob/master/assets/js/bootstrap.min.js'
-    jquery_url = 'https://github.com/timothyryanwalsh/brunnhilde/blob/master/assets/js/jquery-3.3.1.slim.min.js'
-    popper_url = 'https://github.com/timothyryanwalsh/brunnhilde/blob/master/assets/js/popper.min.js'
-
+    assets_to_download = [
+        {
+            'filepath': os.path.join(css, 'bootstrap.min.css'),
+            'url': 'https://github.com/timothyryanwalsh/brunnhilde/blob/master/assets/css/bootstrap.min.css'
+        },
+        {
+            'filepath': os.path.join(js, 'bootstrap.min.js'),
+            'url': 'https://github.com/timothyryanwalsh/brunnhilde/blob/master/assets/js/bootstrap.min.js'
+        },
+        {
+            'filepath': os.path.join(js, 'jquery-3.3.1.slim.min.js'),
+            'url': 'https://github.com/timothyryanwalsh/brunnhilde/blob/master/assets/js/jquery-3.3.1.slim.min.js'
+        },
+        {
+            'filepath': os.path.join(js, 'popper.min.js'),
+            'url': 'https://github.com/timothyryanwalsh/brunnhilde/blob/master/assets/js/popper.min.js'
+        }
+    ]
     print("\nDownloading CSS and JS files from Github...")
     try:
-        wget.download(bootstrap_css_url, os.path.join(css, 'bootstrap.min.css'))
-        wget.download(bootstrap_js_url, os.path.join(js, 'bootstrap.min.js'))
-        wget.download(jquery_url, os.path.join(js, 'jquery-3.3.1.slim.min.js'))
-        wget.download(popper_url, os.path.join(js, 'popper.min.js'))
+        for a in assets_to_download:
+            download_asset_file(a['url'], a['filepath'])
         print("\nDownloads complete.")
     except Exception:
         print("Unable to download required CSS and JS files. Please ensure your internet connection is working and try again.")
