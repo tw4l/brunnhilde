@@ -721,7 +721,7 @@ def main():
             download_asset_file(a['url'], a['filepath'])
         print("\nDownloads complete.")
     except Exception:
-        print("Unable to download required CSS and JS files. Please ensure your internet connection is working and try again.")
+        print("\nUnable to download required CSS and JS files. Please ensure your internet connection is working and try again.")
         sys.exit(1)
 
     # create html report
