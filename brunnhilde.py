@@ -259,7 +259,7 @@ def get_stats(args, source_dir, scan_started, cursor, html, brunnhilde_version, 
     html.write('\n<head>')
     html.write('\n<title>Brunnhilde report: %s</title>' % basename)
     html.write('\n<meta http-equiv="Content-Type" content="text/html; charset=utf-8">')
-    html.write('\n<link rel="stylesheet" href="./assets/css/bootstrap.min.css">')
+    html.write('\n<link rel="stylesheet" href="./.assets/css/bootstrap.min.css">')
     html.write('\n</head>')
     html.write('\n<body style="padding-top: 80px">')
     # navbar
@@ -547,9 +547,9 @@ def close_html(html):
     html.write('\n</div>')
     html.write('\n</div>')
     html.write('\n</div>')
-    html.write('\n<script src="./assets/js/jquery-3.3.1.slim.min.js"></script>')
-    html.write('\n<script src="./assets/js/popper.min.js"></script>')
-    html.write('\n<script src="./assets/js/bootstrap.min.js"></script>')
+    html.write('\n<script src="./.assets/js/jquery-3.3.1.slim.min.js"></script>')
+    html.write('\n<script src="./.assets/js/popper.min.js"></script>')
+    html.write('\n<script src="./.assets/js/bootstrap.min.js"></script>')
     html.write('\n<script>$(".navbar-nav .nav-link").on("click", function(){ $(".navbar-nav").find(".active").removeClass("active"); $(this).addClass("active"); });</script>')
     html.write('\n<script>$(".navbar-brand").on("click", function(){ $(".navbar-nav").find(".active").removeClass("active"); });</script>')
     html.write('\n</body>')
@@ -688,7 +688,7 @@ def main():
                 raise
 
     # create assets dirs
-    assets_target = os.path.join(report_dir, 'assets')
+    assets_target = os.path.join(report_dir, '.assets')
     if os.path.exists(assets_target):
         shutil.rmtree(assets_target)
     css = os.path.join(assets_target, 'css')
