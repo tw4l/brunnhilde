@@ -75,6 +75,16 @@ class TestBrunnhildeIntegration(SelfCleaningTestCase):
         if not sys.platform.startswith('win'):
             self.assertTrue(os.path.isfile(j(self.dest_tmpdir, 'test', 
                 'tree.txt')))
+        # bootstrap css/js
+        self.assertTrue(is_non_zero_file(j(self.dest_tmpdir, 'test', 
+            '.assets', 'css', 'bootstrap.min.css')))
+        self.assertTrue(is_non_zero_file(j(self.dest_tmpdir, 'test', 
+            '.assets', 'js', 'bootstrap.min.js')))
+        self.assertTrue(is_non_zero_file(j(self.dest_tmpdir, 'test', 
+            '.assets', 'js', 'jquery-3.3.1.slim.min.js')))
+        self.assertTrue(is_non_zero_file(j(self.dest_tmpdir, 'test', 
+            '.assets', 'js', 'popper.min.js')))
+
 
     def test_integration_outputs_created_diskimage(self):
         subprocess.call('python brunnhilde.py -nd ./test-data/diskimages/sample-floppy-fat.dd "%s" test' % (self.dest_tmpdir), 
@@ -135,6 +145,16 @@ class TestBrunnhildeIntegration(SelfCleaningTestCase):
         with open(virus_log, 'r') as f:
             self.assertTrue("Infected files: 0" in f.read())
 
+    def test_integration_clamav_largefiles(self):
+        subprocess.call('python brunnhilde.py -l ./test-data/files/ "%s" test' % (self.dest_tmpdir), 
+            shell=True)
+        # virus log correctly written
+        virus_log = j(self.dest_tmpdir, 'test', 'logs', 'viruscheck-log.txt')
+        with open(virus_log, 'r') as f:
+            self.assertTrue("Scanned files: 4" in f.read())
+        with open(virus_log, 'r') as f:
+            self.assertTrue("Infected files: 0" in f.read())
+
     def test_integration_clamav_diskimage(self):
         subprocess.call('python brunnhilde.py -d ./test-data/diskimages/sample-floppy-fat.dd "%s" test' % (self.dest_tmpdir), 
             shell=True)
@@ -150,6 +170,25 @@ class TestBrunnhildeIntegration(SelfCleaningTestCase):
             shell=True)
         self.assertTrue(is_non_zero_file(j(self.dest_tmpdir, 'test', 
             'siegfried.sqlite')))
+
+    def test_integration_save_load_assets(self):
+        assets_dir = os.path.join(self.dest_tmpdir, 'assets_test')
+        subprocess.call('python brunnhilde.py --save_assets "%s" ./test-data/files/ "%s" save-test' % (assets_dir, self.dest_tmpdir), 
+            shell=True)
+        subprocess.call('python brunnhilde.py --load_assets "%s" ./test-data/files/ "%s" load-test' % (assets_dir, self.dest_tmpdir), 
+            shell=True)
+        # report
+        self.assertTrue(is_non_zero_file(j(self.dest_tmpdir, 'load-test', 
+            'report.html')))
+        # bootstrap css/js
+        self.assertTrue(is_non_zero_file(j(self.dest_tmpdir, 'load-test', 
+            '.assets', 'css', 'bootstrap.min.css')))
+        self.assertTrue(is_non_zero_file(j(self.dest_tmpdir, 'load-test', 
+            '.assets', 'js', 'bootstrap.min.js')))
+        self.assertTrue(is_non_zero_file(j(self.dest_tmpdir, 'load-test', 
+            '.assets', 'js', 'jquery-3.3.1.slim.min.js')))
+        self.assertTrue(is_non_zero_file(j(self.dest_tmpdir, 'load-test', 
+            '.assets', 'js', 'popper.min.js')))
 
 
 if __name__ == '__main__':

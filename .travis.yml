@@ -12,7 +12,7 @@ before_install:
   - cd sleuthkit && ./bootstrap && ./configure && make && sudo make install && sudo ldconfig
   - cd ..
 install:
-  - pip install wget
+  - pip install requests
 script:
   - python test.py
 

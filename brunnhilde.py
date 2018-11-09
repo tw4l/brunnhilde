@@ -26,11 +26,11 @@ from itertools import islice
 import math
 import os
 import re
+import requests
 import shutil
 import sqlite3
 import subprocess
 import sys
-import wget
 
 def run_siegfried(args, source_dir, use_hash):
     """Run siegfried on directory"""
@@ -259,7 +259,7 @@ def get_stats(args, source_dir, scan_started, cursor, html, brunnhilde_version, 
     html.write('\n<head>')
     html.write('\n<title>Brunnhilde report: %s</title>' % basename)
     html.write('\n<meta http-equiv="Content-Type" content="text/html; charset=utf-8">')
-    html.write('\n<link rel="stylesheet" href="./assets/css/bootstrap.min.css">')
+    html.write('\n<link rel="stylesheet" href="./.assets/css/bootstrap.min.css">')
     html.write('\n</head>')
     html.write('\n<body style="padding-top: 80px">')
     # navbar
@@ -283,7 +283,7 @@ def get_stats(args, source_dir, scan_started, cursor, html, brunnhilde_version, 
     if use_hash == True:
         html.write('\n<a class="nav-item nav-link" href="#Duplicates">Duplicates</a>')
     if args.bulkextractor == True:
-        html.write('\n<a class="nav-item nav-link" href="#PII">PII</a>')
+        html.write('\n<a class="nav-item nav-link" href="#SSNs">SSNs</a>')
     html.write('\n</div>')
     html.write('\n</div>')
     html.write('\n</nav>')
@@ -441,18 +441,18 @@ def write_html(header, path, file_delimiter, html):
     html.write('\n<h4>%s</h4>' % header)
     if header == 'Duplicates':
         html.write('\n<p><em>Duplicates are grouped by hash value.</em></p>')
-    elif header == 'Personally Identifiable Information (PII)':
-        html.write('\n<p><em>Potential PII in source, as identified by bulk_extractor.</em></p>')
+    elif header == 'SSNs':
+        html.write('\n<p><em>Potential Social Security Numbers identified by bulk_extractor.</em></p>')
     
     # if writing PII, handle separately
-    if header == 'Personally Identifiable Information (PII)':
+    if header == 'SSNs':
         if numline > 5: # aka more rows than just header
             html.write('\n<table class="table table-sm table-responsive table-hover">')
             #write header
             html.write('\n<thead>')
             html.write('\n<tr>')
             html.write('\n<th>File</th>')
-            html.write('\n<th>Value Found</th>')
+            html.write('\n<th>Feature</th>')
             html.write('\n<th>Context</th>')
             html.write('\n</tr>')
             html.write('\n</thead>')
@@ -547,9 +547,9 @@ def close_html(html):
     html.write('\n</div>')
     html.write('\n</div>')
     html.write('\n</div>')
-    html.write('\n<script src="./assets/js/jquery-3.3.1.slim.min.js"></script>')
-    html.write('\n<script src="./assets/js/popper.min.js"></script>')
-    html.write('\n<script src="./assets/js/bootstrap.min.js"></script>')
+    html.write('\n<script src="./.assets/js/jquery-3.3.1.slim.min.js"></script>')
+    html.write('\n<script src="./.assets/js/popper.min.js"></script>')
+    html.write('\n<script src="./.assets/js/bootstrap.min.js"></script>')
     html.write('\n<script>$(".navbar-nav .nav-link").on("click", function(){ $(".navbar-nav").find(".active").removeClass("active"); $(this).addClass("active"); });</script>')
     html.write('\n<script>$(".navbar-brand").on("click", function(){ $(".navbar-nav").find(".active").removeClass("active"); });</script>')
     html.write('\n</body>')
@@ -560,13 +560,19 @@ def make_tree(source_dir):
     tree_command = 'tree -tDhR "%s" > "%s"' % (source_dir, os.path.join(report_dir, 'tree.txt'))
     subprocess.call(tree_command, shell=True)
 
-def process_content(args, source_dir, cursor, conn, html, brunnhilde_version, siegfried_version, use_hash):
+def process_content(args, source_dir, cursor, conn, html, brunnhilde_version, siegfried_version, use_hash, ssn_mode):
     """Run through main processing flow on specified directory"""
     scan_started = str(datetime.datetime.now()) # get time
     run_siegfried(args, source_dir, use_hash) # run siegfried
     import_csv(cursor, conn, use_hash) # load csv into sqlite db
     get_stats(args, source_dir, scan_started, cursor, html, brunnhilde_version, siegfried_version, use_hash) # get aggregate stats and write to html file
     generate_reports(args, cursor, html, use_hash) # run sql queries, print to html and csv
+    if args.bulkextractor == True: # bulk extractor option is chosen
+        if not sys.platform.startswith('win'): # skip in Windows
+            run_bulkext(source_dir, ssn_mode)
+            write_html('SSNs', '%s' % os.path.join(bulkext_dir, 'pii.txt'), '\t', html)
+        else:
+            print("\nBulk Extractor not supported on Windows. Skipping.")
     close_html(html) # close HTML file tags
     if not sys.platform.startswith('win'):
         make_tree(source_dir) # create tree.txt on mac and linux machines
@@ -594,12 +600,17 @@ def write_pronom_links(old_file, new_file):
     in_file.close()
     out_file.close()
 
+def download_asset_file(asset_url, asset_filepath):
+    """Download file from asset_url and write to asset_filepath"""
+    r = requests.get(asset_url)
+    with open(asset_filepath, "wb") as f:
+        f.write(r.content)
+
 def close_files_conns_on_exit(html, conn, cursor, report_dir):
     cursor.close()
     conn.close()
     html.close()
     shutil.rmtree(report_dir)
-
 
 def _make_parser(version):
     parser = argparse.ArgumentParser()
@@ -621,6 +632,8 @@ def _make_parser(version):
     parser.add_argument("-V", "--version", help="Display Brunnhilde version", action="version", version="%s" % version)
     parser.add_argument("-w", "--showwarnings", help="Add Siegfried warnings to HTML report", action="store_true")
     parser.add_argument("-z", "--scanarchives", help="Decompress and scan zip, tar, gzip, warc, arc with Siegfried", action="store_true")
+    parser.add_argument("--save_assets", help="Specify filepath location to save JS/CSS files for use in subsequent runs (this directory should not yet exist)", action="store")
+    parser.add_argument("--load_assets", help="Specify filepath location of JS/CSS files to copy to destination (instead of downloading)", action="store")
     parser.add_argument("source", help="Path to source directory or disk image")
     parser.add_argument("destination", help="Path to destination for reports")
     parser.add_argument("basename", help="Accession number or identifier, used as basename for outputs")
@@ -629,7 +642,7 @@ def _make_parser(version):
 
 def main():
     # system info
-    brunnhilde_version = 'brunnhilde 1.7.2'
+    brunnhilde_version = 'brunnhilde 1.8.0'
     siegfried_version = subprocess.check_output(["sf", "-version"]).decode()
 
     parser = _make_parser(brunnhilde_version)
@@ -682,7 +695,7 @@ def main():
                 raise
 
     # create assets dirs
-    assets_target = os.path.join(report_dir, 'assets')
+    assets_target = os.path.join(report_dir, '.assets')
     if os.path.exists(assets_target):
         shutil.rmtree(assets_target)
     css = os.path.join(assets_target, 'css')
@@ -690,22 +703,62 @@ def main():
     for newdir in assets_target, css, js:
         os.makedirs(newdir)
 
-    # download assets
-    bootstrap_css_url = 'https://github.com/timothyryanwalsh/brunnhilde/blob/master/assets/css/bootstrap.min.css'
-    bootstrap_js_url = 'https://github.com/timothyryanwalsh/brunnhilde/blob/master/assets/js/bootstrap.min.js'
-    jquery_url = 'https://github.com/timothyryanwalsh/brunnhilde/blob/master/assets/js/jquery-3.3.1.slim.min.js'
-    popper_url = 'https://github.com/timothyryanwalsh/brunnhilde/blob/master/assets/js/popper.min.js'
+    # use local copies of JS/CSS assets if path specified by user
+    if args.load_assets:
+        src = os.path.join(os.path.abspath(args.load_assets), 'brunnhilde_assets')
+        # delete directory if already exists
+        if os.path.exists(assets_target):
+            shutil.rmtree(assets_target)
+        # copy
+        try:
+            shutil.copytree(src, assets_target)
+            print('\nAssets successfully copied to destination from "%s".' % (os.path.abspath(args.load_assets)))
+        except (shutil.Error, OSError) as e:
+            print("\nERROR: Unable to copy assets from --load_assets path. Detailed output: %s" % (e))
+            sys.exit(1)
 
-    print("\nDownloading CSS and JS files from Github...")
-    try:
-        wget.download(bootstrap_css_url, os.path.join(css, 'bootstrap.min.css'))
-        wget.download(bootstrap_js_url, os.path.join(js, 'bootstrap.min.js'))
-        wget.download(jquery_url, os.path.join(js, 'jquery-3.3.1.slim.min.js'))
-        wget.download(popper_url, os.path.join(js, 'popper.min.js'))
-        print("\nDownloads complete.")
-    except Exception:
-        print("Unable to download required CSS and JS files. Please ensure your internet connection is working and try again.")
-        sys.exit(1)
+    # otherwise, download from github
+    else:
+        assets_to_download = [
+            {
+                'filepath': os.path.join(css, 'bootstrap.min.css'),
+                'url': 'https://github.com/timothyryanwalsh/brunnhilde/blob/master/assets/css/bootstrap.min.css'
+            },
+            {
+                'filepath': os.path.join(js, 'bootstrap.min.js'),
+                'url': 'https://github.com/timothyryanwalsh/brunnhilde/blob/master/assets/js/bootstrap.min.js'
+            },
+            {
+                'filepath': os.path.join(js, 'jquery-3.3.1.slim.min.js'),
+                'url': 'https://github.com/timothyryanwalsh/brunnhilde/blob/master/assets/js/jquery-3.3.1.slim.min.js'
+            },
+            {
+                'filepath': os.path.join(js, 'popper.min.js'),
+                'url': 'https://github.com/timothyryanwalsh/brunnhilde/blob/master/assets/js/popper.min.js'
+            }
+        ]
+        print("\nDownloading CSS and JS files from Github...")
+        try:
+            for a in assets_to_download:
+                download_asset_file(a['url'], a['filepath'])
+            print("\nDownloads complete.")
+        except Exception:
+            print("\nERROR: Unable to download required CSS and JS files. Please ensure your internet connection is working and try again.")
+            sys.exit(1)
+
+        # save a copy locally if option is selected by user
+        if args.save_assets:
+            user_path = os.path.abspath(args.save_assets)
+            new_dir = os.path.join(user_path, 'brunnhilde_assets')
+            # overwrite if exists
+            if os.path.exists(new_dir):
+                shutil.rmtree(new_dir)
+            # copy
+            try:
+                shutil.copytree(assets_target, new_dir)
+                print('\nBrunnhilde assets saved locally. To use these in subsequent runs, use this argument: --load_assets "%s"' % (user_path))
+            except shutil.Error as e:
+                print("\nERROR: Unable to copy assets to --save_assets path. Detailed output: %s" % (e))         
 
     # create html report
     temp_html = os.path.join(report_dir, 'temp.html')
@@ -803,10 +856,7 @@ def main():
             # skip clamav on Windows
             if not sys.platform.startswith('win'):
                 run_clamav(args, tempdir)
-        process_content(args, tempdir, cursor, conn, html, brunnhilde_version, siegfried_version, use_hash)
-        if args.bulkextractor == True: # bulk extractor option is chosen
-            run_bulkext(tempdir, ssn_mode)
-            write_html('Personally Identifiable Information (PII)', '%s' % os.path.join(bulkext_dir, 'pii.txt'), '\t', html)
+        process_content(args, tempdir, cursor, conn, html, brunnhilde_version, siegfried_version, use_hash, ssn_mode)
         if args.removefiles == True:
             shutil.rmtree(tempdir)
 
@@ -819,13 +869,7 @@ def main():
             # skip clamav on Windows
             if not sys.platform.startswith('win'):
                 run_clamav(args, source)
-        process_content(args, source, cursor, conn, html, brunnhilde_version, siegfried_version, use_hash)
-        if args.bulkextractor == True: # bulk extractor option is chosen
-            if not sys.platform.startswith('win'): # skip in Windows
-                run_bulkext(source, ssn_mode)
-                write_html('Personally Identifiable Information (PII)', '%s' % os.path.join(bulkext_dir, 'pii.txt'), '\t', html)
-            else:
-                print("\nBulk Extractor not supported on Windows. Skipping.")
+        process_content(args, source, cursor, conn, html, brunnhilde_version, siegfried_version, use_hash, ssn_mode)
 
     # close HTML file
     html.close()
