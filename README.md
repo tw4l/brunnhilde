@@ -1,6 +1,6 @@
 ## Brunnhilde - Siegfried-based characterization tool for directories and disk images
 
-### Version: Brunnhilde 1.8.0
+### Version: 1.8.0
 
 [![Build Status](https://travis-ci.org/timothyryanwalsh/brunnhilde.svg?branch=master)](https://travis-ci.org/timothyryanwalsh/brunnhilde)
 
