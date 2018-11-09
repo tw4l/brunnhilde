@@ -1,4 +1,4 @@
-## Brunnhilde - A reporting companion to Siegfried  
+## Brunnhilde - Siegfried-based characterization tool for directories and disk images
 
 ### Version: Brunnhilde 1.8.0
 
