@@ -136,7 +136,7 @@ To enable scanning of archive files (zip, tar, gzip, warc, arc), pass `-z` or `-
 
 To force Siegfried to pause for 1 second between file scans, pass `-t` or `--throttle` as an argument. 
 
-To force Siegfried to log verbose output to the terminal while processing, pass '-v' or '--verbosesf' as an argument.
+To force Siegfried to log verbose output to the terminal while processing, pass `-v` or `--verbosesf` as an argument.
 
 ### Specifying hash type  
 
