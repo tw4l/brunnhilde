@@ -1,6 +1,6 @@
 ## Brunnhilde - Siegfried-based characterization tool for directories and disk images
 
-### Version: 1.8.0
+### Version: Brunnhilde 1.8.1
 
 [![Build Status](https://travis-ci.org/timothyryanwalsh/brunnhilde.svg?branch=master)](https://travis-ci.org/timothyryanwalsh/brunnhilde)
 
@@ -91,6 +91,7 @@ optional arguments:
   -r, --removefiles     Delete 'carved_files' directory when done (disk image
                         input only)
   -t, --throttle        Pause for 1s between Siegfried scans
+  -v, --verbosesf       Log verbose Siegfried output to terminal while processing
   -V, --version         Display Brunnhilde version
   -w, --showwarnings    Add Siegfried warnings to HTML report
   -z, --scanarchives    Decompress and scan zip, tar, gzip, warc, arc with
@@ -133,7 +134,9 @@ sf -csv -hash md5 DIR > CSV
 
 To enable scanning of archive files (zip, tar, gzip, warc, arc), pass `-z` or `--scanarchives` as an argument.  
 
-To force Siegfried to pause for 1 second between file scans, pass `-t` or `--throttle` as an argument.  
+To force Siegfried to pause for 1 second between file scans, pass `-t` or `--throttle` as an argument. 
+
+To force Siegfried to log verbose output to the terminal while processing, pass '-v' or '--verbosesf' as an argument.
 
 ### Specifying hash type  
 

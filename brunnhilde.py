@@ -34,7 +34,7 @@ import sys
 
 def run_siegfried(args, source_dir, use_hash):
     """Run siegfried on directory"""
-    print("\nRunning Siegfried against %s. This may take a few minutes." % source_dir)
+    print("\nRunning Siegfried against %s. This may take some time." % source_dir)
     global sf_command
     if use_hash == True:
         hash_type = 'md5'
@@ -51,8 +51,10 @@ def run_siegfried(args, source_dir, use_hash):
         sf_command = sf_command.replace('sf -csv', 'sf -z -csv')
     if args.throttle == True:
         sf_command = sf_command.replace('-csv -hash', '-csv -throttle 10ms -hash')
+    if args.verbosesf == True:
+        sf_command = sf_command.replace(' -hash', ' -log p,t -hash')
     subprocess.call(sf_command, shell=True)
-    print("\nCharacterization complete. Processing results.")
+    print("\nSiegfried scan complete. Processing results.")
     return sf_command
 
 def run_clamav(args, source_dir):
@@ -277,9 +279,9 @@ def get_stats(args, source_dir, scan_started, cursor, html, brunnhilde_version, 
     html.write('\n<a class="nav-item nav-link" href="#MIME types">MIME types</a>')
     html.write('\n<a class="nav-item nav-link" href="#Last modified dates by year">Dates</a>')
     html.write('\n<a class="nav-item nav-link" href="#Unidentified">Unidentified</a>')
-    html.write('\n<a class="nav-item nav-link" href="#Errors">Errors</a>')
     if args.showwarnings == True:
         html.write('\n<a class="nav-item nav-link" href="#Warnings">Warnings</a>')
+    html.write('\n<a class="nav-item nav-link" href="#Errors">Errors</a>')
     if use_hash == True:
         html.write('\n<a class="nav-item nav-link" href="#Duplicates">Duplicates</a>')
     if args.bulkextractor == True:
@@ -629,6 +631,7 @@ def _make_parser(version):
     parser.add_argument("-n", "--noclam", help="Skip ClamScan Virus Check", action="store_true")
     parser.add_argument("-r", "--removefiles", help="Delete 'carved_files' directory when done (disk image input only)", action="store_true")
     parser.add_argument("-t", "--throttle", help="Pause for 1s between Siegfried scans", action="store_true")
+    parser.add_argument("-v", "--verbosesf", help="Log verbose Siegfried output to terminal while processing", action="store_true")
     parser.add_argument("-V", "--version", help="Display Brunnhilde version", action="version", version="%s" % version)
     parser.add_argument("-w", "--showwarnings", help="Add Siegfried warnings to HTML report", action="store_true")
     parser.add_argument("-z", "--scanarchives", help="Decompress and scan zip, tar, gzip, warc, arc with Siegfried", action="store_true")
@@ -642,7 +645,7 @@ def _make_parser(version):
 
 def main():
     # system info
-    brunnhilde_version = 'brunnhilde 1.8.0'
+    brunnhilde_version = 'brunnhilde 1.8.1'
     siegfried_version = subprocess.check_output(["sf", "-version"]).decode()
 
     parser = _make_parser(brunnhilde_version)
