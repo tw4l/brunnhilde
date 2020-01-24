@@ -5,7 +5,7 @@ setup(
     version = '1.8.1',
     url = 'https://github.com/tw4l/brunnhilde',
     author = 'Tim Walsh',
-    author_email = 'timothyryanwalsh@gmail.com',
+    author_email = 'tim@bitarchivist.net',
     py_modules = ['brunnhilde'],
     scripts = ['brunnhilde.py'],
     description = 'A Siegfried-based digital archives reporting tool for directories and disk images',
