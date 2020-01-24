@@ -2,11 +2,11 @@
 
 ### Version: Brunnhilde 1.8.1
 
-[![Build Status](https://travis-ci.org/timothyryanwalsh/brunnhilde.svg?branch=master)](https://travis-ci.org/timothyryanwalsh/brunnhilde)
+[![Build Status](https://travis-ci.org/tw4l/brunnhilde.svg?branch=master)](https://travis-ci.org/tw4l/brunnhilde)
 
 Generates aggregate reports of files in a directory or disk image based on input from Richard Lehane's [Siegfried](http://www.itforarchivists.com/siegfried).  
 
-For the graphical user interface (GUI) version of Brunnhilde, see [Brunnhilde GUI](https://github.com/timothyryanwalsh/brunnhilde-gui).   
+For the graphical user interface (GUI) version of Brunnhilde, see [Brunnhilde GUI](https://github.com/tw4l/brunnhilde-gui).   
 
 Brunnhilde runs Siegfried against a specified directory or disk image, loads the results into a sqlite3 database, and queries the database to generate reports to aid in triage, arrangement, and description of digital archives. The program will also check for viruses unless specified otherwise, and will optionally run bulk_extractor against the given source. Outputs include:  
 
@@ -37,7 +37,7 @@ For a more detailed explanation of how multiple identifications are handled by S
 
 Brunnhilde and all of its dependencies are already installed in BitCurator version 1.7.106+. In versions 1.8.0+, a terminal launcher for Brunnhilde is included in the "Forensics and Reporting" folder on the BitCurator desktop.  
 
-Brunnhilde minimally requires that Python 2 or 3 and Siegfried are installed on your system to characterize directories of content. Characterizing disk images introduces additional dependencies. For more information, see [Dependencies](https://github.com/timothyryanwalsh/brunnhilde#dependencies).  
+Brunnhilde minimally requires that Python 2 or 3 and Siegfried are installed on your system to characterize directories of content. Characterizing disk images introduces additional dependencies. For more information, see [Dependencies](https://github.com/tw4l/brunnhilde#dependencies).  
 
 `sudo pip install brunnhilde`  
 
@@ -192,7 +192,7 @@ Disk image mode is not supported in Windows.
 
 **Important note: unhfs, the command-line version of HFSExplorer, until recently had a bug that prevented some files from being extracted from HFS disks. Be sure that you have the [bugfix release](https://sourceforge.net/projects/catacombae/files/HFSExplorer/0.23.1%20%28snapshot%202016-09-02%29/) of HFSExplorer installed. In BitCurator 1.7.106+, this issue is fixed in the standard installation.**  
 
-To characterize HFS formatted disks in Brunnhilde, pass both the `-d` and `--hfs` flags as arguments, and be sure to use a raw disk image as the source (HFSExplorer is unable to process forensically packaged disk images). This functionality works "off the shelf" in BitCurator. Non-BitCurator environments will require you to install additional [dependencies](https://github.com/timothyryanwalsh/brunnhilde#dependencies).  
+To characterize HFS formatted disks in Brunnhilde, pass both the `-d` and `--hfs` flags as arguments, and be sure to use a raw disk image as the source (HFSExplorer is unable to process forensically packaged disk images). This functionality works "off the shelf" in BitCurator. Non-BitCurator environments will require you to install additional [dependencies](https://github.com/tw4l/brunnhilde#dependencies).  
 
 To extract AppleDouble resource forks from HFS-formatted disk images, pass the `--resforks` flag in addition to `-d` and `--hfs`.
 
