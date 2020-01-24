@@ -3,7 +3,7 @@ from setuptools import setup
 setup(
     name = 'brunnhilde',
     version = '1.8.1',
-    url = 'https://github.com/timothyryanwalsh/brunnhilde',
+    url = 'https://github.com/tw4l/brunnhilde',
     author = 'Tim Walsh',
     author_email = 'timothyryanwalsh@gmail.com',
     py_modules = ['brunnhilde'],
