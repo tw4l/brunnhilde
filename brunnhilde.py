@@ -8,7 +8,7 @@ Brunnhilde
 A Siegfried-based digital archives reporting tool
 
 For information on usage and dependencies, see:
-github.com/timothyryanwalsh/brunnhilde
+github.com/tw4l/brunnhilde
 
 Python 2.7 & 3.4+
 
@@ -725,19 +725,19 @@ def main():
         assets_to_download = [
             {
                 'filepath': os.path.join(css, 'bootstrap.min.css'),
-                'url': 'https://github.com/timothyryanwalsh/brunnhilde/blob/master/assets/css/bootstrap.min.css'
+                'url': 'https://github.com/tw4l/brunnhilde/blob/master/assets/css/bootstrap.min.css'
             },
             {
                 'filepath': os.path.join(js, 'bootstrap.min.js'),
-                'url': 'https://github.com/timothyryanwalsh/brunnhilde/blob/master/assets/js/bootstrap.min.js'
+                'url': 'https://github.com/tw4l/brunnhilde/blob/master/assets/js/bootstrap.min.js'
             },
             {
                 'filepath': os.path.join(js, 'jquery-3.3.1.slim.min.js'),
-                'url': 'https://github.com/timothyryanwalsh/brunnhilde/blob/master/assets/js/jquery-3.3.1.slim.min.js'
+                'url': 'https://github.com/tw4l/brunnhilde/blob/master/assets/js/jquery-3.3.1.slim.min.js'
             },
             {
                 'filepath': os.path.join(js, 'popper.min.js'),
-                'url': 'https://github.com/timothyryanwalsh/brunnhilde/blob/master/assets/js/popper.min.js'
+                'url': 'https://github.com/tw4l/brunnhilde/blob/master/assets/js/popper.min.js'
             }
         ]
         print("\nDownloading CSS and JS files from Github...")
