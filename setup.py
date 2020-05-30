@@ -2,10 +2,10 @@ from setuptools import setup
 
 setup(
     name = 'brunnhilde',
-    version = '1.8.1',
+    version = '1.8.2',
     url = 'https://github.com/tw4l/brunnhilde',
-    author = 'Tim Walsh',
-    author_email = 'tim@bitarchivist.net',
+    author = 'Tessa Walsh',
+    author_email = 'tessa@bitarchivist.net',
     py_modules = ['brunnhilde'],
     scripts = ['brunnhilde.py'],
     description = 'A Siegfried-based digital archives reporting tool for directories and disk images',
