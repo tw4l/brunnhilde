@@ -884,13 +884,13 @@ def main():
     # remove temp html file
     os.remove(temp_html)
 
-    # remove sqlite db unless user selected to retain
-    if not args.keepsqlite:
-        os.remove(os.path.join(report_dir, 'siegfried.sqlite'))
-
     # close database connections
     cursor.close()
     conn.close()
+
+    # remove sqlite db unless user selected to retain
+    if not args.keepsqlite:
+        os.remove(os.path.join(report_dir, 'siegfried.sqlite'))
 
     print("\nBrunnhilde characterization complete. Reports in %s." % report_dir)
 
