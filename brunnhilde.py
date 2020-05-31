@@ -5,16 +5,15 @@
 Brunnhilde
 ---
 
-A Siegfried-based digital archives reporting tool
+A Siegfried-based characterization tool for disk images and directories.
 
-For information on usage and dependencies, see:
-github.com/tw4l/brunnhilde
+For information on usage and dependencies, see: github.com/tw4l/brunnhilde
 
 Python 2.7 & 3.4+
 
 The MIT License (MIT)
-Copyright (c) 2017 Tim Walsh
-http://bitarchivist.net
+Copyright (c) 2017 Tessa Walsh
+https://bitarchivist.net
 
 """
 import argparse
