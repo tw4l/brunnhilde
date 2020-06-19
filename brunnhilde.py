@@ -88,22 +88,30 @@ def run_clamav(args, source_dir):
         print("\nClamAV not properly configured.")
 
 
-def run_bulkext(source_dir, ssn_mode):
+def run_bulk_extractor(source_dir, ssn_mode):
     """Run bulk extractor on directory"""
-    bulkext_log = os.path.join(log_dir, "bulkext-log.txt")
-    print("\nRunning Bulk Extractor on %s. This may take a few minutes." % source_dir)
+    bulk_extractor_log = os.path.join(log_dir, "bulk_extractor-log.txt")
+    print("\nRunning Bulk Extractor on %s. This may take a while." % source_dir)
     try:
         os.makedirs(bulkext_dir)
     except OSError as exception:
         if exception.errno != errno.EEXIST:
             raise
-    bulkext_command = 'bulk_extractor -S ssn_mode=%d -o "%s" -R "%s" | tee "%s"' % (
-        ssn_mode,
+    cmd = [
+        "bulk_extractor",
+        "-o",
         bulkext_dir,
+        "-S",
+        "ssn_mode={}".format(str(ssn_mode)),
+        "-R",
         source_dir,
-        bulkext_log,
-    )
-    subprocess.call(bulkext_command, shell=True)
+    ]
+    try:
+        output = subprocess.check_output(cmd, stderr=subprocess.STDOUT)
+        with open(bulk_extractor_log, 'w') as log_file:
+            log_file.write(output.decode())
+    except subprocess.CalledProcessError as e:
+        print("ERROR: Error running bulk_extractor: {}".format(e))
 
 
 def convert_size(size):
@@ -758,11 +766,8 @@ def process_content(
     )
     generate_reports(args, cursor, html, use_hash)
     if args.bulkextractor == True:
-        if not sys.platform.startswith("win"):  # skip in Windows
-            run_bulkext(source_dir, ssn_mode)
-            write_html("SSNs", "%s" % os.path.join(bulkext_dir, "pii.txt"), "\t", html)
-        else:
-            print("\nBulk Extractor not supported on Windows. Skipping.")
+        run_bulk_extractor(source_dir, ssn_mode)
+        write_html("SSNs", "%s" % os.path.join(bulkext_dir, "pii.txt"), "\t", html)
     close_html(html)  # close HTML file tags
     if not sys.platform.startswith("win"):
         make_tree(source_dir)  # create tree.txt on mac and linux machines

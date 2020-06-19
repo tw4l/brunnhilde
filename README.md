@@ -10,7 +10,7 @@ For the graphical user interface (GUI) version of Brunnhilde, see [Brunnhilde GU
 
 Brunnhilde runs Siegfried against a specified directory or disk image, loads the results into a sqlite3 database, and queries the database to generate reports to aid in triage, arrangement, and description of digital archives. The program will also check for viruses unless specified otherwise, and will optionally run bulk_extractor against the given source. Outputs include:  
 
-* `report.html`: Includes some provenance information on the scan itself, aggregate statistics for the material as a whole (number of files, begin and end dates, number of unique vs. duplicate files, etc.), and detailed reports on content found (file formats, file format versions, MIME types, last modified dates by year, unidentified files, Siegfried warnings/errors, duplicate files, and -optionally - potential personal identifiable information found by bulk_extractor).
+* `report.html`: Includes some provenance information on the scan itself, aggregate statistics for the material as a whole (number of files, begin and end dates, number of unique vs. duplicate files, etc.), and detailed reports on content found (file formats, file format versions, MIME types, last modified dates by year, unidentified files, Siegfried warnings/errors, duplicate files, and -optionally - Social Security Numbers found by bulk_extractor).
 * `csv_reports` folder: Contains CSV results queried from database on file formats, file format versions, MIME types, last modified dates by year, unidentified files, Siegfried warnings and errors, and duplicate files.  
 * `siegfried.csv`: Full CSV output from Siegfried  
 
@@ -165,8 +165,6 @@ SSN recognition: you are now able to specify one of three SSN recognition modes:
 -S ssn_mode=1 No “SSN” required, but dashes are required.  
 -S ssn_mode=2 No dashes required. Allow any 9-digit number that matches SSN allocation range.  
 ```
-
-Calling bulk_extractor from Brunnhilde is not supported in Windows.
 
 ### Using disk images as input  
 
