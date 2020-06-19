@@ -1047,16 +1047,16 @@ def _make_parser(version):
         action="store_true",
     )
     parser.add_argument(
+        "--load_assets",
+        help="Path to cached assets directory to use in HTML report",
+        action="store",
+        type=str
+    )
+    parser.add_argument(
         "--csv_file",
         help="Path to Siegfried CSV file to read as input",
         action="store",
         type=str,
-    )
-    parser.add_argument(
-        "--load_assets",
-        help="Specify path to cached 'assets' directory to use for HTML report",
-        action="store",
-        type=str
     )
     parser.add_argument(
         "--stdin", help="Read Siegfried CSV from piped stdin", action="store_true"

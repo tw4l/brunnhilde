@@ -55,8 +55,8 @@ usage: brunnhilde.py [-h] [-a] [-b] [--ssn_mode SSN_MODE] [-d] [--hfs] [--hfs_re
                      [--hfs_partition HFS_PARTITION] [--hfs_fsroot HFS_FSROOT]
                      [--tsk_imgtype TSK_IMGTYPE] [--tsk_fstype TSK_FSTYPE]
                      [--tsk_sector_offset TSK_SECTOR_OFFSET] [--hash HASH] [-k] [-l] [-n] [-r]
-                     [-t] [-v] [-V] [-w] [-z] [--csv_file CSV_FILE]
-                     [--load_assets LOAD_ASSETS] [--stdin]
+                     [-t] [-v] [-V] [-w] [-z] [--load_assets LOAD_ASSETS]
+                     [--csv_file CSV_FILE] [--stdin]
                      source destination basename
 
 positional arguments:
@@ -99,10 +99,11 @@ optional arguments:
   -V, --version         Display Brunnhilde version
   -w, --showwarnings    Add Siegfried warnings to HTML report
   -z, --scanarchives    Decompress and scan zip, tar, gzip, warc, arc with Siegfried
-  --csv_file CSV_FILE   Path to Siegfried CSV file to read as input
   --load_assets LOAD_ASSETS
-                        Specify path to cached 'assets' directory to use for HTML report
+                        Path to cached assets directory to use for HTML report
+  --csv_file CSV_FILE   Path to Siegfried CSV file to read as input
   --stdin               Read Siegfried CSV from piped stdin
+
 ```  
   
 For file paths containing spaces in directory names, enclose the entire path in single or double quotes or make sure spaces are escaped properly (e.g. `CCA\ Finding\ Aid\ Demo\`).  
