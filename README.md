@@ -51,59 +51,59 @@ If an older version of Brunnhilde is installed on your system, you can upgrade t
 ### Usage
 
 ```  
-usage: brunnhilde.py [-h] [-a] [-b] [--ssn_mode SSN_MODE] [-d] [--hfs]
-                     [--resforks] [--tsk_imgtype TSK_IMGTYPE]
-                     [--tsk_fstype TSK_FSTYPE]
-                     [--tsk_sector_offset TSK_SECTOR_OFFSET] [--hash HASH]
-                     [-k] [-l] [-n] [-r] [-t] [-V] [-w] [-z]
+usage: brunnhilde.py [-h] [-a] [-b] [--ssn_mode SSN_MODE] [-d] [--hfs] [--hfs_resforks]
+                     [--hfs_partition HFS_PARTITION] [--tsk_imgtype TSK_IMGTYPE]
+                     [--tsk_fstype TSK_FSTYPE] [--tsk_sector_offset TSK_SECTOR_OFFSET]
+                     [--hash HASH] [-k] [-l] [-n] [-r] [-t] [-v] [-V] [-w] [-z]
                      [--save_assets SAVE_ASSETS] [--load_assets LOAD_ASSETS]
+                     [--csv_file CSV_FILE] [--stdin]
                      source destination basename
 
 positional arguments:
   source                Path to source directory or disk image
   destination           Path to destination for reports
-  basename              Accession number or identifier, used as basename for
-                        outputs
+  basename              Accession number or identifier, used as basename for outputs
 
 optional arguments:
   -h, --help            show this help message and exit
-  -a, --allocated       Instruct tsk_recover to export only allocated files
-                        (recovers all files by default)
-  -b, --bulkextractor   Run Bulk Extractor on source (Linux and macOS only)
+  -a, --allocated       Instruct tsk_recover to export only allocated files (recovers all
+                        files by default)
+  -b, --bulkextractor   Run Bulk Extractor on source
   --ssn_mode SSN_MODE   Specify ssn_mode for Bulk Extractor (0, 1, or 2)
-  -d, --diskimage       Use disk image instead of dir as input (Linux and
-                        macOS only)
+  -d, --diskimage       Use disk image instead of dir as input (Linux and macOS only)
   --hfs                 Use for raw disk images of HFS disks
-  --resforks            Extract AppleDouble resource forks from HFS disks
+  --hfs_resforks, --resforks
+                        HFS option: Extract AppleDouble resource forks from HFS disks
+  --hfs_partition HFS_PARTITION
+                        HFS option: Specify partition number as integer for unhfs (e.g.
+                        --hfs_partition 1)
   --tsk_imgtype TSK_IMGTYPE
-                        Specify format of image type for tsk_recover. See
+                        TSK option: Specify format of image type for tsk_recover. See
                         tsk_recover man page for details
   --tsk_fstype TSK_FSTYPE
-                        Specify file system type for tsk_recover. See
-                        tsk_recover man page for details
+                        TSK option: Specify file system type for tsk_recover. See tsk_recover
+                        man page for details
   --tsk_sector_offset TSK_SECTOR_OFFSET
-                        Sector offset for particular volume for tsk_recover to
+                        TSK option: Sector offset for particular volume for tsk_recover to
                         recover
   --hash HASH           Specify hash algorithm
   -k, --keepsqlite      Retain Brunnhilde-generated sqlite db after processing
   -l, --largefiles      Enable virus scanning of large files
   -n, --noclam          Skip ClamScan Virus Check
-  -r, --removefiles     Delete 'carved_files' directory when done (disk image
-                        input only)
+  -r, --removefiles     Delete 'carved_files' directory when done (disk image input only)
   -t, --throttle        Pause for 1s between Siegfried scans
   -v, --verbosesf       Log verbose Siegfried output to terminal while processing
   -V, --version         Display Brunnhilde version
   -w, --showwarnings    Add Siegfried warnings to HTML report
-  -z, --scanarchives    Decompress and scan zip, tar, gzip, warc, arc with
-                        Siegfried
+  -z, --scanarchives    Decompress and scan zip, tar, gzip, warc, arc with Siegfried
   --save_assets SAVE_ASSETS
-                        Specify filepath location to save JS/CSS files for use
-                        in subsequent runs (this directory should not yet
-                        exist)
+                        Specify filepath location to save JS/CSS files for use in subsequent
+                        runs (this directory should not yet exist)
   --load_assets LOAD_ASSETS
-                        Specify filepath location of JS/CSS files to copy to
-                        destination (instead of downloading)
-
+                        Specify filepath location of JS/CSS files to copy to destination
+                        (instead of downloading)
+  --csv_file CSV_FILE   Path to Siegfried CSV file to read as input
+  --stdin               Read Siegfried CSV from piped stdin
 
 ```  
   
@@ -188,11 +188,17 @@ Disk image mode is not supported in Windows.
 
 ### HFS-formatted disk images  
 
-**Important note: unhfs, the command-line version of HFSExplorer, until recently had a bug that prevented some files from being extracted from HFS disks. Be sure that you have the [bugfix release](https://sourceforge.net/projects/catacombae/files/HFSExplorer/0.23.1%20%28snapshot%202016-09-02%29/) of HFSExplorer installed. In BitCurator 1.7.106+, this issue is fixed in the standard installation.**  
+**Important note: unhfs, the command-line version of HFSExplorer, until recently had a bug that prevented some files from being extracted from HFS disks. Be sure that you have the [bugfix release](https://sourceforge.net/projects/catacombae/files/HFSExplorer/0.23.1%20%28snapshot%202016-09-02%29/) of HFSExplorer installed.**
+
+**BitCurator does not have this problem since BitCurator 1.7.106**  
 
 To characterize HFS formatted disks in Brunnhilde, pass both the `-d` and `--hfs` flags as arguments, and be sure to use a raw disk image as the source (HFSExplorer is unable to process forensically packaged disk images). This functionality works "off the shelf" in BitCurator. Non-BitCurator environments will require you to install additional [dependencies](https://github.com/tw4l/brunnhilde#dependencies).  
 
-To extract AppleDouble resource forks from HFS-formatted disk images, pass the `--resforks` flag in addition to `-d` and `--hfs`.
+To extract AppleDouble resource forks from HFS-formatted disk images, pass the `--hfs_resforks` or `--resforks` flag in addition to `-d` and `--hfs`.
+
+To instruct `unhfs`/HFS Explorer to extract files from a speciic partition rather than using its default autodetection, pass the partition number as an integer with the `--hfs_partition` flag, e.g. `--hfs_partition 1`.
+
+To instruct `unhfs`/HFS Explorer to extract only a specific file or directory from the HFS file system, pass the POSIX path with the `hfs_fsroot` flag, e.g. `--hfs_fsroot /Users/tessa/backup/` or `--hfs_fsroot "my backup.dmg"`.
 
 ### Dependencies
 

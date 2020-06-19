@@ -847,23 +847,36 @@ def _make_parser(version):
         "--hfs", help="Use for raw disk images of HFS disks", action="store_true"
     )
     parser.add_argument(
+        "--hfs_resforks",
         "--resforks",
-        help="Extract AppleDouble resource forks from HFS disks",
+        help="HFS option: Extract AppleDouble resource forks from HFS disks",
         action="store_true",
     )
     parser.add_argument(
+        "--hfs_partition",
+        help="HFS option: Specify partition number as integer for unhfs to extract (e.g. --hfs_partition 1)",
+        action="store",
+        type=int
+    )
+    parser.add_argument(
+        "--hfs_fsroot",
+        help="HFS option: Specify POSIX path (file or dir) in the HFS file system for unhfs to extract (e.g. --hfs_fsroot /Users/tessa/backup/)",
+        action="store",
+        type=str
+    )
+    parser.add_argument(
         "--tsk_imgtype",
-        help="Specify format of image type for tsk_recover. See tsk_recover man page for details",
+        help="TSK option: Specify format of image type for tsk_recover. See tsk_recover man page for details",
         action="store",
     )
     parser.add_argument(
         "--tsk_fstype",
-        help="Specify file system type for tsk_recover. See tsk_recover man page for details",
+        help="TSK option: Specify file system type for tsk_recover. See tsk_recover man page for details",
         action="store",
     )
     parser.add_argument(
         "--tsk_sector_offset",
-        help="Sector offset for particular volume for tsk_recover to recover",
+        help="TSK option: Sector offset for particular volume for tsk_recover to recover",
         action="store",
     )
     parser.add_argument(
@@ -1116,30 +1129,31 @@ def main():
         # export disk image contents to tempdir
         if args.hfs == True:  # hfs disks
             if sys.platform.startswith("linux"):
-                if args.resforks == True:
-                    carvefiles = (
-                        'bash /usr/share/hfsexplorer/bin/unhfs -v -resforks APPLEDOUBLE -o "%s" "%s"'
-                        % (tempdir, source)
-                    )
-                else:
-                    carvefiles = (
-                        'bash /usr/share/hfsexplorer/bin/unhfs -v -o "%s" "%s"'
-                        % (tempdir, source)
-                    )
+                unhfs_bin = "/usr/share/hfsexplorer/bin/unhfs"
             elif sys.platform.startswith("darwin"):
-                if args.resforks == True:
-                    carvefiles = (
-                        'bash /usr/local/share/hfsexplorer/bin/unhfs -v -resforks APPLEDOUBLE -o "%s" "%s"'
-                        % (tempdir, source)
-                    )
-                else:
-                    carvefiles = (
-                        'bash /usr/local/share/hfsexplorer/bin/unhfs -v -o "%s" "%s"'
-                        % (tempdir, source)
-                    )
+                unhfs_bin = "/usr/local/share/hfsexplorer/bin/unhfs"
+            # TODO: Add else statement with path to unhfs binary on windows
+
+            cmd = [
+                unhfs_bin,
+                "-v",
+                "-o",
+                tempdir,
+                source
+            ]
+            if args.hfs_resforks is True:
+                cmd.insert(1, "-resforks")
+                cmd.insert(2, "APPLEDOUBLE")
+            if args.hfs_partition:
+                cmd.insert(1, "-partition")
+                cmd.insert(2, str(args.hfs_partition))
+            if args.hfs_fsroot:
+                cmd.insert(1, "-fsroot")
+                cmd.insert(2, args.hfs_fsroot)
+
             print("\nAttempting to carve files from disk image using HFS Explorer.")
             try:
-                subprocess.call(carvefiles, shell=True)
+                subprocess.check_output(cmd)
                 print("\nFile carving successful.")
             except subprocess.CalledProcessError as e:
                 print(e.output)
