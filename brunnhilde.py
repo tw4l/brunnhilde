@@ -104,7 +104,14 @@ def convert_size(size):
     return '%s %s' % (s,size_name[i])
 
 def import_csv(cursor, conn, use_hash):
-    """Import csv file into sqlite db"""
+    """Import csv file into sqlite db.
+
+    Returns use_hash as a mechanism for updating the value if the input Siegfried CSV
+    is found to have a hash column. This provides a double-check for Siegfried CSVs
+    provided as input from stdin or a file and prevents users from having to use the
+    --hash flag when providing their own inputs.
+    """
+    # Create CSV reader
     if (sys.version_info > (3, 0)):
         f = open(sf_file, 'r', encoding='utf8')
     else:
@@ -114,17 +121,28 @@ def import_csv(cursor, conn, use_hash):
     except UnicodeDecodeError:
         f = (x.encode('utf-8').strip() for x in f) # skip non-utf8 encodable characters
         reader = csv.reader(x.replace('\0', '') for x in f) # replace null bytes with empty strings on read
+
+    # Read CSV into database
     header = True
     for row in reader:
         if header:
-            header = False # gather column names from first row of csv
+            header = False  # gather column names from first row of csv
             sql = "DROP TABLE IF EXISTS siegfried"
             cursor.execute(sql)
+
+            # If Siegfried CSV has 'hash' column, set use_hash to true
+            NUMBER_OF_COLUMNS_WITH_HASH = 12
+            if len(row) == NUMBER_OF_COLUMNS_WITH_HASH:
+                use_hash = True
+            else:
+                use_hash = False
+
             if use_hash == True:
                 sql = "CREATE TABLE siegfried (filename text, filesize text, modified text, errors text, hash text, namespace text, id text, format text, version text, mime text, basis text, warning text)"
             else:
                 sql = "CREATE TABLE siegfried (filename text, filesize text, modified text, errors text, namespace text, id text, format text, version text, mime text, basis text, warning text)"
             cursor.execute(sql)
+
             insertsql = "INSERT INTO siegfried VALUES (%s)" % (", ".join([ "?" for column in row ]))
             rowlen = len(row)
         else:
@@ -133,6 +151,7 @@ def import_csv(cursor, conn, use_hash):
                 cursor.execute(insertsql, row)
     conn.commit()
     f.close()
+    return use_hash
 
 def get_stats(args, source_dir, scan_started, cursor, html, brunnhilde_version, siegfried_version, use_hash):
     """Get aggregate statistics and write to html report"""
@@ -300,8 +319,9 @@ def get_stats(args, source_dir, scan_started, cursor, html, brunnhilde_version, 
     html.write('\n<p><strong>Input source (directory or disk image):</strong> %s</p>' % source)
     html.write('\n<p><strong>Accession/identifier:</strong> %s</p>' % basename)
     html.write('\n<p><strong>Brunnhilde version:</strong> %s</p>' % brunnhilde_version)
-    html.write('\n<p><strong>Siegfried version:</strong> %s</p>' % siegfried_version)
-    html.write('\n<p><strong>Siegfried command:</strong> %s</p>' % sf_command)
+    if not (args.csv_file or args.stdin):
+        html.write('\n<p><strong>Siegfried version:</strong> %s</p>' % siegfried_version)
+        html.write('\n<p><strong>Siegfried command:</strong> %s</p>' % sf_command)
     html.write('\n<p><strong>Scan started:</strong> %s</p>' % scan_started)
     html.write('\n</div>')
     html.write('\n</div>')
@@ -561,14 +581,42 @@ def make_tree(source_dir):
     tree_command = 'tree -tDhR "%s" > "%s"' % (source_dir, os.path.join(report_dir, 'tree.txt'))
     subprocess.call(tree_command, shell=True)
 
+def accept_or_run_siegfried(args, source_dir, use_hash):
+    """Write file/stdin Siegfried CSV to sf_file or run Siegfried to create it"""
+    if args.csv_file:
+        try:
+            shutil.copyfile(os.path.abspath(args.csv_file), sf_file)
+        except IOError as e:
+            print("ERROR: Unable to copy CSV file: {}".format(e))
+            sys.exit(1)
+
+    elif args.stdin:
+        try:
+            if (sys.version_info > (3, 0)):
+                csv_out = open(sf_file, 'w', newline='')
+            else:
+                csv_out = open(sf_file, 'wb')
+            csv_writer = csv.writer(csv_out)
+            csv_reader = csv.reader(sys.stdin, delimiter=',')
+            for line in csv_reader:
+                csv_writer.writerow(line)
+            csv_out.close()
+        except Exception as e:
+            print("ERROR: Unable to read CSV from piped stdin: {}".format(e))
+            sys.exit(1)
+
+    else:
+        run_siegfried(args, source_dir, use_hash)
+
+
 def process_content(args, source_dir, cursor, conn, html, brunnhilde_version, siegfried_version, use_hash, ssn_mode):
     """Run through main processing flow on specified directory"""
-    scan_started = str(datetime.datetime.now()) # get time
-    run_siegfried(args, source_dir, use_hash) # run siegfried
-    import_csv(cursor, conn, use_hash) # load csv into sqlite db
-    get_stats(args, source_dir, scan_started, cursor, html, brunnhilde_version, siegfried_version, use_hash) # get aggregate stats and write to html file
-    generate_reports(args, cursor, html, use_hash) # run sql queries, print to html and csv
-    if args.bulkextractor == True: # bulk extractor option is chosen
+    scan_started = str(datetime.datetime.now())
+    accept_or_run_siegfried(args, source_dir, use_hash)
+    use_hash = import_csv(cursor, conn, use_hash)
+    get_stats(args, source_dir, scan_started, cursor, html, brunnhilde_version, siegfried_version, use_hash)
+    generate_reports(args, cursor, html, use_hash)
+    if args.bulkextractor == True:
         if not sys.platform.startswith('win'): # skip in Windows
             run_bulkext(source_dir, ssn_mode)
             write_html('SSNs', '%s' % os.path.join(bulkext_dir, 'pii.txt'), '\t', html)
@@ -636,6 +684,8 @@ def _make_parser(version):
     parser.add_argument("-z", "--scanarchives", help="Decompress and scan zip, tar, gzip, warc, arc with Siegfried", action="store_true")
     parser.add_argument("--save_assets", help="Specify filepath location to save JS/CSS files for use in subsequent runs (this directory should not yet exist)", action="store")
     parser.add_argument("--load_assets", help="Specify filepath location of JS/CSS files to copy to destination (instead of downloading)", action="store")
+    parser.add_argument("--csv_file", help="Path to Siegfried CSV file to read as input", action="store", type=str)
+    parser.add_argument("--stdin", help="Read Siegfried CSV from piped stdin", action="store_true")
     parser.add_argument("source", help="Path to source directory or disk image")
     parser.add_argument("destination", help="Path to destination for reports")
     parser.add_argument("basename", help="Accession number or identifier, used as basename for outputs")
