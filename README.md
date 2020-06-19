@@ -100,7 +100,7 @@ optional arguments:
   -w, --showwarnings    Add Siegfried warnings to HTML report
   -z, --scanarchives    Decompress and scan zip, tar, gzip, warc, arc with Siegfried
   --load_assets LOAD_ASSETS
-                        Path to cached assets directory to use for HTML report
+                        Path to cached assets directory to use in HTML report
   --csv_file CSV_FILE   Path to Siegfried CSV file to read as input
   --stdin               Read Siegfried CSV from piped stdin
 
@@ -153,7 +153,7 @@ To include Siegfried warnings in the report, pass `-w` or `--showwarnings` as an
 
 ### bulk_extractor  
 
-To enable scanning of files with bulk_extractor, pass `-b` or `--bulkextractor` as arguments. This is disabled by default. Results are written to a 'bulk_extractor' sub-directory. In addition, running bulk_extractor adds a "Personal Identifiable Information (PII)" section to the HTML report to enable quick scanning of these results.  
+To enable scanning of files with bulk_extractor, pass `-b` or `--bulkextractor` as arguments. This is disabled by default. Results are written to a 'bulk_extractor' sub-directory. In addition, running bulk_extractor adds a Social Security Number (SSN) section to the HTML report.
 
 Specify the ssn_mode passed to bulk_extractor with `--ssn_mode INT`. Valid choices are 0, 1, or 2. If not specified, Brunnhilde will default to 1. See the following explanation of the modes from the [bulkextractor 1.5 release notes](https://github.com/simsong/bulk_extractor/blob/master/doc/announce/announce_1.5.md):
 
