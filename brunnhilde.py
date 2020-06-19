@@ -828,7 +828,7 @@ def _make_parser(version):
     parser.add_argument(
         "-b",
         "--bulkextractor",
-        help="Run Bulk Extractor on source (Linux and macOS only)",
+        help="Run Bulk Extractor on source",
         action="store_true",
     )
     parser.add_argument(
