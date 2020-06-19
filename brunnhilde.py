@@ -108,7 +108,7 @@ def run_bulk_extractor(source_dir, ssn_mode):
     ]
     try:
         output = subprocess.check_output(cmd, stderr=subprocess.STDOUT)
-        with open(bulk_extractor_log, 'w') as log_file:
+        with open(bulk_extractor_log, "w") as log_file:
             log_file.write(output.decode())
     except subprocess.CalledProcessError as e:
         print("ERROR: Error running bulk_extractor: {}".format(e))
@@ -803,6 +803,118 @@ def write_pronom_links(old_file, new_file):
     out_file.close()
 
 
+def carve_files_with_unhfs(args, html, out_dir, disk_image):
+    """Carve files from HFS disk image"""
+    if sys.platform.startswith("linux"):
+        unhfs_bin = "/usr/share/hfsexplorer/bin/unhfs"
+    elif sys.platform.startswith("darwin"):
+        unhfs_bin = "/usr/local/share/hfsexplorer/bin/unhfs"
+    # TODO: Add else statement with path to unhfs binary on windows
+
+    cmd = [unhfs_bin, "-v", "-o", out_dir, disk_image]
+    if args.hfs_resforks is True:
+        cmd.insert(1, "-resforks")
+        cmd.insert(2, "APPLEDOUBLE")
+    if args.hfs_partition:
+        cmd.insert(1, "-partition")
+        cmd.insert(2, str(args.hfs_partition))
+    if args.hfs_fsroot:
+        cmd.insert(1, "-fsroot")
+        cmd.insert(2, args.hfs_fsroot)
+
+    print("\nAttempting to carve files from disk image using HFS Explorer.")
+    try:
+        subprocess.check_output(cmd)
+        print("\nFile carving successful.")
+    except subprocess.CalledProcessError as e:
+        print(e.output)
+        print(
+            "\nBrunnhilde was unable to export files from disk image. Ending process."
+        )
+        close_files_conns_on_exit(html, conn, cursor, report_dir)
+        sys.exit(1)
+
+
+def carve_files_with_tsk_recover(args, html, out_dir, disk_image):
+    """Attempt to carve files from disk image with tsk_recover"""
+    mode = "-e"
+    if args.allocated == True:
+        mode = "-a"
+
+    cmd = ["tsk_recover", mode, disk_image, out_dir]
+    if args.tsk_fstype:
+        cmd.insert(2, "-f")
+        cmd.insert(3, args.tsk_fstype)
+    if args.tsk_imgtype:
+        cmd.insert(2, "-i")
+        cmd.insert(3, args.tsk_imgtype)
+    if args.tsk_sector_offset:
+        cmd.insert(2, "-o")
+        cmd.insert(3, args.tsk_sector_offset)
+
+    print("\nAttempting to carve files from disk image using tsk_recover.")
+    try:
+        subprocess.check_output(cmd)
+        print("\nFile carving successful.")
+    except subprocess.CalledProcessError as e:
+        print(e.output)
+        print(
+            "\nBrunnhilde was unable to export files from disk image. Ending process."
+        )
+        close_files_conns_on_exit(html, conn, cursor, report_dir)
+        sys.exit(1)
+
+
+def create_dfxml():
+    """Create DFXML with fiwalk"""
+    fiwalk_file = os.path.join(report_dir, "dfxml.xml")
+    print("\nAttempting to generate DFXML file from disk image using fiwalk.")
+    try:
+        subprocess.check_output(["fiwalk", "-X", fiwalk_file, source])
+        print("\nDFXML file created.")
+    except subprocess.CalledProcessError as e:
+        print("\nERROR: Fiwalk could not create DFXML for disk: {}".format(e.output))
+
+
+def download_and_cache_html_report_assets(assets_cache):
+    """Download HTML report assets from git hosting and cache locally"""
+    css = os.path.join(assets_cache, "css")
+    js = os.path.join(assets_cache, "js")
+    for newdir in assets_cache, css, js:
+        os.makedirs(newdir)
+    assets_to_download = [
+        {
+            "filepath": os.path.join(css, "bootstrap.min.css"),
+            "url": "https://github.com/tw4l/brunnhilde/blob/master/assets/css/bootstrap.min.css",
+        },
+        {
+            "filepath": os.path.join(js, "bootstrap.min.js"),
+            "url": "https://github.com/tw4l/brunnhilde/blob/master/assets/js/bootstrap.min.js",
+        },
+        {
+            "filepath": os.path.join(js, "jquery-3.3.1.slim.min.js"),
+            "url": "https://github.com/tw4l/brunnhilde/blob/master/assets/js/jquery-3.3.1.slim.min.js",
+        },
+        {
+            "filepath": os.path.join(js, "popper.min.js"),
+            "url": "https://github.com/tw4l/brunnhilde/blob/master/assets/js/popper.min.js",
+        },
+    ]
+    print("\nDownloading CSS and JS files from Github and caching them locally.")
+    try:
+        for asset in assets_to_download:
+            download_asset_file(asset["url"], asset["filepath"])
+        print("\nDownloads complete.")
+    except Exception:
+        print(
+            "\nERROR: Unable to download required CSS and JS files."
+            "Please ensure your internet connection is working and try again"
+            "or manually copy the files from the Brunnhilde source repo's 'assets' directory"
+            "to {}".format(assets_cache)
+        )
+        sys.exit(1)
+
+
 def download_asset_file(asset_url, asset_filepath):
     """Download file from asset_url and write to asset_filepath"""
     r = requests.get(asset_url)
@@ -856,13 +968,13 @@ def _make_parser(version):
         "--hfs_partition",
         help="HFS option: Specify partition number as integer for unhfs to extract (e.g. --hfs_partition 1)",
         action="store",
-        type=int
+        type=int,
     )
     parser.add_argument(
         "--hfs_fsroot",
         help="HFS option: Specify POSIX path (file or dir) in the HFS file system for unhfs to extract (e.g. --hfs_fsroot /Users/tessa/backup/)",
         action="store",
-        type=str
+        type=str,
     )
     parser.add_argument(
         "--tsk_imgtype",
@@ -935,20 +1047,16 @@ def _make_parser(version):
         action="store_true",
     )
     parser.add_argument(
-        "--save_assets",
-        help="Specify filepath location to save JS/CSS files for use in subsequent runs (this directory should not yet exist)",
-        action="store",
-    )
-    parser.add_argument(
-        "--load_assets",
-        help="Specify filepath location of JS/CSS files to copy to destination (instead of downloading)",
-        action="store",
-    )
-    parser.add_argument(
         "--csv_file",
         help="Path to Siegfried CSV file to read as input",
         action="store",
         type=str,
+    )
+    parser.add_argument(
+        "--load_assets",
+        help="Specify path to cached 'assets' directory to use for HTML report",
+        action="store",
+        type=str
     )
     parser.add_argument(
         "--stdin", help="Read Siegfried CSV from piped stdin", action="store_true"
@@ -963,14 +1071,12 @@ def _make_parser(version):
 
 
 def main():
-    # system info
     brunnhilde_version = "brunnhilde 1.8.2"
     siegfried_version = subprocess.check_output(["sf", "-version"]).decode()
 
     parser = _make_parser(brunnhilde_version)
     args = parser.parse_args()
 
-    # global variables
     global source, destination, basename, report_dir, csv_dir, log_dir, bulkext_dir, sf_file, ssn_mode
     source = os.path.abspath(args.source)
     destination = os.path.abspath(args.destination)
@@ -981,144 +1087,74 @@ def main():
     bulkext_dir = os.path.join(report_dir, "bulk_extractor")
     sf_file = os.path.join(report_dir, "siegfried.csv")
 
-    # check to see if hash specified is 'none'
+    # Set use_hash
     use_hash = True
     if args.hash == "none":
         use_hash = False
 
-    # ssn_mode - default to 1 if not provided
+    # Set SSN mode
     if args.ssn_mode in (0, 2):
         ssn_mode = args.ssn_mode
     else:
         ssn_mode = 1
 
-    # create directory for reports
-    try:
-        os.makedirs(report_dir)
-    except OSError as exception:
-        if exception.errno != errno.EEXIST:
-            raise
+    # Create reports directories
+    for new_dir in (report_dir, csv_dir):
+        try:
+            os.makedirs(new_dir)
+        except OSError as exception:
+            if exception.errno != errno.EEXIST:
+                raise
 
-    # create subdirectory for CSV reports
-    try:
-        os.makedirs(csv_dir)
-    except OSError as exception:
-        if exception.errno != errno.EEXIST:
-            raise
-
-    # create subdirectory for logs if needed
-    if args.bulkextractor == False and args.noclam == True:
-        pass
-    else:
+    # Create subdirectory for logs if needed
+    if not (args.bulkextractor is False and args.noclam is True):
         try:
             os.makedirs(log_dir)
         except OSError as exception:
             if exception.errno != errno.EEXIST:
                 raise
 
-    # create assets dirs
-    assets_target = os.path.join(report_dir, ".assets")
-    if os.path.exists(assets_target):
-        shutil.rmtree(assets_target)
-    css = os.path.join(assets_target, "css")
-    js = os.path.join(assets_target, "js")
-    for newdir in assets_target, css, js:
-        os.makedirs(newdir)
-
-    # use local copies of JS/CSS assets if path specified by user
+    # Copy locally cached HTML report assets to output directory.
+    # If no local cache exists, download and cache a copy of the asset files
+    # from git hosting first.
+    assets_cache = os.path.join(os.path.expanduser("~"), "brunnhilde", "assets")
     if args.load_assets:
-        src = os.path.join(os.path.abspath(args.load_assets), "brunnhilde_assets")
-        # delete directory if already exists
-        if os.path.exists(assets_target):
-            shutil.rmtree(assets_target)
-        # copy
-        try:
-            shutil.copytree(src, assets_target)
-            print(
-                '\nAssets successfully copied to destination from "%s".'
-                % (os.path.abspath(args.load_assets))
-            )
-        except (shutil.Error, OSError) as e:
-            print(
-                "\nERROR: Unable to copy assets from --load_assets path. Detailed output: %s"
-                % (e)
-            )
-            sys.exit(1)
+        assets_cache = os.path.abspath(args.load_assets)
+    elif not os.path.isdir(assets_cache):
+        download_and_cache_html_report_assets(assets_cache)
+    
+    assets_target = os.path.join(report_dir, ".assets")
+    if not os.path.isdir(assets_target):
+        shutil.copytree(assets_cache, assets_target)
 
-    # otherwise, download from github
-    else:
-        assets_to_download = [
-            {
-                "filepath": os.path.join(css, "bootstrap.min.css"),
-                "url": "https://github.com/tw4l/brunnhilde/blob/master/assets/css/bootstrap.min.css",
-            },
-            {
-                "filepath": os.path.join(js, "bootstrap.min.js"),
-                "url": "https://github.com/tw4l/brunnhilde/blob/master/assets/js/bootstrap.min.js",
-            },
-            {
-                "filepath": os.path.join(js, "jquery-3.3.1.slim.min.js"),
-                "url": "https://github.com/tw4l/brunnhilde/blob/master/assets/js/jquery-3.3.1.slim.min.js",
-            },
-            {
-                "filepath": os.path.join(js, "popper.min.js"),
-                "url": "https://github.com/tw4l/brunnhilde/blob/master/assets/js/popper.min.js",
-            },
-        ]
-        print("\nDownloading CSS and JS files from Github...")
-        try:
-            for a in assets_to_download:
-                download_asset_file(a["url"], a["filepath"])
-            print("\nDownloads complete.")
-        except Exception:
-            print(
-                "\nERROR: Unable to download required CSS and JS files. Please ensure your internet connection is working and try again."
-            )
-            sys.exit(1)
-
-        # save a copy locally if option is selected by user
-        if args.save_assets:
-            user_path = os.path.abspath(args.save_assets)
-            new_dir = os.path.join(user_path, "brunnhilde_assets")
-            # overwrite if exists
-            if os.path.exists(new_dir):
-                shutil.rmtree(new_dir)
-            # copy
-            try:
-                shutil.copytree(assets_target, new_dir)
-                print(
-                    '\nBrunnhilde assets saved locally. To use these in subsequent runs, use this argument: --load_assets "%s"'
-                    % (user_path)
-                )
-            except shutil.Error as e:
-                print(
-                    "\nERROR: Unable to copy assets to --save_assets path. Detailed output: %s"
-                    % (e)
-                )
-
-    # create html report
+    # Create html report
     temp_html = os.path.join(report_dir, "temp.html")
     if sys.version_info > (3, 0):
         html = open(temp_html, "w", encoding="utf8")
     else:
         html = open(temp_html, "wb")
 
-    # open sqlite db
+    # Open database connection and cursor
     db = os.path.join(report_dir, "siegfried.sqlite")
     conn = sqlite3.connect(db)
     conn.text_factory = str  # allows utf-8 data to be stored
     cursor = conn.cursor()
 
-    # characterize source
-    if args.diskimage == True:  # source is a disk image
+    # Exit with error if source is not a directory unless user passed -d/--diskimage
+    if (os.path.isdir(source) is False) and (args.diskimage is False):
+        print(
+            "\nSource is not a Directory. If you're processing a disk image, place '-d' before source."
+        )
+        close_files_conns_on_exit(html, conn, cursor, report_dir)
+        sys.exit(1)
 
-        # throw error message and exit if run in Windows
+    # If source is a disk image, carve files for analysis and create DFXML if possible
+    if args.diskimage is True:
         if sys.platform.startswith("win"):
             print("\nDisk images not supported as inputs in Windows. Ending process.")
             close_files_conns_on_exit(html, conn, cursor, report_dir)
             sys.exit(1)
 
-        # make tempdir
         tempdir = os.path.join(report_dir, "carved_files")
         try:
             os.makedirs(tempdir)
@@ -1126,142 +1162,51 @@ def main():
             if exception.errno != errno.EEXIST:
                 raise
 
-        # export disk image contents to tempdir
-        if args.hfs == True:  # hfs disks
-            if sys.platform.startswith("linux"):
-                unhfs_bin = "/usr/share/hfsexplorer/bin/unhfs"
-            elif sys.platform.startswith("darwin"):
-                unhfs_bin = "/usr/local/share/hfsexplorer/bin/unhfs"
-            # TODO: Add else statement with path to unhfs binary on windows
+        if args.hfs is True:
+            carve_files_with_unhfs(args, html, tempdir, source)
+        else:
+            carve_files_with_tsk_recover(args, html, tempdir, source)
+            create_dfxml()
 
-            cmd = [
-                unhfs_bin,
-                "-v",
-                "-o",
-                tempdir,
-                source
-            ]
-            if args.hfs_resforks is True:
-                cmd.insert(1, "-resforks")
-                cmd.insert(2, "APPLEDOUBLE")
-            if args.hfs_partition:
-                cmd.insert(1, "-partition")
-                cmd.insert(2, str(args.hfs_partition))
-            if args.hfs_fsroot:
-                cmd.insert(1, "-fsroot")
-                cmd.insert(2, args.hfs_fsroot)
+        # Use the carved_files directory as source for analysis moving forward
+        source = tempdir
 
-            print("\nAttempting to carve files from disk image using HFS Explorer.")
-            try:
-                subprocess.check_output(cmd)
-                print("\nFile carving successful.")
-            except subprocess.CalledProcessError as e:
-                print(e.output)
-                print(
-                    "\nBrunnhilde was unable to export files from disk image. Ending process."
-                )
-                close_files_conns_on_exit(html, conn, cursor, report_dir)
-                sys.exit(1)
+    if args.noclam is False:
+        if not sys.platform.startswith("win"):
+            run_clamav(args, source)
 
-        else:  # non-hfs disks (note: no UDF support yet)
-            print("\nAttempting to carve files from disk image using tsk_recover.")
-            # recover allocated or all files depending on user input
-            if args.allocated == True:
-                carvefiles = ["tsk_recover", "-a", source, tempdir]
-            else:
-                carvefiles = ["tsk_recover", "-e", source, tempdir]
+    process_content(
+        args,
+        source,
+        cursor,
+        conn,
+        html,
+        brunnhilde_version,
+        siegfried_version,
+        use_hash,
+        ssn_mode,
+    )
 
-            # add optional user-supplied inputs at appropriate list indices
-            if args.tsk_fstype:
-                carvefiles.insert(2, "-f")
-                carvefiles.insert(3, args.tsk_fstype)
-            if args.tsk_imgtype:
-                carvefiles.insert(2, "-i")
-                carvefiles.insert(3, args.tsk_imgtype)
-            if args.tsk_sector_offset:
-                carvefiles.insert(2, "-o")
-                carvefiles.insert(3, args.tsk_sector_offset)
-
-            # call command
-            try:
-                subprocess.check_output(carvefiles)
-                print("\nFile carving successful.")
-            except subprocess.CalledProcessError as e:
-                print(e.output)
-                print(
-                    "\nBrunnhilde was unable to export files from disk image. Ending process."
-                )
-                close_files_conns_on_exit(html, conn, cursor, report_dir)
-                sys.exit(1)
-
-            # generate DFXML with fiwalk
-            print("\nAttempting to generate DFXML file from disk image using fiwalk.")
-            fiwalk_file = os.path.join(report_dir, "dfxml.xml")
-            try:
-                subprocess.check_output(["fiwalk", "-X", fiwalk_file, source])
-                print("\nDFXML file created.")
-            except subprocess.CalledProcessError as e:
-                print(
-                    "\nERROR: Fiwalk could not create DFXML for disk. STDERR: %s"
-                    % (e.output)
-                )
-
-        # process tempdir
-        if args.noclam == False:  # run clamAV virus check unless specified otherwise
-            # skip clamav on Windows
-            if not sys.platform.startswith("win"):
-                run_clamav(args, tempdir)
-        process_content(
-            args,
-            tempdir,
-            cursor,
-            conn,
-            html,
-            brunnhilde_version,
-            siegfried_version,
-            use_hash,
-            ssn_mode,
-        )
-        if args.removefiles == True:
+    # Delete carved_files directory if user elected not to keep it
+    if args.diskimage:
+        if args.removefiles is True:
             shutil.rmtree(tempdir)
 
-    else:  # source is a directory
-        if os.path.isdir(source) == False:
-            print(
-                "\nSource is not a Directory. If you're processing a disk image, place '-d' before source."
-            )
-            sys.exit()
-        if args.noclam == False:  # run clamAV virus check unless specified otherwise
-            # skip clamav on Windows
-            if not sys.platform.startswith("win"):
-                run_clamav(args, source)
-        process_content(
-            args,
-            source,
-            cursor,
-            conn,
-            html,
-            brunnhilde_version,
-            siegfried_version,
-            use_hash,
-            ssn_mode,
-        )
-
-    # close HTML file
+    # Close HTML file
     html.close()
 
-    # write new html file, with hrefs for PRONOM IDs
+    # Write new html file, with hrefs for PRONOM IDs
     new_html = os.path.join(report_dir, "report.html")
     write_pronom_links(temp_html, new_html)
 
-    # remove temp html file
+    # Remove temp html file
     os.remove(temp_html)
 
-    # close database connections
+    # Close database connections
     cursor.close()
     conn.close()
 
-    # remove sqlite db unless user selected to retain
+    # Remove sqlite db unless user elected to keep it
     if not args.keepsqlite:
         os.remove(os.path.join(report_dir, "siegfried.sqlite"))
 

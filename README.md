@@ -52,11 +52,11 @@ If an older version of Brunnhilde is installed on your system, you can upgrade t
 
 ```  
 usage: brunnhilde.py [-h] [-a] [-b] [--ssn_mode SSN_MODE] [-d] [--hfs] [--hfs_resforks]
-                     [--hfs_partition HFS_PARTITION] [--tsk_imgtype TSK_IMGTYPE]
-                     [--tsk_fstype TSK_FSTYPE] [--tsk_sector_offset TSK_SECTOR_OFFSET]
-                     [--hash HASH] [-k] [-l] [-n] [-r] [-t] [-v] [-V] [-w] [-z]
-                     [--save_assets SAVE_ASSETS] [--load_assets LOAD_ASSETS]
-                     [--csv_file CSV_FILE] [--stdin]
+                     [--hfs_partition HFS_PARTITION] [--hfs_fsroot HFS_FSROOT]
+                     [--tsk_imgtype TSK_IMGTYPE] [--tsk_fstype TSK_FSTYPE]
+                     [--tsk_sector_offset TSK_SECTOR_OFFSET] [--hash HASH] [-k] [-l] [-n] [-r]
+                     [-t] [-v] [-V] [-w] [-z] [--csv_file CSV_FILE]
+                     [--load_assets LOAD_ASSETS] [--stdin]
                      source destination basename
 
 positional arguments:
@@ -75,8 +75,11 @@ optional arguments:
   --hfs_resforks, --resforks
                         HFS option: Extract AppleDouble resource forks from HFS disks
   --hfs_partition HFS_PARTITION
-                        HFS option: Specify partition number as integer for unhfs (e.g.
-                        --hfs_partition 1)
+                        HFS option: Specify partition number as integer for unhfs to extract
+                        (e.g. --hfs_partition 1)
+  --hfs_fsroot HFS_FSROOT
+                        HFS option: Specify POSIX path (file or dir) in the HFS file system
+                        for unhfs to extract (e.g. --hfs_fsroot /Users/tessa/backup/)
   --tsk_imgtype TSK_IMGTYPE
                         TSK option: Specify format of image type for tsk_recover. See
                         tsk_recover man page for details
@@ -96,15 +99,10 @@ optional arguments:
   -V, --version         Display Brunnhilde version
   -w, --showwarnings    Add Siegfried warnings to HTML report
   -z, --scanarchives    Decompress and scan zip, tar, gzip, warc, arc with Siegfried
-  --save_assets SAVE_ASSETS
-                        Specify filepath location to save JS/CSS files for use in subsequent
-                        runs (this directory should not yet exist)
-  --load_assets LOAD_ASSETS
-                        Specify filepath location of JS/CSS files to copy to destination
-                        (instead of downloading)
   --csv_file CSV_FILE   Path to Siegfried CSV file to read as input
+  --load_assets LOAD_ASSETS
+                        Specify path to cached 'assets' directory to use for HTML report
   --stdin               Read Siegfried CSV from piped stdin
-
 ```  
   
 For file paths containing spaces in directory names, enclose the entire path in single or double quotes or make sure spaces are escaped properly (e.g. `CCA\ Finding\ Aid\ Demo\`).  
@@ -206,12 +204,9 @@ All dependencies are already installed in BitCurator 1.7.106+. See instructions 
 
 #### Internet connection
 
-In order to ensure that the CSS and JavaScript files needed for the Brunnhilde HTML report are included with the report and thus not a preservation risk, these assets are downloaded from this Github repository every time Brunnhilde runs.
+In order to ensure that the CSS and JavaScript files needed for the Brunnhilde HTML report are included with the report and thus not a preservation risk, these assets are downloaded from this Github repository the first time Brunnhilde runs and cached in a `brunnhilde/assets/` directory in your user's home directory for future use.
 
-If you want to run Brunnhilde without an internet connection:
-
-* The first time you run Brunnhilde, use the `--save_assets` argument to specify a directory to which Brunnhilde can copy the CSS and JS assets needed for the report. This can be a relative or absolute path. Ideally this path should be memorable and should not yet exist.
-* In subsequent runs, use the `--load_assets` argument to specify a directory from which Brunnhilde can copy the CSS and JS assets rather than downloading them from Github. This removes the need for an internet connection when running Brunnhilde after the first time.
+If you are using Brunnhilde in an environment without an internet connection, you can manually copy the `assets` directory from the Brunnhilde source repo into a directory named `brunnhilde` in your user's home directory, or use the `--load_assets PATH` flag to specify an alternate path to a Brunnhilde `assets` directory to use.
 
 #### Core requirements (all operating systems)  
 
