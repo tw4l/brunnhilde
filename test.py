@@ -244,7 +244,7 @@ class TestBrunnhildeAssetCaching(SelfCleaningTestCase):
             % (self.dest_tmpdir),
             shell=True,
         )
-        cached_assets = j(os.path.expanduser("~"), "brunnhilde", "assets")
+        cached_assets = j(os.path.expanduser("~"), ".brunnhilde", "assets")
         expected_assets = [
             j(cached_assets, "css", "bootstrap.min.css"),
             j(cached_assets, "js", "bootstrap.min.js"),
