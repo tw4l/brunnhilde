@@ -1114,10 +1114,11 @@ def main():
             if exception.errno != errno.EEXIST:
                 raise
 
-    # Copy locally cached HTML report assets to output directory.
-    # If no local cache exists, download and cache a copy of the asset files
-    # from git hosting first.
-    assets_cache = os.path.join(os.path.expanduser("~"), "brunnhilde", "assets")
+    # If an HTML report assets directory was provided by the user, use that.
+    # Otherwise, check if the assets are already cached locally.
+    # If not, download them from the Brunnhilde git repository and cache for
+    # future use.
+    assets_cache = os.path.join(os.path.expanduser("~"), ".brunnhilde", "assets")
     if args.load_assets:
         assets_cache = os.path.abspath(args.load_assets)
     elif not os.path.isdir(assets_cache):
