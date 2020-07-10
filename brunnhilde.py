@@ -88,7 +88,7 @@ def run_clamav(args, source_dir):
         print("\nClamAV not properly configured.")
 
 
-def run_bulk_extractor(source_dir, ssn_mode):
+def run_bulk_extractor(args, source_dir, ssn_mode):
     """Run bulk extractor on directory"""
     bulk_extractor_log = os.path.join(log_dir, "bulk_extractor-log.txt")
     print("\nRunning Bulk Extractor on %s. This may take a while." % source_dir)
@@ -106,6 +106,9 @@ def run_bulk_extractor(source_dir, ssn_mode):
         "-R",
         source_dir,
     ]
+    if args.regex:
+        cmd.insert(1, "-F")
+        cmd.insert(2, args.regex)
     try:
         output = subprocess.check_output(cmd, stderr=subprocess.STDOUT)
         with open(bulk_extractor_log, "w") as log_file:
@@ -766,7 +769,7 @@ def process_content(
     )
     generate_reports(args, cursor, html, use_hash)
     if args.bulkextractor == True:
-        run_bulk_extractor(source_dir, ssn_mode)
+        run_bulk_extractor(args, source_dir, ssn_mode)
         write_html("SSNs", "%s" % os.path.join(bulkext_dir, "pii.txt"), "\t", html)
     close_html(html)  # close HTML file tags
     if not sys.platform.startswith("win"):
@@ -950,6 +953,11 @@ def _make_parser(version):
         type=int,
     )
     parser.add_argument(
+        "--regex",
+        help="Specify path to regex file",
+        action="store"
+    )
+    parser.add_argument(
         "-d",
         "--diskimage",
         help="Use disk image instead of dir as input (Linux and macOS only)",
@@ -1123,7 +1131,7 @@ def main():
         assets_cache = os.path.abspath(args.load_assets)
     elif not os.path.isdir(assets_cache):
         download_and_cache_html_report_assets(assets_cache)
-    
+
     assets_target = os.path.join(report_dir, ".assets")
     if not os.path.isdir(assets_target):
         shutil.copytree(assets_cache, assets_target)
