@@ -36,7 +36,7 @@ def run_siegfried(args, source_dir, use_hash):
     """Run siegfried on directory"""
     print("\nRunning Siegfried against %s. This may take some time." % source_dir)
     global sf_command
-    if use_hash == True:
+    if use_hash:
         hash_type = "md5"
         if args.hash == "sha1":
             hash_type = "sha1"
@@ -47,11 +47,11 @@ def run_siegfried(args, source_dir, use_hash):
         sf_command = 'sf -csv -hash %s "%s" > "%s"' % (hash_type, source_dir, sf_file)
     else:
         sf_command = 'sf -csv "%s" > "%s"' % (source_dir, sf_file)
-    if args.scanarchives == True:
+    if args.scanarchives:
         sf_command = sf_command.replace("sf -csv", "sf -z -csv")
-    if args.throttle == True:
+    if args.throttle:
         sf_command = sf_command.replace("-csv -hash", "-csv -throttle 10ms -hash")
-    if args.verbosesf == True:
+    if args.verbosesf:
         sf_command = sf_command.replace(" -hash", " -log p,t -hash")
     subprocess.call(sf_command, shell=True)
     print("\nSiegfried scan complete. Processing results.")
@@ -63,7 +63,7 @@ def run_clamav(args, source_dir):
     timestamp = str(datetime.datetime.now())
     print("\nRunning virus check on %s. This may take a few minutes." % source_dir)
     virus_log = os.path.join(log_dir, "viruscheck-log.txt")
-    if args.largefiles == True:
+    if args.largefiles:
         clamav_command = (
             'clamscan -i -r "%s" --max-scansize=0 --max-filesize=0 | tee "%s"'
             % (source_dir, virus_log)
@@ -168,7 +168,7 @@ def import_csv(cursor, conn, use_hash):
             else:
                 use_hash = False
 
-            if use_hash == True:
+            if use_hash:
                 sql = "CREATE TABLE siegfried (filename text, filesize text, modified text, errors text, hash text, namespace text, id text, format text, version text, mime text, basis text, warning text)"
             else:
                 sql = "CREATE TABLE siegfried (filename text, filesize text, modified text, errors text, namespace text, id text, format text, version text, mime text, basis text, warning text)"
@@ -206,7 +206,7 @@ def get_stats(
     cursor.execute("SELECT COUNT(*) from siegfried where filesize='0';")  # empty files
     empty_files = cursor.fetchone()[0]
 
-    if use_hash == True:
+    if use_hash:
         cursor.execute(
             "SELECT COUNT(DISTINCT hash) from siegfried WHERE filesize<>'0';"
         )  # distinct files
@@ -369,12 +369,12 @@ def get_stats(
         '\n<a class="nav-item nav-link" href="#Last modified dates by year">Dates</a>'
     )
     html.write('\n<a class="nav-item nav-link" href="#Unidentified">Unidentified</a>')
-    if args.showwarnings == True:
+    if args.showwarnings:
         html.write('\n<a class="nav-item nav-link" href="#Warnings">Warnings</a>')
     html.write('\n<a class="nav-item nav-link" href="#Errors">Errors</a>')
-    if use_hash == True:
+    if use_hash:
         html.write('\n<a class="nav-item nav-link" href="#Duplicates">Duplicates</a>')
-    if args.bulkextractor == True:
+    if args.bulkextractor:
         html.write('\n<a class="nav-item nav-link" href="#SSNs">SSNs</a>')
     html.write("\n</div>")
     html.write("\n</div>")
@@ -419,7 +419,7 @@ def get_stats(
     )
     html.write("\n<p><strong>Earliest date:</strong> %s</p>" % earliest_date)
     html.write("\n<p><strong>Latest date:</strong> %s</p>" % latest_date)
-    if use_hash == True:
+    if use_hash:
         html.write("\n<h4>File counts and contents</h4>")
         html.write(
             "\n<p><em>Calculated by hash value. Empty files are not counted in first three categories. Total files = distinct + duplicate + empty files.</em></p>"
@@ -512,7 +512,7 @@ def generate_reports(args, cursor, html, use_hash):
     sql = "SELECT * FROM siegfried WHERE warning <> '';"
     path = os.path.join(csv_dir, "warnings.csv")
     sqlite_to_csv(sql, path, full_header, cursor)
-    if args.showwarnings == True:
+    if args.showwarnings:
         write_html("Warnings", path, ",", html)
 
     # errors report
@@ -521,7 +521,7 @@ def generate_reports(args, cursor, html, use_hash):
     sqlite_to_csv(sql, path, full_header, cursor)
     write_html("Errors", path, ",", html)
 
-    if use_hash == True:
+    if use_hash:
         # duplicates report
         sql = "SELECT * FROM siegfried t1 WHERE EXISTS (SELECT 1 from siegfried t2 WHERE t2.hash = t1.hash AND t1.filename != t2.filename) AND filesize<>'0' ORDER BY hash;"
         path = os.path.join(csv_dir, "duplicates.csv")
@@ -755,9 +755,9 @@ def process_content(
         use_hash,
     )
     generate_reports(args, cursor, html, use_hash)
-    if args.bulkextractor == True:
+    if args.bulkextractor:
         run_bulk_extractor(args, source_dir, ssn_mode)
-        write_html("SSNs", "%s" % os.path.join(bulkext_dir, "pii.txt"), "\t", html)
+        write_html("SSNs", os.path.join(bulkext_dir, "pii.txt"), "\t", html)
     close_html(html)  # close HTML file tags
     if not sys.platform.startswith("win"):
         make_tree(source_dir)  # create tree.txt on mac and linux machines
@@ -802,7 +802,7 @@ def carve_files_with_unhfs(args, html, out_dir, disk_image):
     # TODO: Add else statement with path to unhfs binary on windows
 
     cmd = [unhfs_bin, "-v", "-o", out_dir, disk_image]
-    if args.hfs_resforks is True:
+    if args.hfs_resforks:
         cmd.insert(1, "-resforks")
         cmd.insert(2, "APPLEDOUBLE")
     if args.hfs_partition:
@@ -828,7 +828,7 @@ def carve_files_with_unhfs(args, html, out_dir, disk_image):
 def carve_files_with_tsk_recover(args, html, out_dir, disk_image):
     """Attempt to carve files from disk image with tsk_recover"""
     mode = "-e"
-    if args.allocated == True:
+    if args.allocated:
         mode = "-a"
 
     cmd = ["tsk_recover", mode, disk_image, out_dir]
@@ -1145,7 +1145,7 @@ def main():
         sys.exit(1)
 
     # If source is a disk image, carve files for analysis and create DFXML if possible
-    if args.diskimage is True:
+    if args.diskimage:
         if sys.platform.startswith("win"):
             print("\nDisk images not supported as inputs in Windows. Ending process.")
             close_files_conns_on_exit(html, conn, cursor, report_dir)
@@ -1158,7 +1158,7 @@ def main():
             if exception.errno != errno.EEXIST:
                 raise
 
-        if args.hfs is True:
+        if args.hfs:
             carve_files_with_unhfs(args, html, tempdir, source)
         else:
             carve_files_with_tsk_recover(args, html, tempdir, source)
@@ -1185,7 +1185,7 @@ def main():
 
     # Delete carved_files directory if user elected not to keep it
     if args.diskimage:
-        if args.removefiles is True:
+        if args.removefiles:
             shutil.rmtree(tempdir)
 
     # Close HTML file
