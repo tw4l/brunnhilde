@@ -530,32 +530,39 @@ def generate_reports(args, cursor, html, use_hash):
 
 
 def sqlite_to_csv(sql, path, header, cursor):
-    """Write sql query result to csv"""
-    # in python3, specify newline to prevent extra csv lines in windows
-    # in python2, write csv in byte mode
+    """Execute SQL query and write results, if any, to a CSV file.
+
+    In Python 3, specify newline to prevent extra lines in Windows.
+    In Python 2, write the CSV in byte mode.
+    """
+    cursor.execute(sql)
+    results = cursor.fetchall()
+    if not results:
+        return
     if sys.version_info > (3, 0):
         report = open(path, "w", newline="", encoding="utf8")
     else:
         report = open(path, "wb")
     w = csv.writer(report)
     w.writerow(header)
-    for row in cursor.execute(sql):
+    for row in results:
         w.writerow(row)
     report.close()
 
 
 def write_html(header, path, file_delimiter, html):
-    """Write csv file to html table"""
-    if sys.version_info > (3, 0):
-        in_file = open(path, "r", encoding="utf8")
+    """Write input CSV file or default "None found" text to HTML table.
+    """
+    csv_exists = True
+    if os.path.exists(path):
+        if sys.version_info > (3, 0):
+            in_file = open(path, "r", encoding="utf8")
+        else:
+            in_file = open(path, "rb")
+        # open csv reader
+        r = csv.reader(in_file, delimiter="%s" % file_delimiter)
     else:
-        in_file = open(path, "rb")
-    # count lines and then return to start of file
-    numline = len(in_file.readlines())
-    in_file.seek(0)
-
-    # open csv reader
-    r = csv.reader(in_file, delimiter="%s" % file_delimiter)
+        csv_exists = False
 
     # write header
     html.write('\n<a name="%s" style="padding-top: 40px;"></a>' % header)
@@ -567,22 +574,66 @@ def write_html(header, path, file_delimiter, html):
             "\n<p><em>Potential Social Security Numbers identified by bulk_extractor.</em></p>"
         )
 
+    DEFAULT_TEXT = "\nNone found.\n<br><br>"
+    if not csv_exists:
+        html.write(DEFAULT_TEXT)
+        return
+
     # if writing PII, handle separately
     if header == "SSNs":
-        if numline > 5:  # aka more rows than just header
-            html.write('\n<table class="table table-sm table-responsive table-hover">')
-            # write header
+        html.write('\n<table class="table table-sm table-responsive table-hover">')
+        # write header
+        html.write("\n<thead>")
+        html.write("\n<tr>")
+        html.write("\n<th>File</th>")
+        html.write("\n<th>Feature</th>")
+        html.write("\n<th>Context</th>")
+        html.write("\n</tr>")
+        html.write("\n</thead>")
+        # write data
+        html.write("\n<tbody>")
+        for row in islice(r, 4, None):  # skip header lines
+            for row in r:
+                # write data
+                html.write("\n<tr>")
+                for column in row:
+                    html.write("\n<td>" + column + "</td>")
+                html.write("\n</tr>")
+        html.write("\n</tbody>")
+        html.write("\n</table>")
+
+    # if writing duplicates, handle separately
+    elif header == "Duplicates":
+        # read md5s from csv and write to list
+        hash_list = []
+        for row in r:
+            if row:
+                hash_list.append(row[4])
+        # deduplicate md5_list
+        hash_list = list(OrderedDict.fromkeys(hash_list))
+        hash_list.remove("Checksum")
+        # for each hash in md5_list, print header, file info, and list of matching files
+        for hash_value in hash_list:
+            html.write(
+                "\n<p>Files matching checksum <strong>%s</strong>:</p>" % hash_value
+            )
+            html.write(
+                '\n<table class="table table-sm table-responsive table-bordered table-hover">'
+            )
             html.write("\n<thead>")
             html.write("\n<tr>")
-            html.write("\n<th>File</th>")
-            html.write("\n<th>Feature</th>")
-            html.write("\n<th>Context</th>")
+            html.write("\n<th>Filename</th><th>Filesize</th>")
+            html.write("<th>Date modified</th><th>Errors</th>")
+            html.write("<th>Checksum</th><th>Namespace</th>")
+            html.write("<th>ID</th><th>Format</th>")
+            html.write("<th>Format version</th><th>MIME type</th>")
+            html.write("<th>Basis for ID</th><th>Warning</th>")
             html.write("\n</tr>")
             html.write("\n</thead>")
-            # write data
+            in_file.seek(0)  # back to beginning of file
             html.write("\n<tbody>")
-            for row in islice(r, 4, None):  # skip header lines
-                for row in r:
+            for row in r:
+                if row[4] == "%s" % hash_value:
                     # write data
                     html.write("\n<tr>")
                     for column in row:
@@ -590,85 +641,35 @@ def write_html(header, path, file_delimiter, html):
                     html.write("\n</tr>")
             html.write("\n</tbody>")
             html.write("\n</table>")
-        else:
-            html.write("\nNone found.")
-
-    # if writing duplicates, handle separately
-    elif header == "Duplicates":
-        if numline > 1:  # aka more rows than just header
-            # read md5s from csv and write to list
-            hash_list = []
-            for row in r:
-                if row:
-                    hash_list.append(row[4])
-            # deduplicate md5_list
-            hash_list = list(OrderedDict.fromkeys(hash_list))
-            hash_list.remove("Checksum")
-            # for each hash in md5_list, print header, file info, and list of matching files
-            for hash_value in hash_list:
-                html.write(
-                    "\n<p>Files matching checksum <strong>%s</strong>:</p>" % hash_value
-                )
-                html.write(
-                    '\n<table class="table table-sm table-responsive table-bordered table-hover">'
-                )
-                html.write("\n<thead>")
-                html.write("\n<tr>")
-                html.write("\n<th>Filename</th><th>Filesize</th>")
-                html.write("<th>Date modified</th><th>Errors</th>")
-                html.write("<th>Checksum</th><th>Namespace</th>")
-                html.write("<th>ID</th><th>Format</th>")
-                html.write("<th>Format version</th><th>MIME type</th>")
-                html.write("<th>Basis for ID</th><th>Warning</th>")
-                html.write("\n</tr>")
-                html.write("\n</thead>")
-                in_file.seek(0)  # back to beginning of file
-                html.write("\n<tbody>")
-                for row in r:
-                    if row[4] == "%s" % hash_value:
-                        # write data
-                        html.write("\n<tr>")
-                        for column in row:
-                            html.write("\n<td>" + column + "</td>")
-                        html.write("\n</tr>")
-                html.write("\n</tbody>")
-                html.write("\n</table>")
-        else:
-            html.write("\nNone found.\n<br><br>")
 
     # otherwise write as normal
     else:
-        if numline > 1:  # aka more rows than just header
-            # add borders to table for full-width tables only
-            full_width_table_headers = ["Unidentified", "Warnings", "Errors"]
-            if header in full_width_table_headers:
-                html.write(
-                    '\n<table class="table table-sm table-responsive table-bordered table-hover">'
-                )
-            else:
-                html.write(
-                    '\n<table class="table table-sm table-responsive table-hover">'
-                )
-            # write header row
-            html.write("\n<thead>")
-            html.write("\n<tr>")
-            row1 = next(r)
-            for column in row1:
-                html.write("\n<th>" + column + "</th>")
-            html.write("\n</tr>")
-            html.write("\n</thead>")
-            # write data rows
-            html.write("\n<tbody>")
-            for row in r:
-                # write data
-                html.write("\n<tr>")
-                for column in row:
-                    html.write("\n<td>" + column + "</td>")
-                html.write("\n</tr>")
-            html.write("\n</tbody>")
-            html.write("\n</table>")
+        # add borders to table for full-width tables only
+        full_width_table_headers = ["Unidentified", "Warnings", "Errors"]
+        if header in full_width_table_headers:
+            html.write(
+                '\n<table class="table table-sm table-responsive table-bordered table-hover">'
+            )
         else:
-            html.write("\nNone found.\n<br><br>")
+            html.write('\n<table class="table table-sm table-responsive table-hover">')
+        # write header row
+        html.write("\n<thead>")
+        html.write("\n<tr>")
+        row1 = next(r)
+        for column in row1:
+            html.write("\n<th>" + column + "</th>")
+        html.write("\n</tr>")
+        html.write("\n</thead>")
+        # write data rows
+        html.write("\n<tbody>")
+        for row in r:
+            # write data
+            html.write("\n<tr>")
+            for column in row:
+                html.write("\n<td>" + column + "</td>")
+            html.write("\n</tr>")
+        html.write("\n</tbody>")
+        html.write("\n</table>")
 
     in_file.close()
 
@@ -939,11 +940,7 @@ def _make_parser(version):
         action="store",
         type=int,
     )
-    parser.add_argument(
-        "--regex",
-        help="Specify path to regex file",
-        action="store"
-    )
+    parser.add_argument("--regex", help="Specify path to regex file", action="store")
     parser.add_argument(
         "-d",
         "--diskimage",
@@ -1045,7 +1042,7 @@ def _make_parser(version):
         "--load_assets",
         help="Path to cached assets directory to use in HTML report",
         action="store",
-        type=str
+        type=str,
     )
     parser.add_argument(
         "--csv_file",
