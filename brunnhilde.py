@@ -875,19 +875,19 @@ def download_and_cache_html_report_assets(assets_cache):
     assets_to_download = [
         {
             "filepath": os.path.join(css, "bootstrap.min.css"),
-            "url": "https://github.com/tw4l/brunnhilde/blob/main/assets/css/bootstrap.min.css",
+            "url": "https://raw.githubusercontent.com/tw4l/brunnhilde/main/assets/js/bootstrap.min.js",
         },
         {
             "filepath": os.path.join(js, "bootstrap.min.js"),
-            "url": "https://github.com/tw4l/brunnhilde/blob/main/assets/js/bootstrap.min.js",
+            "url": "https://raw.githubusercontent.com/tw4l/brunnhilde/main/assets/js/bootstrap.min.js",
         },
         {
             "filepath": os.path.join(js, "jquery-3.3.1.slim.min.js"),
-            "url": "https://github.com/tw4l/brunnhilde/blob/main/assets/js/jquery-3.3.1.slim.min.js",
+            "url": "https://raw.githubusercontent.com/tw4l/brunnhilde/main/assets/js/jquery-3.3.1.slim.min.js",
         },
         {
             "filepath": os.path.join(js, "popper.min.js"),
-            "url": "https://github.com/tw4l/brunnhilde/blob/main/assets/js/popper.min.js",
+            "url": "https://raw.githubusercontent.com/tw4l/brunnhilde/main/assets/js/popper.min.js",
         },
     ]
     print("\nDownloading CSS and JS files from Github and caching them locally.")
