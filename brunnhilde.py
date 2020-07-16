@@ -1079,6 +1079,18 @@ def main():
     bulkext_dir = os.path.join(report_dir, "bulk_extractor")
     sf_file = os.path.join(report_dir, "siegfried.csv")
 
+    # Check that source type is correct
+    if args.diskimage and not os.path.isfile(source):
+        print(
+            "\nSource is not a file. Do not use the -d/--diskimage argument unless source is a disk image."
+        )
+        sys.exit(1)
+    elif not args.diskimage and os.path.isfile(source):
+        print(
+            "\nSource is not a directory. Use the -d/--diskimage argument if source is a disk image."
+        )
+        sys.exit(1)
+
     # Set use_hash
     use_hash = True
     if args.hash == "none":
@@ -1132,14 +1144,6 @@ def main():
     conn = sqlite3.connect(db)
     conn.text_factory = str  # allows utf-8 data to be stored
     cursor = conn.cursor()
-
-    # Exit with error if source is not a directory unless user passed -d/--diskimage
-    if (os.path.isdir(source) is False) and (args.diskimage is False):
-        print(
-            "\nSource is not a Directory. If you're processing a disk image, place '-d' before source."
-        )
-        close_files_conns_on_exit(html, conn, cursor, report_dir)
-        sys.exit(1)
 
     # If source is a disk image, carve files for analysis and create DFXML if possible
     if args.diskimage:
