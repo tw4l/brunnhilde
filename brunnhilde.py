@@ -461,7 +461,6 @@ def generate_reports(args, cursor, html, use_hash):
         "Filesize",
         "Date modified",
         "Errors",
-        "Checksum",
         "Namespace",
         "ID",
         "Format",
@@ -470,20 +469,8 @@ def generate_reports(args, cursor, html, use_hash):
         "Basis for ID",
         "Warning",
     ]
-    if use_hash == False:
-        full_header = [
-            "Filename",
-            "Filesize",
-            "Date modified",
-            "Errors",
-            "Namespace",
-            "ID",
-            "Format",
-            "Format version",
-            "MIME type",
-            "Basis for ID",
-            "Warning",
-        ]
+    if use_hash:
+        full_header.insert(4, "Checksum")
 
     # sorted format list report
     sql = "SELECT format, id, COUNT(*) as 'num' FROM siegfried GROUP BY format ORDER BY num DESC"
