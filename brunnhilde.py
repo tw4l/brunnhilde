@@ -1168,9 +1168,8 @@ def main():
         # Use the carved_files directory as source for analysis moving forward
         source = tempdir
 
-    if args.noclam is False:
-        if not sys.platform.startswith("win"):
-            run_clamav(args, source)
+    if not args.noclam and not sys.platform.startswith("win"):
+        run_clamav(args, source)
 
     process_content(
         args,
