@@ -32,18 +32,23 @@ import subprocess
 import sys
 
 
+def _determine_hash_type(args):
+    """Return hash_type value to use as argument for Siegfried.
+
+        Defaulting to md5 if no or invalid user input.
+        """
+    HASH_CHOICES = ("sha1", "sha256", "sha512")
+    if args.hash and args.hash.lower() in HASH_CHOICES:
+        return args.hash.lower()
+    return "md5"
+
+
 def run_siegfried(args, source_dir, use_hash):
     """Run siegfried on directory"""
     print("\nRunning Siegfried against %s. This may take some time." % source_dir)
     global sf_command
     if use_hash:
-        hash_type = "md5"
-        if args.hash == "sha1":
-            hash_type = "sha1"
-        elif args.hash == "sha256":
-            hash_type = "sha256"
-        elif args.hash == "sha512":
-            hash_type = "sha512"
+        hash_type = _determine_hash_type(args)
         sf_command = 'sf -csv -hash %s "%s" > "%s"' % (hash_type, source_dir, sf_file)
     else:
         sf_command = 'sf -csv "%s" > "%s"' % (source_dir, sf_file)
@@ -55,7 +60,6 @@ def run_siegfried(args, source_dir, use_hash):
         sf_command = sf_command.replace(" -hash", " -log p,t -hash")
     subprocess.call(sf_command, shell=True)
     print("\nSiegfried scan complete. Processing results.")
-    return sf_command
 
 
 def run_clamav(args, source_dir):
