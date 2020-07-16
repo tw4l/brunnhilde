@@ -57,14 +57,6 @@ class TestBrunnhildeIntegration(SelfCleaningTestCase):
         self.assertTrue(is_non_zero_file(j(self.dest_tmpdir, "test", "report.html")))
         # csv reports
         self.assertTrue(
-            is_non_zero_file(
-                j(self.dest_tmpdir, "test", "csv_reports", "duplicates.csv")
-            )
-        )
-        self.assertTrue(
-            is_non_zero_file(j(self.dest_tmpdir, "test", "csv_reports", "errors.csv"))
-        )
-        self.assertTrue(
             is_non_zero_file(j(self.dest_tmpdir, "test", "csv_reports", "formats.csv"))
         )
         self.assertTrue(
@@ -76,14 +68,6 @@ class TestBrunnhildeIntegration(SelfCleaningTestCase):
             is_non_zero_file(
                 j(self.dest_tmpdir, "test", "csv_reports", "mimetypes.csv")
             )
-        )
-        self.assertTrue(
-            is_non_zero_file(
-                j(self.dest_tmpdir, "test", "csv_reports", "unidentified.csv")
-            )
-        )
-        self.assertTrue(
-            is_non_zero_file(j(self.dest_tmpdir, "test", "csv_reports", "warnings.csv"))
         )
         self.assertTrue(
             is_non_zero_file(j(self.dest_tmpdir, "test", "csv_reports", "years.csv"))
@@ -125,14 +109,6 @@ class TestBrunnhildeIntegration(SelfCleaningTestCase):
         self.assertTrue(is_non_zero_file(j(self.dest_tmpdir, "test", "report.html")))
         # csv reports
         self.assertTrue(
-            is_non_zero_file(
-                j(self.dest_tmpdir, "test", "csv_reports", "duplicates.csv")
-            )
-        )
-        self.assertTrue(
-            is_non_zero_file(j(self.dest_tmpdir, "test", "csv_reports", "errors.csv"))
-        )
-        self.assertTrue(
             is_non_zero_file(j(self.dest_tmpdir, "test", "csv_reports", "formats.csv"))
         )
         self.assertTrue(
@@ -144,14 +120,6 @@ class TestBrunnhildeIntegration(SelfCleaningTestCase):
             is_non_zero_file(
                 j(self.dest_tmpdir, "test", "csv_reports", "mimetypes.csv")
             )
-        )
-        self.assertTrue(
-            is_non_zero_file(
-                j(self.dest_tmpdir, "test", "csv_reports", "unidentified.csv")
-            )
-        )
-        self.assertTrue(
-            is_non_zero_file(j(self.dest_tmpdir, "test", "csv_reports", "warnings.csv"))
         )
         self.assertTrue(
             is_non_zero_file(j(self.dest_tmpdir, "test", "csv_reports", "years.csv"))
