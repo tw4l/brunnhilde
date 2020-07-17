@@ -1068,7 +1068,14 @@ def _make_parser(version):
 
 def main():
     brunnhilde_version = "brunnhilde 1.8.2"
-    siegfried_version = subprocess.check_output(["sf", "-version"]).decode()
+    try:
+        siegfried_version = subprocess.check_output(["sf", "-version"]).decode()
+    except subprocess.CalledProcessError:
+        print(
+            "\nError: Siegfried not installed or available on PATH."
+            "\nPlease ensure that all dependencies are properly installed."
+        )
+        sys.exit(1)
 
     parser = _make_parser(brunnhilde_version)
     args = parser.parse_args()
