@@ -12,7 +12,7 @@ For information on usage and dependencies, see: github.com/tw4l/brunnhilde
 Python 2.7 & 3.4+
 
 The MIT License (MIT)
-Copyright (c) 2017 Tessa Walsh
+Copyright (c) 2017-2020 Tessa Walsh
 https://bitarchivist.net
 
 """
@@ -137,10 +137,11 @@ def convert_size(size):
 def import_csv(cursor, conn, use_hash):
     """Import csv file into sqlite db.
 
-    Returns use_hash as a mechanism for updating the value if the input Siegfried CSV
-    is found to have a hash column. This provides a double-check for Siegfried CSVs
-    provided as input from stdin or a file and prevents users from having to use the
-    --hash flag when providing their own inputs.
+    Returns use_hash as a mechanism for updating the value if the input
+    Siegfried CSV is found to have a hash column. This provides a
+    double-check for Siegfried CSVs provided as input from stdin or a
+    file and prevents users from having to use the --hash flag when
+    providing their own inputs.
     """
     # Create CSV reader
     if sys.version_info > (3, 0):
@@ -167,15 +168,14 @@ def import_csv(cursor, conn, use_hash):
 
             # If Siegfried CSV has 'hash' column, set use_hash to true
             NUMBER_OF_COLUMNS_WITH_HASH = 12
+            use_hash = False
             if len(row) == NUMBER_OF_COLUMNS_WITH_HASH:
                 use_hash = True
-            else:
-                use_hash = False
 
+            sql = "CREATE TABLE siegfried (filename text, filesize text, modified text, errors text, namespace text, id text, format text, version text, mime text, basis text, warning text)"
             if use_hash:
                 sql = "CREATE TABLE siegfried (filename text, filesize text, modified text, errors text, hash text, namespace text, id text, format text, version text, mime text, basis text, warning text)"
-            else:
-                sql = "CREATE TABLE siegfried (filename text, filesize text, modified text, errors text, namespace text, id text, format text, version text, mime text, basis text, warning text)"
+
             cursor.execute(sql)
 
             insertsql = "INSERT INTO siegfried VALUES (%s)" % (
@@ -898,7 +898,7 @@ def download_and_cache_html_report_assets(assets_cache):
     print("\nDownloading CSS and JS files from Github and caching them locally.")
     try:
         for asset in assets_to_download:
-            download_asset_file(asset["url"], asset["filepath"])
+            _download_asset_file(asset["url"], asset["filepath"])
         print("\nDownloads complete.")
     except Exception:
         print(
@@ -910,7 +910,7 @@ def download_and_cache_html_report_assets(assets_cache):
         sys.exit(1)
 
 
-def download_asset_file(asset_url, asset_filepath):
+def _download_asset_file(asset_url, asset_filepath):
     """Download file from asset_url and write to asset_filepath"""
     r = requests.get(asset_url)
     with open(asset_filepath, "wb") as f:
@@ -1101,10 +1101,9 @@ def main():
         use_hash = False
 
     # Set SSN mode
+    ssn_mode = 1
     if args.ssn_mode in (0, 2):
         ssn_mode = args.ssn_mode
-    else:
-        ssn_mode = 1
 
     # Create reports directories
     for new_dir in (report_dir, csv_dir):
