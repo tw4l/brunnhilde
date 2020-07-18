@@ -1,9 +1,7 @@
 # encoding: utf-8
-
 from __future__ import print_function, unicode_literals
 
 import datetime
-import logging
 import os
 import shutil
 import subprocess
@@ -11,12 +9,6 @@ import sys
 import tempfile
 import unittest
 from os.path import join as j
-
-
-logging.basicConfig(filename="test.log", level=logging.DEBUG)
-stderr = logging.StreamHandler()
-stderr.setLevel(logging.WARNING)
-logging.getLogger().addHandler(stderr)
 
 
 def is_non_zero_file(fpath):
@@ -77,9 +69,7 @@ class TestBrunnhildeIntegration(SelfCleaningTestCase):
             self.assertTrue(os.path.isfile(j(self.dest_tmpdir, "test", "tree.txt")))
         # javascript
         self.assertTrue(
-            is_non_zero_file(
-                j(self.dest_tmpdir, "test", "js", "bootstrap.min.js")
-            )
+            is_non_zero_file(j(self.dest_tmpdir, "test", "js", "bootstrap.min.js"))
         )
         self.assertTrue(
             is_non_zero_file(
@@ -87,9 +77,7 @@ class TestBrunnhildeIntegration(SelfCleaningTestCase):
             )
         )
         self.assertTrue(
-            is_non_zero_file(
-                j(self.dest_tmpdir, "test", "js", "popper.min.js")
-            )
+            is_non_zero_file(j(self.dest_tmpdir, "test", "js", "popper.min.js"))
         )
 
     def test_integration_outputs_created_diskimage(self):
@@ -201,8 +189,7 @@ class TestBrunnhildeAssetCaching(SelfCleaningTestCase):
     def test_integration_cache_assets(self):
         # Test that assets are cached after first run
         subprocess.call(
-            'python brunnhilde.py ./test-data/files/ "%s" setup'
-            % (self.dest_tmpdir),
+            'python brunnhilde.py ./test-data/files/ "%s" setup' % (self.dest_tmpdir),
             shell=True,
         )
         cached_assets = j(os.path.expanduser("~"), ".brunnhilde", "js")
@@ -226,18 +213,11 @@ class TestBrunnhildeAssetCaching(SelfCleaningTestCase):
         )
         self.assertTrue(
             is_non_zero_file(
-                j(
-                    self.dest_tmpdir,
-                    "cache-test",
-                    "js",
-                    "modified-bootstrap.min.js",
-                )
+                j(self.dest_tmpdir, "cache-test", "js", "modified-bootstrap.min.js",)
             )
         )
         self.assertFalse(
-            os.path.isfile(
-                j(self.dest_tmpdir, "cache-test", "js", "bootstrap.min.js")
-            )
+            os.path.isfile(j(self.dest_tmpdir, "cache-test", "js", "bootstrap.min.js"))
         )
 
         # Revert change to filename
@@ -257,14 +237,7 @@ class TestBrunnhildeAssetCaching(SelfCleaningTestCase):
             shell=True,
         )
         self.assertTrue(
-            is_non_zero_file(
-                j(
-                    self.dest_tmpdir,
-                    "load-test",
-                    "js",
-                    "asset-test.js"
-                )
-            )
+            is_non_zero_file(j(self.dest_tmpdir, "load-test", "js", "asset-test.js"))
         )
 
         shutil.rmtree(asset_dir)
