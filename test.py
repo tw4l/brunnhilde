@@ -58,6 +58,16 @@ class TestBrunnhildeIntegration(SelfCleaningTestCase):
         self.assertTrue(is_non_zero_file(j(self.TEST_REPORT_DIR, "siegfried.csv")))
         self.assertTrue(is_non_zero_file(j(self.TEST_REPORT_DIR, "report.html")))
 
+    def test_integration_simple_positional_args(self):
+        """Test `brunnhilde.py src dest` syntax introduced in 1.9.0.
+        """
+        subprocess.call(
+            'python brunnhilde.py -n ./test-data/files/ "%s"' % (self.TEST_REPORT_DIR),
+            shell=True,
+        )
+        self.assertTrue(is_non_zero_file(j(self.TEST_REPORT_DIR, "siegfried.csv")))
+        self.assertTrue(is_non_zero_file(j(self.TEST_REPORT_DIR, "report.html")))
+
     def test_integration_outputs_created(self):
         subprocess.call(
             'python brunnhilde.py -n ./test-data/files/ "%s" test' % (self.dest_tmpdir),
@@ -210,7 +220,7 @@ class TestBrunnhildeAssetCaching(SelfCleaningTestCase):
             self.assertTrue(is_non_zero_file(expected_asset))
 
         # Test that cached files are used in subsequent runs (by modifying one of files)
-        original_file = expected_assets[0]
+        original_file = j(cached_assets, "bootstrap.min.js")
         modified_file = j(cached_assets, "modified-bootstrap.min.js")
         os.rename(original_file, modified_file)
 

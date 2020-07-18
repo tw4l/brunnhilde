@@ -1128,7 +1128,14 @@ def _make_parser():
     parser.add_argument("source", help="Path to source directory or disk image")
     parser.add_argument("destination", help="Path to destination for reports")
     parser.add_argument(
-        "basename", help="Accession number or identifier, used as basename for outputs"
+        "basename",
+        nargs="?",
+        default=None,
+        help=(
+            "DEPRECATED. Accession number or identifier, used as basename for outputs. "
+            "Maintained and respected if used to prevent breaking existing integrations. "
+            "Prefer calling Brunnhilde with `brunnhilde.py source destination`."
+        ),
     )
 
     return parser
@@ -1141,8 +1148,14 @@ def main():
     global source, destination, basename, report_dir, csv_dir, log_dir, bulkext_dir, sf_file, ssn_mode
     source = os.path.abspath(args.source)
     destination = os.path.abspath(args.destination)
-    basename = args.basename
-    report_dir = os.path.join(destination, basename)
+    # Brunnhilde API backward compatibility: Use basename positional
+    # arg if provided. Otherwise use destination as report directory.
+    if args.basename:
+        basename = str(args.basename)
+        report_dir = os.path.join(destination, basename)
+    else:
+        basename = os.path.basename(destination)
+        report_dir = destination
     csv_dir = os.path.join(report_dir, "csv_reports")
     log_dir = os.path.join(report_dir, "logs")
     bulkext_dir = os.path.join(report_dir, "bulk_extractor")
