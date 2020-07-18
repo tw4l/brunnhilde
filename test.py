@@ -75,25 +75,20 @@ class TestBrunnhildeIntegration(SelfCleaningTestCase):
         # tree.txt
         if not sys.platform.startswith("win"):
             self.assertTrue(os.path.isfile(j(self.dest_tmpdir, "test", "tree.txt")))
-        # bootstrap css/js
+        # javascript
         self.assertTrue(
             is_non_zero_file(
-                j(self.dest_tmpdir, "test", ".assets", "css", "bootstrap.min.css")
+                j(self.dest_tmpdir, "test", "js", "bootstrap.min.js")
             )
         )
         self.assertTrue(
             is_non_zero_file(
-                j(self.dest_tmpdir, "test", ".assets", "js", "bootstrap.min.js")
+                j(self.dest_tmpdir, "test", "js", "jquery-3.5.1.slim.min.js")
             )
         )
         self.assertTrue(
             is_non_zero_file(
-                j(self.dest_tmpdir, "test", ".assets", "js", "jquery-3.3.1.slim.min.js")
-            )
-        )
-        self.assertTrue(
-            is_non_zero_file(
-                j(self.dest_tmpdir, "test", ".assets", "js", "popper.min.js")
+                j(self.dest_tmpdir, "test", "js", "popper.min.js")
             )
         )
 
@@ -212,19 +207,18 @@ class TestBrunnhildeAssetCaching(SelfCleaningTestCase):
             % (self.dest_tmpdir),
             shell=True,
         )
-        cached_assets = j(os.path.expanduser("~"), ".brunnhilde", "assets")
-        expected_assets = [
-            j(cached_assets, "css", "bootstrap.min.css"),
-            j(cached_assets, "js", "bootstrap.min.js"),
-            j(cached_assets, "js", "jquery-3.3.1.slim.min.js"),
-            j(cached_assets, "js", "popper.min.js"),
-        ]
+        cached_assets = j(os.path.expanduser("~"), ".brunnhilde", "js")
+        expected_assets = (
+            j(cached_assets, "bootstrap.min.js"),
+            j(cached_assets, "jquery-3.5.1.slim.min.js"),
+            j(cached_assets, "popper.min.js"),
+        )
         for expected_asset in expected_assets:
             self.assertTrue(is_non_zero_file(expected_asset))
 
         # Test that cached files are used in subsequent runs (by modifying one of files)
         original_file = expected_assets[0]
-        modified_file = j(cached_assets, "css", "modified-bootstrap.min.css")
+        modified_file = j(cached_assets, "modified-bootstrap.min.js")
         os.rename(original_file, modified_file)
 
         subprocess.call(
@@ -237,15 +231,14 @@ class TestBrunnhildeAssetCaching(SelfCleaningTestCase):
                 j(
                     self.dest_tmpdir,
                     "cache-test",
-                    ".assets",
-                    "css",
-                    "modified-bootstrap.min.css",
+                    "js",
+                    "modified-bootstrap.min.js",
                 )
             )
         )
         self.assertFalse(
             os.path.isfile(
-                j(self.dest_tmpdir, "cache-test", ".assets", "css", "bootstrap.min.css")
+                j(self.dest_tmpdir, "cache-test", "js", "bootstrap.min.js")
             )
         )
 
@@ -256,9 +249,9 @@ class TestBrunnhildeAssetCaching(SelfCleaningTestCase):
         # Test that user can load cached assets from user-supplied path
         asset_dir = j(self.dest_tmpdir, "fake-assets")
         os.makedirs(asset_dir)
-        asset_file = j(asset_dir, "asset-file.txt")
+        asset_file = j(asset_dir, "asset-test.js")
         with open(asset_file, "w+") as f:
-            f.write("Hello world")
+            f.write("console.log('Hello world')")
 
         subprocess.call(
             'python brunnhilde.py --load_assets "%s" ./test-data/files/ "%s" load-test'
@@ -270,8 +263,8 @@ class TestBrunnhildeAssetCaching(SelfCleaningTestCase):
                 j(
                     self.dest_tmpdir,
                     "load-test",
-                    ".assets",
-                    "asset-file.txt"
+                    "js",
+                    "asset-test.js"
                 )
             )
         )
