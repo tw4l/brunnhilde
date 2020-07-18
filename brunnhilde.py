@@ -914,18 +914,22 @@ def download_and_cache_html_report_assets(js_directory):
     files_to_download = [
         {
             "filepath": os.path.join(js_directory, "jquery-3.5.1.slim.min.js"),
-            "url": "https://code.jquery.com/jquery-3.5.1.slim.min.js",
+            "url": "https://raw.githubusercontent.com/tw4l/brunnhilde/dev/brunnhilde-1.8.2/js/jquery-3.5.1.slim.min.js",
         },
         {
             "filepath": os.path.join(js_directory, "popper.min.js"),
-            "url": "https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js",
+            "url": "https://raw.githubusercontent.com/tw4l/brunnhilde/dev/brunnhilde-1.8.2/js/popper.min.js",
         },
         {
             "filepath": os.path.join(js_directory, "bootstrap.min.js"),
-            "url": "https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js",
+            "url": "https://raw.githubusercontent.com/tw4l/brunnhilde/dev/brunnhilde-1.8.2/js/bootstrap.min.js",
         },
     ]
-    print("\nDownloading CSS and JS files from Github and caching them locally.")
+    print(
+        "\nDownloading HTML report JavaScript dependencies from "
+        "Brunnhilde Github repository and caching them in user's home "
+        "directory for use in subsequent runs."
+    )
     try:
         for f in files_to_download:
             _download_asset_file(f["url"], f["filepath"])
@@ -936,7 +940,7 @@ def download_and_cache_html_report_assets(js_directory):
             "Please ensure your internet connection is working and try "
             "again, use the --load_assets flag, or manually copy the "
             "files from the Brunnhilde source repo's 'JS' directory "
-            "to {}".format(js_directory)
+            "to {}.".format(js_directory)
         )
         sys.exit(1)
 
@@ -1167,9 +1171,18 @@ def main():
     js_cache = os.path.join(os.path.expanduser("~"), ".brunnhilde", "js")
     if args.load_assets:
         js_cache = os.path.abspath(args.load_assets)
+        print(
+            "\nCopying HTML report JavaScript dependencies from path "
+            "specified with --load_assets flag: {}.".format(js_cache)
+        )
     elif not os.path.isdir(js_cache):
         os.makedirs(js_cache)
         download_and_cache_html_report_assets(js_cache)
+    else:
+        print(
+            "\nCopying HTML report JavaScript dependencies from local "
+            "cache: {}.".format(js_cache)
+        )
 
     js_target = os.path.join(report_dir, "js")
     if not os.path.isdir(js_target):
