@@ -71,14 +71,16 @@ def print_and_log_warning(msg):
     logger.warning(msg)
 
 
-def print_and_log_error_and_exit_message(msg):
+def print_and_log_error_and_exit_message(msg, skip_logging=False):
     """Log error message and print to stderr."""
     print("\n" + msg, file=sys.stderr)
-    logger.error(msg)
 
     shutdown_msg = "Brunnhilde was unable to finish processing. Shutting down."
     print("\n" + shutdown_msg, file=sys.stderr)
-    logger.error(shutdown_msg)
+
+    if not skip_logging:
+        logger.error(msg)
+        logger.error(shutdown_msg)
 
 
 def _determine_hash_type(args):
@@ -1117,6 +1119,12 @@ def _make_parser():
     parser.add_argument(
         "--stdin", help="Read Siegfried CSV from piped stdin", action="store_true"
     )
+    parser.add_argument(
+        "-o",
+        "--overwrite",
+        help="Overwrite reports directory if it already exists",
+        action="store_true",
+    )
     parser.add_argument("source", help="Path to source directory or disk image")
     parser.add_argument("destination", help="Path to destination for reports")
     parser.add_argument(
@@ -1141,6 +1149,22 @@ def main():
     sf_file = os.path.join(report_dir, "siegfried.csv")
 
     # Create report directory
+    if os.path.exists(report_dir):
+        if not args.overwrite:
+            print_and_log_error_and_exit_message(
+                "Output directory already exists.", skip_logging=True
+            )
+            sys.exit(1)
+
+        try:
+            shutil.rmtree(report_dir)
+        except OSError as e:
+            print_and_log_error_and_exit_message(
+                "Unable to delete existing output directory: {}".format(e),
+                skip_logging=True,
+            )
+            sys.exit(1)
+
     try:
         os.makedirs(report_dir)
     except OSError as exception:
@@ -1231,7 +1255,7 @@ def main():
     if args.diskimage:
         if sys.platform.startswith("win"):
             print_and_log_error_and_exit_message(
-                "Disk images not supported as inputs in Windows. Ending process."
+                "Disk images not supported as inputs in Windows."
             )
             close_files_conns_on_exit(html, conn, cursor, report_dir)
             sys.exit(1)

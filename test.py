@@ -26,6 +26,8 @@ class SelfCleaningTestCase(unittest.TestCase):
         if not os.path.isdir(self.dest_tmpdir):
             os.mkdirs(self.dest_tmpdir)
 
+        self.TEST_REPORT_DIR = os.path.join(self.dest_tmpdir, "test")
+
     def tearDown(self):
         if os.path.isdir(self.dest_tmpdir):
             shutil.rmtree(self.dest_tmpdir)
@@ -38,46 +40,60 @@ class TestBrunnhildeIntegration(SelfCleaningTestCase):
     Integration tests. sf (Siegfried) must be installed on user's system for tests to work.
     """
 
+    def test_integration_existing_output_dir_quits(self):
+        os.makedirs(self.TEST_REPORT_DIR)
+        subprocess.call(
+            'python brunnhilde.py -n ./test-data/files/ "%s" test' % (self.dest_tmpdir),
+            shell=True,
+        )
+        self.assertFalse(is_non_zero_file(j(self.TEST_REPORT_DIR, "siegfried.csv")))
+
+    def test_integration_existing_output_dir_overwrites(self):
+        os.makedirs(self.TEST_REPORT_DIR)
+        subprocess.call(
+            'python brunnhilde.py -n --overwrite ./test-data/files/ "%s" test'
+            % (self.dest_tmpdir),
+            shell=True,
+        )
+        self.assertTrue(is_non_zero_file(j(self.TEST_REPORT_DIR, "siegfried.csv")))
+        self.assertTrue(is_non_zero_file(j(self.TEST_REPORT_DIR, "report.html")))
+
     def test_integration_outputs_created(self):
         subprocess.call(
             'python brunnhilde.py -n ./test-data/files/ "%s" test' % (self.dest_tmpdir),
             shell=True,
         )
         # siegfried csv and sqlite db
-        self.assertTrue(is_non_zero_file(j(self.dest_tmpdir, "test", "siegfried.csv")))
+        self.assertTrue(is_non_zero_file(j(self.TEST_REPORT_DIR, "siegfried.csv")))
         # html report
-        self.assertTrue(is_non_zero_file(j(self.dest_tmpdir, "test", "report.html")))
+        self.assertTrue(is_non_zero_file(j(self.TEST_REPORT_DIR, "report.html")))
         # csv reports
         self.assertTrue(
-            is_non_zero_file(j(self.dest_tmpdir, "test", "csv_reports", "formats.csv"))
+            is_non_zero_file(j(self.TEST_REPORT_DIR, "csv_reports", "formats.csv"))
         )
         self.assertTrue(
             is_non_zero_file(
-                j(self.dest_tmpdir, "test", "csv_reports", "formatVersions.csv")
+                j(self.TEST_REPORT_DIR, "csv_reports", "formatVersions.csv")
             )
         )
         self.assertTrue(
-            is_non_zero_file(
-                j(self.dest_tmpdir, "test", "csv_reports", "mimetypes.csv")
-            )
+            is_non_zero_file(j(self.TEST_REPORT_DIR, "csv_reports", "mimetypes.csv"))
         )
         self.assertTrue(
-            is_non_zero_file(j(self.dest_tmpdir, "test", "csv_reports", "years.csv"))
+            is_non_zero_file(j(self.TEST_REPORT_DIR, "csv_reports", "years.csv"))
         )
         # tree.txt
         if not sys.platform.startswith("win"):
-            self.assertTrue(os.path.isfile(j(self.dest_tmpdir, "test", "tree.txt")))
+            self.assertTrue(os.path.isfile(j(self.TEST_REPORT_DIR, "tree.txt")))
         # javascript
         self.assertTrue(
-            is_non_zero_file(j(self.dest_tmpdir, "test", "js", "bootstrap.min.js"))
+            is_non_zero_file(j(self.TEST_REPORT_DIR, "js", "bootstrap.min.js"))
         )
         self.assertTrue(
-            is_non_zero_file(
-                j(self.dest_tmpdir, "test", "js", "jquery-3.5.1.slim.min.js")
-            )
+            is_non_zero_file(j(self.TEST_REPORT_DIR, "js", "jquery-3.5.1.slim.min.js"))
         )
         self.assertTrue(
-            is_non_zero_file(j(self.dest_tmpdir, "test", "js", "popper.min.js"))
+            is_non_zero_file(j(self.TEST_REPORT_DIR, "js", "popper.min.js"))
         )
 
     def test_integration_outputs_created_diskimage(self):
@@ -87,39 +103,35 @@ class TestBrunnhildeIntegration(SelfCleaningTestCase):
             shell=True,
         )
         # siegfried csv and sqlite db
-        self.assertTrue(is_non_zero_file(j(self.dest_tmpdir, "test", "siegfried.csv")))
+        self.assertTrue(is_non_zero_file(j(self.TEST_REPORT_DIR, "siegfried.csv")))
         # html report
-        self.assertTrue(is_non_zero_file(j(self.dest_tmpdir, "test", "report.html")))
+        self.assertTrue(is_non_zero_file(j(self.TEST_REPORT_DIR, "report.html")))
         # csv reports
         self.assertTrue(
-            is_non_zero_file(j(self.dest_tmpdir, "test", "csv_reports", "formats.csv"))
+            is_non_zero_file(j(self.TEST_REPORT_DIR, "csv_reports", "formats.csv"))
         )
         self.assertTrue(
             is_non_zero_file(
-                j(self.dest_tmpdir, "test", "csv_reports", "formatVersions.csv")
+                j(self.TEST_REPORT_DIR, "csv_reports", "formatVersions.csv")
             )
         )
         self.assertTrue(
-            is_non_zero_file(
-                j(self.dest_tmpdir, "test", "csv_reports", "mimetypes.csv")
-            )
+            is_non_zero_file(j(self.TEST_REPORT_DIR, "csv_reports", "mimetypes.csv"))
         )
         self.assertTrue(
-            is_non_zero_file(j(self.dest_tmpdir, "test", "csv_reports", "years.csv"))
+            is_non_zero_file(j(self.TEST_REPORT_DIR, "csv_reports", "years.csv"))
         )
         # tree.txt
         if not sys.platform.startswith("win"):
-            self.assertTrue(os.path.isfile(j(self.dest_tmpdir, "test", "tree.txt")))
+            self.assertTrue(os.path.isfile(j(self.TEST_REPORT_DIR, "tree.txt")))
         # dfxml
-        self.assertTrue(is_non_zero_file(j(self.dest_tmpdir, "test", "dfxml.xml")))
+        self.assertTrue(is_non_zero_file(j(self.TEST_REPORT_DIR, "dfxml.xml")))
         # carved_files
         self.assertTrue(
-            is_non_zero_file(
-                j(self.dest_tmpdir, "test", "carved_files", "file1.txt.txt")
-            )
+            is_non_zero_file(j(self.TEST_REPORT_DIR, "carved_files", "file1.txt.txt"))
         )
         self.assertTrue(
-            is_non_zero_file(j(self.dest_tmpdir, "test", "carved_files", "Tulips.jpg"))
+            is_non_zero_file(j(self.TEST_REPORT_DIR, "carved_files", "Tulips.jpg"))
         )
 
     def test_integration_temp_files_deleted(self):
@@ -129,9 +141,7 @@ class TestBrunnhildeIntegration(SelfCleaningTestCase):
         )
         # uniqueyears.csv
         self.assertFalse(
-            os.path.isfile(
-                j(self.dest_tmpdir, "test", "csv_reports", "uniqueyears.csv")
-            )
+            os.path.isfile(j(self.TEST_REPORT_DIR, "csv_reports", "uniqueyears.csv"))
         )
 
     def test_integration_clamav(self):
@@ -140,7 +150,7 @@ class TestBrunnhildeIntegration(SelfCleaningTestCase):
             shell=True,
         )
         # virus log correctly written
-        virus_log = j(self.dest_tmpdir, "test", "logs", "viruscheck-log.txt")
+        virus_log = j(self.TEST_REPORT_DIR, "logs", "viruscheck-log.txt")
         with open(virus_log, "r") as f:
             self.assertTrue("Scanned files: 4" in f.read())
         with open(virus_log, "r") as f:
@@ -152,7 +162,7 @@ class TestBrunnhildeIntegration(SelfCleaningTestCase):
             shell=True,
         )
         # virus log correctly written
-        virus_log = j(self.dest_tmpdir, "test", "logs", "viruscheck-log.txt")
+        virus_log = j(self.TEST_REPORT_DIR, "logs", "viruscheck-log.txt")
         with open(virus_log, "r") as f:
             self.assertTrue("Scanned files: 4" in f.read())
         with open(virus_log, "r") as f:
@@ -165,7 +175,7 @@ class TestBrunnhildeIntegration(SelfCleaningTestCase):
             shell=True,
         )
         # virus log correctly written
-        virus_log = j(self.dest_tmpdir, "test", "logs", "viruscheck-log.txt")
+        virus_log = j(self.TEST_REPORT_DIR, "logs", "viruscheck-log.txt")
         with open(virus_log, "r") as f:
             self.assertTrue("Scanned files: 2" in f.read())
         with open(virus_log, "r") as f:
@@ -176,9 +186,7 @@ class TestBrunnhildeIntegration(SelfCleaningTestCase):
             'python brunnhilde.py -k ./test-data/files/ "%s" test' % (self.dest_tmpdir),
             shell=True,
         )
-        self.assertTrue(
-            is_non_zero_file(j(self.dest_tmpdir, "test", "siegfried.sqlite"))
-        )
+        self.assertTrue(is_non_zero_file(j(self.TEST_REPORT_DIR, "siegfried.sqlite")))
 
 
 class TestBrunnhildeAssetCaching(SelfCleaningTestCase):
