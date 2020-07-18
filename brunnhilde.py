@@ -35,7 +35,7 @@ import subprocess
 import sys
 
 
-BRUNNHILDE_VERSION = "brunnhilde 1.8.2"
+BRUNNHILDE_VERSION = "brunnhilde 1.9.0"
 
 BOOTSTRAP_CSS = """
 /*!
