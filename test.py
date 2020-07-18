@@ -139,8 +139,6 @@ class TestBrunnhildeIntegration(SelfCleaningTestCase):
             'python brunnhilde.py -n ./test-data/files/ "%s" test' % (self.dest_tmpdir),
             shell=True,
         )
-        # temp.html
-        self.assertFalse(os.path.isfile(j(self.dest_tmpdir, "test", "temp.html")))
         # uniqueyears.csv
         self.assertFalse(
             os.path.isfile(
