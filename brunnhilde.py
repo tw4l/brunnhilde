@@ -520,14 +520,14 @@ def generate_reports(args, cursor, html, use_hash):
     path = os.path.join(csv_dir, "formats.csv")
     format_header = ["Format", "ID", "Count"]
     sqlite_to_csv(sql, path, format_header, cursor)
-    write_html("File formats", path, ",", html)
+    write_html_report_section("File formats", path, ",", html)
 
     # sorted format and version list report
     sql = "SELECT format, id, version, COUNT(*) as 'num' FROM siegfried GROUP BY format, version ORDER BY num DESC"
     path = os.path.join(csv_dir, "formatVersions.csv")
     version_header = ["Format", "ID", "Version", "Count"]
     sqlite_to_csv(sql, path, version_header, cursor)
-    write_html("File format versions", path, ",", html)
+    write_html_report_section("File format versions", path, ",", html)
 
     # sorted mimetype list report
     sql = (
@@ -536,40 +536,40 @@ def generate_reports(args, cursor, html, use_hash):
     path = os.path.join(csv_dir, "mimetypes.csv")
     mime_header = ["MIME type", "Count"]
     sqlite_to_csv(sql, path, mime_header, cursor)
-    write_html("MIME types", path, ",", html)
+    write_html_report_section("MIME types", path, ",", html)
 
     # dates report
     sql = "SELECT SUBSTR(modified, 1, 4) as 'year', COUNT(*) as 'num' FROM siegfried GROUP BY year ORDER BY num DESC"
     path = os.path.join(csv_dir, "years.csv")
     year_header = ["Year Last Modified", "Count"]
     sqlite_to_csv(sql, path, year_header, cursor)
-    write_html("Last modified dates by year", path, ",", html)
+    write_html_report_section("Last modified dates by year", path, ",", html)
 
     # unidentified files report
     sql = "SELECT * FROM siegfried WHERE id='UNKNOWN';"
     path = os.path.join(csv_dir, "unidentified.csv")
     sqlite_to_csv(sql, path, full_header, cursor)
-    write_html("Unidentified", path, ",", html)
+    write_html_report_section("Unidentified", path, ",", html)
 
     # warnings report
     sql = "SELECT * FROM siegfried WHERE warning <> '';"
     path = os.path.join(csv_dir, "warnings.csv")
     sqlite_to_csv(sql, path, full_header, cursor)
     if args.warnings:
-        write_html("Warnings", path, ",", html)
+        write_html_report_section("Warnings", path, ",", html)
 
     # errors report
     sql = "SELECT * FROM siegfried WHERE errors <> '';"
     path = os.path.join(csv_dir, "errors.csv")
     sqlite_to_csv(sql, path, full_header, cursor)
-    write_html("Errors", path, ",", html)
+    write_html_report_section("Errors", path, ",", html)
 
     if use_hash:
         # duplicates report
         sql = "SELECT * FROM siegfried t1 WHERE EXISTS (SELECT 1 from siegfried t2 WHERE t2.hash = t1.hash AND t1.filename != t2.filename) AND filesize<>'0' ORDER BY hash;"
         path = os.path.join(csv_dir, "duplicates.csv")
         sqlite_to_csv(sql, path, full_header, cursor)
-        write_html("Duplicates", path, ",", html)
+        write_html_report_section("Duplicates", path, ",", html)
 
 
 def sqlite_to_csv(sql, path, header, cursor):
@@ -593,8 +593,10 @@ def sqlite_to_csv(sql, path, header, cursor):
     report.close()
 
 
-def write_html(header, path, file_delimiter, html):
-    """Write input CSV file or default "None found" text to HTML table.
+def write_html_report_section(header, path, file_delimiter, html):
+    """Write HTML report section from an input CSV file or bulk_extractor feature file.
+
+    If expected source doesn't exist, write default message instead.
     """
     csv_exists = True
     if os.path.exists(path):
@@ -797,7 +799,7 @@ def process_content(
     generate_reports(args, cursor, html, use_hash)
     if args.bulkextractor:
         run_bulk_extractor(args, source_dir, ssn_mode)
-        write_html("SSNs", os.path.join(bulkext_dir, "pii.txt"), "\t", html)
+        write_html_report_section("SSNs", os.path.join(bulkext_dir, "pii.txt"), "\t", html)
     close_html(html)  # close HTML file tags
     if not sys.platform.startswith("win"):
         make_tree(source_dir)  # create tree.txt on mac and linux machines
