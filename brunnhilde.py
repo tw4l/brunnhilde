@@ -16,6 +16,8 @@ Copyright (c) 2017-2020 Tessa Walsh
 https://bitarchivist.net
 
 """
+from __future__ import print_function
+
 import argparse
 from collections import OrderedDict
 import csv
