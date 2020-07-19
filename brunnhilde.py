@@ -1313,7 +1313,7 @@ def main():
         os.remove(os.path.join(report_dir, "siegfried.sqlite"))
 
     print_and_log_info(
-        "Brunnhilde characterization complete. Reports in %s." % report_dir
+        "Brunnhilde characterization complete. Reports written to %s." % report_dir
     )
 
 
