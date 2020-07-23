@@ -1005,15 +1005,15 @@ def download_and_cache_html_report_assets(js_directory):
     files_to_download = [
         {
             "filepath": os.path.join(js_directory, "jquery-3.5.1.slim.min.js"),
-            "url": "https://raw.githubusercontent.com/tw4l/brunnhilde/dev/brunnhilde-1.8.2/js/jquery-3.5.1.slim.min.js",
+            "url": "https://raw.githubusercontent.com/tw4l/brunnhilde/develop/js/jquery-3.5.1.slim.min.js",
         },
         {
             "filepath": os.path.join(js_directory, "popper.min.js"),
-            "url": "https://raw.githubusercontent.com/tw4l/brunnhilde/dev/brunnhilde-1.8.2/js/popper.min.js",
+            "url": "https://raw.githubusercontent.com/tw4l/brunnhilde/develop/js/popper.min.js",
         },
         {
             "filepath": os.path.join(js_directory, "bootstrap.min.js"),
-            "url": "https://raw.githubusercontent.com/tw4l/brunnhilde/dev/brunnhilde-1.8.2/js/bootstrap.min.js",
+            "url": "https://raw.githubusercontent.com/tw4l/brunnhilde/develop/js/bootstrap.min.js",
         },
     ]
     print_and_log_info(
