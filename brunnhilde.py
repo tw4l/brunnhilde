@@ -711,35 +711,96 @@ def write_html_report_section(header, path, file_delimiter, html):
         # for each hash in md5_list, print header, file info, and list of matching files
         for hash_value in hash_list:
             html.write(
-                "\n<p>Files matching checksum <strong>{}</strong>:</p>".format(
-                    hash_value
-                )
+                "\n<p>Files matching hash <strong>{}</strong>:</p>".format(hash_value)
             )
-            html.write(
-                '\n<table class="table table-sm table-responsive table-bordered table-hover">'
-            )
+            # Return to beginning of CSV file, look for first file with
+            # matching hash, print its info for the group, and break.
+            _return_csv_reader_to_start_of_file(in_file)
+            for row in r:
+                if row[4] == hash_value:
+                    row_size = row[1]
+                    row_size_readable = convert_size(int(row_size))
+                    row_errors = row[3]
+                    row_id = row[6]
+                    row_format = row[7]
+                    row_format_version = row[8]
+                    row_mime = row[9]
+                    row_basis = row[10]
+                    row_warning = row[11]
+
+                    html.write("\n<ul>")
+                    if " bytes" in row_size_readable:
+                        html.write(
+                            "\n<li><strong>Size:</strong> {} bytes</li>".format(
+                                row_size
+                            )
+                        )
+                    else:
+                        html.write(
+                            "\n<li><strong>Size:</strong> {bytes} bytes ({readable})</li>".format(
+                                bytes=row_size, readable=row_size_readable
+                            )
+                        )
+                    html.write(
+                        "\n<li><strong>ID:</strong> {}</li>".format(
+                            add_pronom_link_for_puids(row_id)
+                        )
+                    )
+                    html.write(
+                        "\n<li><strong>Format:</strong> {}</li>".format(row_format)
+                    )
+                    if row_format_version:
+                        html.write(
+                            "\n<li><strong>Format version:</strong> {}</li>".format(
+                                row_format_version
+                            )
+                        )
+                    if row_mime:
+                        html.write(
+                            "\n<li><strong>MIME type:</strong> {}</li>".format(row_mime)
+                        )
+                    if row_basis:
+                        html.write(
+                            "\n<li><strong>Basis for ID:</strong> {}</li>".format(
+                                row_basis
+                            )
+                        )
+                    if row_warning:
+                        html.write(
+                            "\n<li><strong>Warning:</strong> {}</li>".format(
+                                row_warning
+                            )
+                        )
+                    if row_errors:
+                        html.write(
+                            "\n<li><strong>Errors:</strong> {}</li>".format(row_errors)
+                        )
+                    html.write("\n</ul>")
+
+                    break
+
+            # Return to beginning of CSV file again and write table of
+            # matching files (columns: filename, modified date).
+            _return_csv_reader_to_start_of_file(in_file)
+            html.write('\n<table class="table table-sm table-bordered table-hover">')
             html.write("\n<thead>")
             html.write("\n<tr>")
-            html.write("\n<th>Filename</th><th>Filesize</th>")
-            html.write("<th>Date modified</th><th>Errors</th>")
-            html.write("<th>Checksum</th><th>Namespace</th>")
-            html.write("<th>ID</th><th>Format</th>")
-            html.write("<th>Format version</th><th>MIME type</th>")
-            html.write("<th>Basis for ID</th><th>Warning</th>")
+            html.write("\n<th>Filename</th><th>Date modified</th>")
             html.write("\n</tr>")
             html.write("\n</thead>")
-            in_file.seek(0)  # back to beginning of file
             html.write("\n<tbody>")
             for row in r:
                 if row[4] == hash_value:
+                    row_filename = row[0]
+                    row_date_modified = row[2]
                     # write data
                     html.write("\n<tr>")
-                    for column in row:
-                        column = add_pronom_link_for_puids(column)
-                        html.write("\n<td>" + column + "</td>")
+                    html.write("\n<td>" + row_filename + "</td>")
+                    html.write("\n<td>" + row_date_modified + "</td>")
                     html.write("\n</tr>")
             html.write("\n</tbody>")
             html.write("\n</table>")
+            html.write("<br>")
 
     # otherwise write as normal
     else:
@@ -772,6 +833,10 @@ def write_html_report_section(header, path, file_delimiter, html):
         html.write("\n</table>")
 
     in_file.close()
+
+
+def _return_csv_reader_to_start_of_file(csv_reader_instance):
+    csv_reader_instance.seek(0)
 
 
 def add_pronom_link_for_puids(text):
