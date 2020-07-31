@@ -102,7 +102,7 @@ a {
 a.anchor {
   display: block;
   position: relative;
-  top: 50px;
+  top: -100px;
   visibility: hidden;
 }
 
@@ -476,7 +476,7 @@ def create_html_report(
     html.write("\n</header>")
     # provenance
     html.write("\n<div>")
-    html.write('\n<a name="Provenance"></a>')
+    html.write('\n<a class="anchor" name="Provenance"></a>')
     html.write("\n<h2>Provenance</h2>")
     html.write(
         "\n<p><strong>Input source (directory or disk image):</strong> {}</p>".format(
@@ -495,7 +495,7 @@ def create_html_report(
     html.write("\n<p><strong>Scan started:</strong> {}</p>".format(scan_started))
     html.write("\n</div>")
     # statistics
-    html.write('\n<a name="Stats"></a>')
+    html.write('\n<a class="anchor" name="Stats"></a>')
     html.write("\n<div>")
     html.write("\n<h2>Statistics</h2>")
     html.write("\n<h3>Overview</h3>")
@@ -548,7 +548,7 @@ def create_html_report(
     html.write("\n</div>")
     # virus report
     if not (args.noclam or sys.platform.startswith("win")):
-        html.write('\n<a name="Virus report"></a>')
+        html.write('\n<a class="anchor" name="Virus report"></a>')
         html.write("\n<div>")
         html.write("\n<h2>Virus report</h2>")
         with open(os.path.join(log_dir, "viruscheck-log.txt")) as f:
@@ -681,7 +681,7 @@ def write_html_report_section(header, path, file_delimiter, html):
         input_exists = False
 
     # write header
-    html.write('\n<a name="{}"></a>'.format(header))
+    html.write('\n<a class="anchor" name="{}"></a>'.format(header))
     html.write("\n<h2>{}</h2>".format(header))
     if header == "Duplicates":
         html.write("\n<p><em>Duplicates are grouped by hash value.</em></p>")
