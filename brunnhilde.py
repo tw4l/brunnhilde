@@ -114,6 +114,13 @@ a.anchor {
   visibility: hidden;
 }
 
+hr {
+  width: 25%;
+  color: #ddd;
+  text-align: left;
+  margin-left: 0;
+}
+
 .hidden {
   display: none;
 }
@@ -527,8 +534,7 @@ def create_html_report(
     html.write(
         "\n<p><strong>Empty (zero byte) files:</strong> {}</p>".format(empty_files)
     )
-
-    html.write("\n<br>")
+    html.write("\n<hr>")
     html.write(
         "\n<p><strong>Years (last modified):</strong> {begin} - {end}</p>".format(
             begin=begin_date, end=end_date
@@ -536,8 +542,7 @@ def create_html_report(
     )
     html.write("\n<p><strong>Earliest date:</strong> {}</p>".format(earliest_date))
     html.write("\n<p><strong>Latest date:</strong> {}</p>".format(latest_date))
-
-    html.write("\n<br>")
+    html.write("\n<hr>")
     html.write(
         "\n<p><strong>Identified file formats:</strong> {}</p>".format(num_formats)
     )
@@ -548,8 +553,7 @@ def create_html_report(
         html.write(' <a href="#Unidentified">(see list)</a></p>')
     else:
         html.write(" </p>")
-
-    html.write("\n<br>")
+    html.write("\n<hr>")
     if args.warnings:
         html.write("\n<p><strong>Siegfried warnings:</strong> {}".format(num_warnings))
         if num_warnings:
