@@ -123,24 +123,24 @@ def _configure_logging(dest):
 
 
 def log_info(msg, time_warning=False):
-    """Log info message and print to stdout."""
+    """Log info message with optional time warning"""
     if time_warning:
         msg += " This might take a while..."
     logger.info(msg)
 
 
 def log_error_and_exit_message(msg, skip_logging=False):
-    """Log error message and print to stderr."""
+    """Log error and shutdown message"""
     shutdown_msg = "Brunnhilde was unable to finish processing. Shutting down."
     logger.error(msg)
     logger.error(shutdown_msg)
 
 
 def _determine_hash_type(args):
-    """Return hash_type value to use as argument for Siegfried.
+    """Return hash_type value to use as argument for Siegfried
 
-        Defaulting to md5 if no or invalid user input.
-        """
+    Defaults to md5 if no or invalid user input.
+    """
     HASH_CHOICES = ("sha1", "sha256", "sha512")
     if args.hash and args.hash.lower() in HASH_CHOICES:
         return args.hash.lower()
@@ -217,15 +217,18 @@ def run_bulk_extractor(args, source_dir, ssn_mode):
         cmd.insert(1, "-F")
         cmd.insert(2, args.regex)
     try:
-        output = subprocess.check_output(cmd, stderr=subprocess.STDOUT)
-        with open(bulk_extractor_log, "w") as log_file:
-            log_file.write(output.decode())
+        if sys.version_info > (3, 0):
+            log_file = open(bulk_extractor_log, "w", encoding="utf-8")
+        else:
+            log_file = open(bulk_extractor_log, "wb")
+        subprocess.call(cmd, stderr=subprocess.STDOUT, stdout=log_file)
+        log_file.close()
     except subprocess.CalledProcessError as e:
         logger.warning("Error running bulk_extractor: {}".format(e))
 
 
 def convert_size(size):
-    # convert size to human-readable form
+    """Convert size in bytes to human-readable expression"""
     if size == 0:
         return "0 bytes"
     size_name = ("bytes", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB")
@@ -238,7 +241,7 @@ def convert_size(size):
 
 
 def import_csv(cursor, conn, use_hash):
-    """Import csv file into sqlite db.
+    """Import csv file into sqlite db
 
     Returns use_hash as a mechanism for updating the value if the input
     Siegfried CSV is found to have a hash column. This provides a
@@ -298,8 +301,7 @@ def create_html_report(
     args, source_dir, scan_started, cursor, html, siegfried_version, use_hash,
 ):
     """Get aggregate statistics and write to html report"""
-
-    # get stats from sqlite db
+    # Gather stats from database.
     cursor.execute("SELECT COUNT(*) from siegfried;")  # total files
     num_files = cursor.fetchone()[0]
 
@@ -448,43 +450,25 @@ def create_html_report(
     html.write('\n<meta charset="utf-8">')
     html.write('\n<style type="text/css">{}</style>'.format(CSS))
     html.write("\n</head>")
-    html.write('\n<body>')
+    html.write("\n<body>")
     # navbar
     html.write("\n<header>")
     html.write("\n<h1>Brunnhilde HTML report</h1>")
     html.write("\n<nav>")
-    html.write(
-        '\n<a href="#Provenance">Provenance</a>'
-    )
+    html.write('\n<a href="#Provenance">Provenance</a>')
     html.write('\n<a href="#Stats">Statistics</a>')
     if not (args.noclam or sys.platform.startswith("win")):
-        html.write(
-            '\n<a href="#Virus report">Virus report</a>'
-        )
-    html.write(
-        '\n<a href="#File formats">File formats</a>'
-    )
-    html.write(
-        '\n<a href="#File format versions">Versions</a>'
-    )
-    html.write(
-        '\n<a href="#MIME types">MIME types</a>'
-    )
-    html.write(
-        '\n<a href="#Last modified dates by year">Dates</a>'
-    )
-    html.write(
-        '\n<a href="#Unidentified">Unidentified</a>'
-    )
+        html.write('\n<a href="#Virus report">Virus report</a>')
+    html.write('\n<a href="#File formats">File formats</a>')
+    html.write('\n<a href="#File format versions">Versions</a>')
+    html.write('\n<a href="#MIME types">MIME types</a>')
+    html.write('\n<a href="#Last modified dates by year">Dates</a>')
+    html.write('\n<a href="#Unidentified">Unidentified</a>')
     if args.warnings:
-        html.write(
-            '\n<a href="#Warnings">Warnings</a>'
-        )
+        html.write('\n<a href="#Warnings">Warnings</a>')
     html.write('\n<a href="#Errors">Errors</a>')
     if use_hash:
-        html.write(
-            '\n<a href="#Duplicates">Duplicates</a>'
-        )
+        html.write('\n<a href="#Duplicates">Duplicates</a>')
     if args.bulkextractor:
         html.write('\n<a href="#SSNs">SSNs</a>')
     html.write("\n</nav>")
@@ -492,7 +476,7 @@ def create_html_report(
     # provenance
     html.write("\n<div>")
     html.write('\n<a name="Provenance"></a>')
-    html.write('\n<h2>Provenance</h2>')
+    html.write("\n<h2>Provenance</h2>")
     html.write(
         "\n<p><strong>Input source (directory or disk image):</strong> {}</p>".format(
             source
@@ -512,7 +496,7 @@ def create_html_report(
     # statistics
     html.write('\n<a name="Stats"></a>')
     html.write("\n<div>")
-    html.write('\n<h2>Statistics</h2>')
+    html.write("\n<h2>Statistics</h2>")
     html.write("\n<h3>Overview</h3>")
     html.write("\n<p><strong>Total files:</strong> {}</p>".format(num_files))
     if use_hash:
@@ -565,7 +549,7 @@ def create_html_report(
     if not (args.noclam or sys.platform.startswith("win")):
         html.write('\n<a name="Virus report"></a>')
         html.write("\n<div>")
-        html.write('\n<h2>Virus report</h2>')
+        html.write("\n<h2>Virus report</h2>")
         with open(os.path.join(log_dir, "viruscheck-log.txt")) as f:
             for line in f:
                 html.write("\n<p>{}</p>".format(line))
@@ -630,7 +614,15 @@ def generate_reports(args, cursor, html, use_hash):
     # warnings report
     sql = "SELECT filename, errors, id, format, version, basis, warning FROM siegfried WHERE warning <> '';"
     path = os.path.join(csv_dir, "warnings.csv")
-    warnings_header = ["File", "Errors", "ID", "Format", "Version", "Basis for ID", "Warning"]
+    warnings_header = [
+        "File",
+        "Errors",
+        "ID",
+        "Format",
+        "Version",
+        "Basis for ID",
+        "Warning",
+    ]
     sqlite_to_csv(sql, path, warnings_header, cursor)
     if args.warnings:
         write_html_report_section("Warnings", path, ",", html)
@@ -651,7 +643,7 @@ def generate_reports(args, cursor, html, use_hash):
 
 
 def sqlite_to_csv(sql, path, header, cursor):
-    """Execute SQL query and write results, if any, to a CSV file.
+    """Execute SQL query and write results, if any, to a CSV file
 
     In Python 3, specify newline to prevent extra lines in Windows.
     In Python 2, write the CSV in byte mode.
@@ -672,7 +664,7 @@ def sqlite_to_csv(sql, path, header, cursor):
 
 
 def write_html_report_section(header, path, file_delimiter, html):
-    """Write HTML report section from an input CSV file or bulk_extractor feature file.
+    """Write HTML report section from input CSV file or bulk_extractor feature file
 
     If expected source doesn't exist, write default message instead.
     """
@@ -890,9 +882,7 @@ def accept_or_run_siegfried(args, source_dir, use_hash):
         try:
             shutil.copyfile(os.path.abspath(args.csv), sf_file)
         except (IOError, OSError) as e:
-            log_error_and_exit_message(
-                "Unable to copy CSV file: {}".format(e)
-            )
+            log_error_and_exit_message("Unable to copy CSV file: {}".format(e))
             sys.exit(1)
 
     elif args.stdin:
@@ -1000,16 +990,12 @@ def carve_files_with_tsk_recover(args, html, out_dir, disk_image):
 def create_dfxml():
     """Create DFXML with fiwalk"""
     fiwalk_file = os.path.join(report_dir, "dfxml.xml")
-    log_info(
-        "Attempting to generate DFXML file from disk image using fiwalk."
-    )
+    log_info("Attempting to generate DFXML file from disk image using fiwalk.")
     try:
         subprocess.check_output(["fiwalk", "-X", fiwalk_file, source])
         log_info("DFXML file created.")
     except subprocess.CalledProcessError as e:
-        logger.warning(
-            "Fiwalk could not create DFXML for disk: {}".format(e.output)
-        )
+        logger.warning("Fiwalk could not create DFXML for disk: {}".format(e.output))
 
 
 def close_files_conns_on_exit(html, conn, cursor, report_dir):
