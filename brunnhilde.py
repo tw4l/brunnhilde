@@ -524,7 +524,9 @@ def create_html_report(
             )
         else:
             html.write(' <a href="#Duplicates">(see list)</a></p>')
-    html.write("\n<p><strong>Empty (zero byte) files:</strong> {}</p>".format(empty_files))
+    html.write(
+        "\n<p><strong>Empty (zero byte) files:</strong> {}</p>".format(empty_files)
+    )
 
     html.write("\n<br>")
     html.write(
@@ -1144,12 +1146,14 @@ def _make_parser():
     )
     parser.add_argument(
         "--csv",
-        help="Path to Siegfried CSV file to read as input",
+        help="Path to Siegfried CSV file to read as input (directories only)",
         action="store",
         type=str,
     )
     parser.add_argument(
-        "--stdin", help="Read Siegfried CSV from piped stdin", action="store_true"
+        "--stdin",
+        help="Read Siegfried CSV from piped stdin (directories only)",
+        action="store_true",
     )
     parser.add_argument(
         "-o",
@@ -1217,18 +1221,17 @@ def main():
         if exception.errno != errno.EEXIST:
             raise
 
-    log_info("Brunnhilde started. Source: {}.".format(source))
-
+    # Check that Siegfried is installed and save version.
     try:
         siegfried_version = subprocess.check_output(["sf", "-version"]).decode()
     except subprocess.CalledProcessError:
         log_error_and_exit_message(
-            "Siegfried not installed or available on PATH."
+            "Siegfried is not installed or available on PATH. "
             "Please ensure that all dependencies are properly installed."
         )
         sys.exit(1)
 
-    # Check that source type is correct
+    # Check that source type is correct.
     if args.diskimage and not os.path.isfile(source):
         log_error_and_exit_message(
             "Source is not a file. Do not use the -d/--diskimage argument unless source is a disk image."
@@ -1239,6 +1242,15 @@ def main():
             "Source is not a directory. Use the -d/--diskimage argument if source is a disk image."
         )
         sys.exit(1)
+
+    # Check that Siegfried CSV options were not used with disk image source.
+    if args.diskimage and (args.csv or args.stdin):
+        log_error_and_exit_message(
+            "Use of the --stdin and --csv options is not supported for disk images."
+        )
+        sys.exit(1)
+
+    log_info("Brunnhilde started. Source: {}.".format(source))
 
     use_hash = True
     if args.hash == "none":
