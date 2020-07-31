@@ -129,7 +129,7 @@ def log_info(msg, time_warning=False):
     logger.info(msg)
 
 
-def log_error_and_exit_message(msg, skip_logging=False):
+def log_error_and_exit_message(msg):
     """Log error and shutdown message"""
     shutdown_msg = "Brunnhilde was unable to finish processing. Shutting down."
     logger.error(msg)
@@ -223,6 +223,7 @@ def run_bulk_extractor(args, source_dir, ssn_mode):
             log_file = open(bulk_extractor_log, "wb")
         subprocess.call(cmd, stderr=subprocess.STDOUT, stdout=log_file)
         log_file.close()
+        log_info("bulk_extractor scan complete.")
     except subprocess.CalledProcessError as e:
         logger.warning("Error running bulk_extractor: {}".format(e))
 
@@ -668,8 +669,8 @@ def write_html_report_section(header, path, file_delimiter, html):
 
     If expected source doesn't exist, write default message instead.
     """
-    csv_exists = True
-    if os.path.exists(path):
+    input_exists = True
+    if os.path.isfile(path) and os.path.getsize(path) > 0:
         if sys.version_info > (3, 0):
             in_file = open(path, "r", encoding="utf8")
         else:
@@ -677,7 +678,7 @@ def write_html_report_section(header, path, file_delimiter, html):
         # open csv reader
         r = csv.reader(in_file, delimiter="%s" % file_delimiter)
     else:
-        csv_exists = False
+        input_exists = False
 
     # write header
     html.write('\n<a name="{}"></a>'.format(header))
@@ -690,7 +691,7 @@ def write_html_report_section(header, path, file_delimiter, html):
         )
 
     DEFAULT_TEXT = "\nNone found.\n<br><br>"
-    if not csv_exists:
+    if not input_exists:
         html.write(DEFAULT_TEXT)
         return
 
@@ -1178,17 +1179,14 @@ def main():
     # Create report directory
     if os.path.exists(report_dir):
         if not args.overwrite:
-            log_error_and_exit_message(
-                "Output directory already exists.", skip_logging=True
-            )
+            log_error_and_exit_message("Output directory already exists.")
             sys.exit(1)
 
         try:
             shutil.rmtree(report_dir)
         except OSError as e:
             log_error_and_exit_message(
-                "Unable to delete existing output directory: {}".format(e),
-                skip_logging=True,
+                "Unable to delete existing output directory: {}".format(e)
             )
             sys.exit(1)
 
