@@ -111,8 +111,8 @@ optional arguments:
   -z, --scanarchives    Decompress and scan zip, tar, gzip, warc, arc with
                         Siegfried
   -o, --overwrite       Overwrite reports directory if it already exists
-  --csv CSV             Path to Siegfried CSV file to read as input
-  --stdin               Read Siegfried CSV from piped stdin
+  --csv CSV             Path to Siegfried CSV file to read as input (directories only)
+  --stdin               Read Siegfried CSV from piped stdin (directories only)
 
 ```  
   
@@ -169,6 +169,8 @@ To enable scanning of archive files (zip, tar, gzip, warc, arc), pass `-z` or `-
 To force Siegfried to pause for 1 second between file scans, pass `-t` or `--throttle` as an argument. 
 
 To force Siegfried to log verbose output to the terminal while processing, pass `-v` or `--verbosesf` as an argument.
+
+In Brunnhilde 1.9+, you can pass Brunnhilde a Siegfried CSV file via piped stdin with the `--stdin` flag or by providing the path to a Siegfried CSV file with `--csv CSV`. The `--stdin` and `--csv CSV` options are limited to directory sources and do not work with disk images. When using these options, make sure that the `source` argument passed to Brunnhilde matches the directory scanned by Siegfried. Otherwise some options (e.g. virus scanning, running bulk_extractor) and statistics (e.g. total size) will not work as expected.
 
 ### Specifying hash type  
 
