@@ -514,7 +514,7 @@ def create_html_report(
     html.write(
         "\n<p><strong>Brunnhilde version:</strong> {}</p>".format(BRUNNHILDE_VERSION)
     )
-    if not (args.csv_file or args.stdin):
+    if not (args.csv or args.stdin):
         html.write(
             "\n<p><strong>Siegfried version:</strong> {}</p>".format(siegfried_version)
         )
@@ -898,9 +898,9 @@ def make_tree(source_dir):
 
 def accept_or_run_siegfried(args, source_dir, use_hash):
     """Write file/stdin Siegfried CSV to sf_file or run Siegfried to create it"""
-    if args.csv_file:
+    if args.csv:
         try:
-            shutil.copyfile(os.path.abspath(args.csv_file), sf_file)
+            shutil.copyfile(os.path.abspath(args.csv), sf_file)
         except (IOError, OSError) as e:
             print_and_log_error_and_exit_message(
                 "Unable to copy CSV file: {}".format(e)
@@ -1151,7 +1151,7 @@ def _make_parser():
         action="store_true",
     )
     parser.add_argument(
-        "--csv_file",
+        "--csv",
         help="Path to Siegfried CSV file to read as input",
         action="store",
         type=str,
