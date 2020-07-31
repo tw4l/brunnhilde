@@ -60,7 +60,11 @@ h1 {
 }
 
 nav a {
-  padding: 0px 10px 0px 10px;
+  padding-right: 10px;
+}
+
+nav a:not(:first-child) {
+  padding-left: 10px;
 }
 
 nav a:not(:last-child) {
