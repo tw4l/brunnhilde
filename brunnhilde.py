@@ -873,7 +873,7 @@ def add_pronom_link_for_puids(text):
     """If text is a PUID, add a link to the PRONOM website"""
     PUID_REGEX = r"fmt\/[0-9]+|x\-fmt\/[0-9]+"  # regex to match fmt/# or x-fmt/#
     if re.match(PUID_REGEX, text) is not None:
-        return '<a href="http://nationalarchives.gov.uk/PRONOM/{}" target="_blank">{}</a>'.format(
+        return '<a href="https://nationalarchives.gov.uk/PRONOM/{}" target="_blank">{}</a>'.format(
             text, text
         )
     return text
