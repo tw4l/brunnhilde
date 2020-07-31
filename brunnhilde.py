@@ -511,10 +511,7 @@ def create_html_report(
     html.write("\n<h2>Statistics</h2>")
     html.write("\n<p><strong>Total files:</strong> {}</p>".format(num_files))
     html.write("\n<p><strong>Total size:</strong> {}</p>".format(size))
-    html.write("\n<p><strong>Empty files:</strong> {}</p>".format(empty_files))
-
     if use_hash:
-        html.write("\n<br>")
         html.write(
             "\n<p><strong>Distinct files:</strong> {}</p>".format(distinct_files)
         )
@@ -527,6 +524,7 @@ def create_html_report(
             )
         else:
             html.write(' <a href="#Duplicates">(see list)</a></p>')
+    html.write("\n<p><strong>Empty (zero byte) files:</strong> {}</p>".format(empty_files))
 
     html.write("\n<br>")
     html.write(
