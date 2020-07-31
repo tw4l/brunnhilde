@@ -1198,7 +1198,9 @@ def main():
     # Create report directory
     if os.path.exists(report_dir):
         if not args.overwrite:
-            log_error_and_exit_message("Output directory already exists.")
+            log_error_and_exit_message(
+                "Output directory already exists. To overwrite, use the -o/--overwrite option."
+            )
             sys.exit(1)
 
         try:
