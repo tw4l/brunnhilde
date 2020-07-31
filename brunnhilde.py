@@ -120,7 +120,7 @@ a.anchor {
 """
 
 
-def _configure_logging(dest):
+def _configure_logging():
     global logger
     logger = logging.getLogger()
     logger.setLevel(logging.INFO)
@@ -1177,6 +1177,8 @@ def main():
     parser = _make_parser()
     args = parser.parse_args()
 
+    _configure_logging()
+
     global source, destination, basename, report_dir, csv_dir, log_dir, bulkext_dir, sf_file, ssn_mode
     source = os.path.abspath(args.source)
     destination = os.path.abspath(args.destination)
@@ -1213,7 +1215,6 @@ def main():
         if exception.errno != errno.EEXIST:
             raise
 
-    _configure_logging(report_dir)
     log_info("Brunnhilde started. Source: {}.".format(source))
 
     try:
