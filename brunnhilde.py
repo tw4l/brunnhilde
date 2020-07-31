@@ -116,36 +116,24 @@ def _configure_logging(dest):
     global logger
     logger = logging.getLogger()
     logger.setLevel(logging.INFO)
-    handler = logging.FileHandler(os.path.join(dest, "brunnhilde.log"), "w", "utf-8")
+    handler = logging.StreamHandler(stream=sys.stdout)
     formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
     handler.setFormatter(formatter)
     logger.addHandler(handler)
 
 
-def print_and_log_info(msg, time_warning=False):
+def log_info(msg, time_warning=False):
     """Log info message and print to stdout."""
-    logger.info(msg)
     if time_warning:
         msg += " This might take a while..."
-    print("\n" + msg)
+    logger.info(msg)
 
 
-def print_and_log_warning(msg):
-    """Log warning message and print to stderr."""
-    print("\n" + msg, file=sys.stderr)
-    logger.warning(msg)
-
-
-def print_and_log_error_and_exit_message(msg, skip_logging=False):
+def log_error_and_exit_message(msg, skip_logging=False):
     """Log error message and print to stderr."""
-    print("\n" + msg, file=sys.stderr)
-
     shutdown_msg = "Brunnhilde was unable to finish processing. Shutting down."
-    print("\n" + shutdown_msg, file=sys.stderr)
-
-    if not skip_logging:
-        logger.error(msg)
-        logger.error(shutdown_msg)
+    logger.error(msg)
+    logger.error(shutdown_msg)
 
 
 def _determine_hash_type(args):
@@ -161,7 +149,7 @@ def _determine_hash_type(args):
 
 def run_siegfried(args, source_dir, use_hash):
     """Run siegfried on directory"""
-    print_and_log_info("Running Siegfried.", time_warning=True)
+    log_info("Running Siegfried.", time_warning=True)
     global sf_command
     if use_hash:
         hash_type = _determine_hash_type(args)
@@ -175,13 +163,13 @@ def run_siegfried(args, source_dir, use_hash):
     if args.verbosesf:
         sf_command = sf_command.replace(" -hash", " -log p,t -hash")
     subprocess.call(sf_command, shell=True)
-    print_and_log_info("Siegfried scan complete. Processing results.")
+    log_info("Siegfried scan complete. Processing results.")
 
 
 def run_clamav(args, source_dir):
     """Run ClamAV on directory"""
     timestamp = str(datetime.datetime.now())
-    print_and_log_info("Running virus check.", time_warning=True)
+    log_info("Running virus check.", time_warning=True)
     virus_log = os.path.join(log_dir, "viruscheck-log.txt")
     if args.largefiles:
         clamav_command = (
@@ -198,19 +186,19 @@ def run_clamav(args, source_dir):
     # check log for infected files
     if os.path.getsize(virus_log) > 40:  # check to see if clamscan actually ran
         if "Infected files: 0" not in open(virus_log).read():
-            print_and_log_warning(
+            logger.warning(
                 "INFECTED FILE(S) FOUND. See {} for details.".format(virus_log)
             )
         else:
-            print_and_log_info("No viruses found.")
+            log_info("No viruses found.")
     else:
-        print_and_log_warning("ClamAV not properly configured.")
+        logger.warning("ClamAV not properly configured.")
 
 
 def run_bulk_extractor(args, source_dir, ssn_mode):
     """Run bulk extractor on directory"""
     bulk_extractor_log = os.path.join(log_dir, "bulk_extractor-log.txt")
-    print_and_log_info("Running bulk_extractor.", time_warning=True)
+    log_info("Running bulk_extractor.", time_warning=True)
     try:
         os.makedirs(bulkext_dir)
     except OSError as exception:
@@ -233,7 +221,7 @@ def run_bulk_extractor(args, source_dir, ssn_mode):
         with open(bulk_extractor_log, "w") as log_file:
             log_file.write(output.decode())
     except subprocess.CalledProcessError as e:
-        print_and_log_warning("Error running bulk_extractor: {}".format(e))
+        logger.warning("Error running bulk_extractor: {}".format(e))
 
 
 def convert_size(size):
@@ -445,7 +433,7 @@ def create_html_report(
                     file_info = os.stat(file_path)
                     size_bytes += file_info.st_size
                 except OSError as e:  # report when Brunnhilde can't find file
-                    print_and_log_warning(
+                    logger.warning(
                         "OSError: {}. File size of this file not included in Brunnhilde HTML report statistics.".format(
                             file_path
                         )
@@ -902,7 +890,7 @@ def accept_or_run_siegfried(args, source_dir, use_hash):
         try:
             shutil.copyfile(os.path.abspath(args.csv), sf_file)
         except (IOError, OSError) as e:
-            print_and_log_error_and_exit_message(
+            log_error_and_exit_message(
                 "Unable to copy CSV file: {}".format(e)
             )
             sys.exit(1)
@@ -919,7 +907,7 @@ def accept_or_run_siegfried(args, source_dir, use_hash):
                 csv_writer.writerow(line)
             csv_out.close()
         except Exception as e:
-            print_and_log_error_and_exit_message(
+            log_error_and_exit_message(
                 "Unable to read CSV from piped stdin: {}".format(e)
             )
             sys.exit(1)
@@ -968,12 +956,12 @@ def carve_files_with_unhfs(args, html, out_dir, disk_image):
         cmd.insert(1, "-fsroot")
         cmd.insert(2, args.hfs_fsroot)
 
-    print_and_log_info("Attempting to carve files from disk image using HFS Explorer.")
+    log_info("Attempting to carve files from disk image using HFS Explorer.")
     try:
         subprocess.check_output(cmd)
-        print_and_log_info("File carving successful.")
+        log_info("File carving successful.")
     except subprocess.CalledProcessError as e:
-        print_and_log_error_and_exit_message(
+        log_error_and_exit_message(
             "Unable to export files from disk image: {}".format(e.output)
         )
         close_files_conns_on_exit(html, conn, cursor, report_dir)
@@ -997,12 +985,12 @@ def carve_files_with_tsk_recover(args, html, out_dir, disk_image):
         cmd.insert(2, "-o")
         cmd.insert(3, args.tsk_sector_offset)
 
-    print_and_log_info("Attempting to carve files from disk image using tsk_recover.")
+    log_info("Attempting to carve files from disk image using tsk_recover.")
     try:
         subprocess.check_output(cmd)
-        print_and_log_info("File carving successful.")
+        log_info("File carving successful.")
     except subprocess.CalledProcessError as e:
-        print_and_log_error_and_exit_message(
+        log_error_and_exit_message(
             "Unable to export files from disk image: {}".format(e.output)
         )
         close_files_conns_on_exit(html, conn, cursor, report_dir)
@@ -1012,14 +1000,14 @@ def carve_files_with_tsk_recover(args, html, out_dir, disk_image):
 def create_dfxml():
     """Create DFXML with fiwalk"""
     fiwalk_file = os.path.join(report_dir, "dfxml.xml")
-    print_and_log_info(
+    log_info(
         "Attempting to generate DFXML file from disk image using fiwalk."
     )
     try:
         subprocess.check_output(["fiwalk", "-X", fiwalk_file, source])
-        print_and_log_info("DFXML file created.")
+        log_info("DFXML file created.")
     except subprocess.CalledProcessError as e:
-        print_and_log_warning(
+        logger.warning(
             "Fiwalk could not create DFXML for disk: {}".format(e.output)
         )
 
@@ -1204,7 +1192,7 @@ def main():
     # Create report directory
     if os.path.exists(report_dir):
         if not args.overwrite:
-            print_and_log_error_and_exit_message(
+            log_error_and_exit_message(
                 "Output directory already exists.", skip_logging=True
             )
             sys.exit(1)
@@ -1212,7 +1200,7 @@ def main():
         try:
             shutil.rmtree(report_dir)
         except OSError as e:
-            print_and_log_error_and_exit_message(
+            log_error_and_exit_message(
                 "Unable to delete existing output directory: {}".format(e),
                 skip_logging=True,
             )
@@ -1225,12 +1213,12 @@ def main():
             raise
 
     _configure_logging(report_dir)
-    print_and_log_info("Brunnhilde started. Source: {}.".format(source))
+    log_info("Brunnhilde started. Source: {}.".format(source))
 
     try:
         siegfried_version = subprocess.check_output(["sf", "-version"]).decode()
     except subprocess.CalledProcessError:
-        print_and_log_error_and_exit_message(
+        log_error_and_exit_message(
             "Siegfried not installed or available on PATH."
             "Please ensure that all dependencies are properly installed."
         )
@@ -1238,12 +1226,12 @@ def main():
 
     # Check that source type is correct
     if args.diskimage and not os.path.isfile(source):
-        print_and_log_error_and_exit_message(
+        log_error_and_exit_message(
             "Source is not a file. Do not use the -d/--diskimage argument unless source is a disk image."
         )
         sys.exit(1)
     elif not args.diskimage and os.path.isfile(source):
-        print_and_log_error_and_exit_message(
+        log_error_and_exit_message(
             "Source is not a directory. Use the -d/--diskimage argument if source is a disk image."
         )
         sys.exit(1)
@@ -1283,7 +1271,7 @@ def main():
     # If source is a disk image, carve files for analysis and create DFXML if possible
     if args.diskimage:
         if sys.platform.startswith("win"):
-            print_and_log_error_and_exit_message(
+            log_error_and_exit_message(
                 "Disk images not supported as inputs in Windows."
             )
             close_files_conns_on_exit(html, conn, cursor, report_dir)
@@ -1328,7 +1316,7 @@ def main():
     if not args.keepsqlite:
         os.remove(os.path.join(report_dir, "siegfried.sqlite"))
 
-    print_and_log_info(
+    log_info(
         "Brunnhilde characterization complete. Reports written to %s." % report_dir
     )
 
