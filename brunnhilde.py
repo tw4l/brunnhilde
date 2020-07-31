@@ -40,7 +40,7 @@ BRUNNHILDE_VERSION = "brunnhilde 1.9.0"
 CSS = """
 body {
   font-family: Arial, Helvetica, sans-serif;
-  margin: 120px 20px 20px 20px;
+  margin: 100px 20px 20px 20px;
   padding: 10px;
   width: 95%;
 }
@@ -60,7 +60,11 @@ h1 {
 }
 
 nav a {
-  padding-right: 30px;
+  padding: 0px 10px 0px 10px;
+}
+
+nav a:not(:last-child) {
+  border-right: 1px solid #ddd;
 }
 
 div {
@@ -102,7 +106,7 @@ a {
 a.anchor {
   display: block;
   position: relative;
-  top: -100px;
+  top: -120px;
   visibility: hidden;
 }
 
@@ -452,6 +456,7 @@ def create_html_report(
     html.write('\n<style type="text/css">{}</style>'.format(CSS))
     html.write("\n</head>")
     html.write("\n<body>")
+
     # navbar
     html.write("\n<header>")
     html.write("\n<h1>Brunnhilde HTML report</h1>")
@@ -474,6 +479,7 @@ def create_html_report(
         html.write('\n<a href="#SSNs">SSNs</a>')
     html.write("\n</nav>")
     html.write("\n</header>")
+
     # provenance
     html.write("\n<div>")
     html.write('\n<a class="anchor" name="Provenance"></a>')
@@ -494,13 +500,17 @@ def create_html_report(
         html.write("\n<p><strong>Siegfried command:</strong> {}</p>".format(sf_command))
     html.write("\n<p><strong>Scan started:</strong> {}</p>".format(scan_started))
     html.write("\n</div>")
+
     # statistics
-    html.write('\n<a class="anchor" name="Stats"></a>')
     html.write("\n<div>")
+    html.write('\n<a class="anchor" name="Stats"></a>')
     html.write("\n<h2>Statistics</h2>")
-    html.write("\n<h3>Overview</h3>")
     html.write("\n<p><strong>Total files:</strong> {}</p>".format(num_files))
+    html.write("\n<p><strong>Total size:</strong> {}</p>".format(size))
+    html.write("\n<p><strong>Empty files:</strong> {}</p>".format(empty_files))
+
     if use_hash:
+        html.write("\n<br>")
         html.write(
             "\n<p><strong>Distinct files:</strong> {}</p>".format(distinct_files)
         )
@@ -514,8 +524,7 @@ def create_html_report(
         else:
             html.write(' <a href="#Duplicates">(see list)</a></p>')
 
-    html.write("\n<p><strong>Empty files:</strong> {}</p>".format(empty_files))
-    html.write("\n<p><strong>Total size:</strong> {}</p>".format(size))
+    html.write("\n<br>")
     html.write(
         "\n<p><strong>Years (last modified):</strong> {begin} - {end}</p>".format(
             begin=begin_date, end=end_date
@@ -523,7 +532,8 @@ def create_html_report(
     )
     html.write("\n<p><strong>Earliest date:</strong> {}</p>".format(earliest_date))
     html.write("\n<p><strong>Latest date:</strong> {}</p>".format(latest_date))
-    html.write("\n<h3>Format identification</h3>")
+
+    html.write("\n<br>")
     html.write(
         "\n<p><strong>Identified file formats:</strong> {}</p>".format(num_formats)
     )
@@ -534,18 +544,21 @@ def create_html_report(
         html.write(' <a href="#Unidentified">(see list)</a></p>')
     else:
         html.write(" </p>")
-    html.write("\n<p><strong>Siegfried warnings:</strong> {}".format(num_warnings))
-    if args.warnings and num_warnings:
-        html.write(' <a href="#Warnings">(see list)</a></p>')
-    else:
-        html.write(" </p>")
-    html.write("\n<h3>Errors</h3>")
+
+    html.write("\n<br>")
+    if args.warnings:
+        html.write("\n<p><strong>Siegfried warnings:</strong> {}".format(num_warnings))
+        if num_warnings:
+            html.write(' <a href="#Warnings">(see list)</a></p>')
+        else:
+            html.write(" </p>")
     html.write("\n<p><strong>Siegfried errors:</strong> {}".format(num_errors))
     if num_errors:
         html.write(' <a href="#Errors">(see list)</a></p>')
     else:
         html.write(" </p>")
     html.write("\n</div>")
+
     # virus report
     if not (args.noclam or sys.platform.startswith("win")):
         html.write('\n<a class="anchor" name="Virus report"></a>')
@@ -681,6 +694,7 @@ def write_html_report_section(header, path, file_delimiter, html):
         input_exists = False
 
     # write header
+    html.write("\n<div>")
     html.write('\n<a class="anchor" name="{}"></a>'.format(header))
     html.write("\n<h2>{}</h2>".format(header))
     if header == "Duplicates":
@@ -845,6 +859,7 @@ def write_html_report_section(header, path, file_delimiter, html):
         html.write("\n</tbody>")
         html.write("\n</table>")
 
+    html.write("\n</div>")
     in_file.close()
 
 
