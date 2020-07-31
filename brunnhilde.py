@@ -563,8 +563,8 @@ def create_html_report(
 
     # virus report
     if not (args.noclam or sys.platform.startswith("win")):
-        html.write('\n<a class="anchor" name="Virus report"></a>')
         html.write("\n<div>")
+        html.write('\n<a class="anchor" name="Virus report"></a>')
         html.write("\n<h2>Virus report</h2>")
         with open(os.path.join(log_dir, "viruscheck-log.txt")) as f:
             for line in f:
