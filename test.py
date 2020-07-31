@@ -95,16 +95,6 @@ class TestBrunnhildeIntegration(SelfCleaningTestCase):
         # tree.txt
         if not sys.platform.startswith("win"):
             self.assertTrue(os.path.isfile(j(self.TEST_REPORT_DIR, "tree.txt")))
-        # javascript
-        self.assertTrue(
-            is_non_zero_file(j(self.TEST_REPORT_DIR, "js", "bootstrap.min.js"))
-        )
-        self.assertTrue(
-            is_non_zero_file(j(self.TEST_REPORT_DIR, "js", "jquery-3.5.1.slim.min.js"))
-        )
-        self.assertTrue(
-            is_non_zero_file(j(self.TEST_REPORT_DIR, "js", "popper.min.js"))
-        )
 
     def test_integration_outputs_created_diskimage(self):
         subprocess.call(
@@ -197,68 +187,6 @@ class TestBrunnhildeIntegration(SelfCleaningTestCase):
             shell=True,
         )
         self.assertTrue(is_non_zero_file(j(self.TEST_REPORT_DIR, "siegfried.sqlite")))
-
-
-class TestBrunnhildeAssetCaching(SelfCleaningTestCase):
-    """
-    Integration tests. sf (Siegfried) must be installed on user's system for tests to work.
-    """
-
-    def test_integration_cache_assets(self):
-        # Test that assets are cached after first run
-        subprocess.call(
-            'python brunnhilde.py ./test-data/files/ "%s" setup' % (self.dest_tmpdir),
-            shell=True,
-        )
-        cached_assets = j(os.path.expanduser("~"), ".brunnhilde", "js")
-        expected_assets = (
-            j(cached_assets, "bootstrap.min.js"),
-            j(cached_assets, "jquery-3.5.1.slim.min.js"),
-            j(cached_assets, "popper.min.js"),
-        )
-        for expected_asset in expected_assets:
-            self.assertTrue(is_non_zero_file(expected_asset))
-
-        # Test that cached files are used in subsequent runs (by modifying one of files)
-        original_file = j(cached_assets, "bootstrap.min.js")
-        modified_file = j(cached_assets, "modified-bootstrap.min.js")
-        os.rename(original_file, modified_file)
-
-        subprocess.call(
-            'python brunnhilde.py ./test-data/files/ "%s" cache-test'
-            % (self.dest_tmpdir),
-            shell=True,
-        )
-        self.assertTrue(
-            is_non_zero_file(
-                j(self.dest_tmpdir, "cache-test", "js", "modified-bootstrap.min.js",)
-            )
-        )
-        self.assertFalse(
-            os.path.isfile(j(self.dest_tmpdir, "cache-test", "js", "bootstrap.min.js"))
-        )
-
-        # Revert change to filename
-        os.rename(modified_file, original_file)
-
-    def test_integration_load_assets(self):
-        # Test that user can load cached assets from user-supplied path
-        asset_dir = j(self.dest_tmpdir, "fake-assets")
-        os.makedirs(asset_dir)
-        asset_file = j(asset_dir, "asset-test.js")
-        with open(asset_file, "w+") as f:
-            f.write("console.log('Hello world')")
-
-        subprocess.call(
-            'python brunnhilde.py --load_assets "%s" ./test-data/files/ "%s" load-test'
-            % (asset_dir, self.dest_tmpdir),
-            shell=True,
-        )
-        self.assertTrue(
-            is_non_zero_file(j(self.dest_tmpdir, "load-test", "js", "asset-test.js"))
-        )
-
-        shutil.rmtree(asset_dir)
 
 
 if __name__ == "__main__":
