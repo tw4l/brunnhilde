@@ -177,7 +177,7 @@ def run_siegfried(args, source_dir, use_hash):
 def run_clamav(args, source_dir):
     """Run ClamAV on directory"""
     timestamp = str(datetime.datetime.now())
-    log_info("Running virus check.", time_warning=True)
+    log_info("Running virus scan.", time_warning=True)
     virus_log = os.path.join(log_dir, "viruscheck-log.txt")
     if args.largefiles:
         clamav_command = (
@@ -1102,7 +1102,7 @@ def _make_parser():
         action="store_true",
     )
     parser.add_argument(
-        "-n", "--noclam", help="Skip ClamScan Virus Check", action="store_true"
+        "-n", "--noclam", help="Skip ClamAV virus scan", action="store_true"
     )
     parser.add_argument(
         "-r",

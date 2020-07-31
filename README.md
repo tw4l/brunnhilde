@@ -100,7 +100,7 @@ optional arguments:
   --hash HASH           Specify hash algorithm
   -k, --keepsqlite      Retain Brunnhilde-generated sqlite db after processing
   -l, --largefiles      Enable virus scanning of large files
-  -n, --noclam          Skip ClamScan Virus Check
+  -n, --noclam          Skip ClamAV virus scan
   -r, --removefiles     Delete 'carved_files' directory when done (disk image
                         input only)
   -t, --throttle        Pause for 1s between Siegfried scans
