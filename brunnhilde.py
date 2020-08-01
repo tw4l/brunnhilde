@@ -715,6 +715,7 @@ def write_html_report_section(header, path, file_delimiter, html):
     DEFAULT_TEXT = "\nNone found.\n<br><br>"
     if not input_exists:
         html.write(DEFAULT_TEXT)
+        html.write("\n</div>")
         return
 
     # if writing PII, handle separately
