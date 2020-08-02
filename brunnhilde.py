@@ -1150,6 +1150,16 @@ def _make_parser():
         action="store_true",
     )
     parser.add_argument(
+        "--save_assets",
+        help="DEPRECATED. Non-functional in Brunnhilde 1.9.1+ but retained for API stability",
+        action="store"
+    )
+    parser.add_argument(
+        "--load_assets",
+        help="DEPRECATED. Non-functional in Brunnhilde 1.9.1+ but retained for API stability",
+        action="store"
+    )
+    parser.add_argument(
         "--csv",
         help="Path to Siegfried CSV file to read as input (directories only)",
         action="store",
@@ -1174,8 +1184,8 @@ def _make_parser():
         default=None,
         help=(
             "DEPRECATED. Accession number or identifier, used as basename for outputs. "
-            "Maintained and respected if used to prevent breaking existing integrations. "
-            "Prefer calling Brunnhilde with `brunnhilde.py source destination`."
+            "Prefer using the new simpler `brunnhilde.py source destination` syntax. "
+            "The basename argument is retained for API stability and used when provided."
         ),
     )
 
@@ -1254,6 +1264,21 @@ def main():
             "Use of the --stdin and --csv options is not supported for disk images."
         )
         sys.exit(1)
+
+    # Print warnings for deprecated flags.
+    if args.save_assets or args.load_assets:
+        logger.warning(
+            "DEPRECATION NOTICE: --save_assets and --load_assets options are "
+            "deprecated. In Brunnhilde 1.9+, the HTML report has no external "
+            "JavaScript or CSS dependencies to be managed. The flags are "
+            "retained for API stability but are no longer functional."
+        )
+    if args.basename:
+        logger.warning(
+            "DEPRECATION NOTICE: The basename argument is deprecated in Brunnhilde 1.9.0. "
+            "Prefer using the new simpler `brunnhilde.py source destination` syntax. "
+            "The basename argument is retained for API stability and used if provided."
+        )
 
     log_info("Brunnhilde started. Source: {}.".format(source))
 

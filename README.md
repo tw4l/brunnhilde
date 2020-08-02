@@ -64,9 +64,10 @@ positional arguments:
   source                Path to source directory or disk image
   destination           Path to destination for reports
   basename              DEPRECATED. Accession number or identifier, used as
-                        basename for outputs. Maintained and respected if used to
-                        prevent breaking existing integrations. Prefer calling
-                        Brunnhilde with `brunnhilde.py source destination`.
+                        basename for outputs. Prefer using the new simpler
+                        `brunnhilde.py source destination` syntax. The
+                        basename argument is retained for API stability and
+                        used when provided.
 
 optional arguments:
   -h, --help            show this help message and exit
