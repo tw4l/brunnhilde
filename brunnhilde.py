@@ -331,12 +331,12 @@ def create_html_report(
         distinct_files = cursor.fetchone()[0]
 
         cursor.execute(
-            "SELECT COUNT(hash) FROM siegfried t1 WHERE EXISTS (SELECT 1 from siegfried t2 WHERE t2.hash = t1.hash AND t1.filename != t2.filename) AND filesize<>'0'"
+            "SELECT COALESCE(SUM(hash_count), 0) FROM (SELECT COUNT(hash) as hash_count FROM siegfried WHERE filesize<>'0' GROUP BY hash HAVING COUNT(hash) > 1 AND COUNT(DISTINCT filename) > 1);"
         )  # duplicates
         all_dupes = cursor.fetchone()[0]
 
         cursor.execute(
-            "SELECT COUNT(DISTINCT hash) FROM siegfried t1 WHERE EXISTS (SELECT 1 from siegfried t2 WHERE t2.hash = t1.hash AND t1.filename != t2.filename) AND filesize<>'0'"
+            "SELECT COUNT(DISTINCT hash) FROM (SELECT hash FROM siegfried WHERE filesize<>'0' GROUP BY hash HAVING COUNT(hash) > 1 AND COUNT(DISTINCT filename) > 1);"
         )  # distinct duplicates
         distinct_dupes = cursor.fetchone()[0]
 
@@ -658,7 +658,7 @@ def generate_reports(args, cursor, html, use_hash):
 
     if use_hash:
         # duplicates report
-        sql = "SELECT * FROM siegfried t1 WHERE EXISTS (SELECT 1 from siegfried t2 WHERE t2.hash = t1.hash AND t1.filename != t2.filename) AND filesize<>'0' ORDER BY hash;"
+        sql = "SELECT * FROM siegfried WHERE hash IN (SELECT hash FROM siegfried WHERE filesize<>'0' GROUP BY hash HAVING COUNT(hash) > 1 AND COUNT(DISTINCT filename) > 1) ORDER BY hash;"
         path = os.path.join(csv_dir, "duplicates.csv")
         sqlite_to_csv(sql, path, full_header, cursor)
         write_html_report_section("Duplicates", path, ",", html)
