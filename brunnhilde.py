@@ -743,88 +743,90 @@ def write_html_report_section(header, path, file_delimiter, html):
 
     # if writing duplicates, handle separately
     elif header == "Duplicates":
-        # read md5s from csv and write to list
-        hash_list = []
+        # read md5s from csv and write to dict
+        duplicates_dict = {}
         for row in r:
-            if row:
-                hash_list.append(row[4])
-        # deduplicate md5_list
-        hash_list = list(OrderedDict.fromkeys(hash_list))
+            if row and row[4]:
+                hash_value = row[4]
+                if hash_value not in duplicates_dict.keys():
+                    # Store info from first file with matching hash
+                    duplicates_dict[hash_value] = {
+                        "info": {
+                            "row_size": row[1],
+                            "row_errors": row[3],
+                            "row_id": row[6],
+                            "row_format": row[7],
+                            "row_format_version": row[8],
+                            "row_mime": row[9],
+                            "row_basis": row[10],
+                            "row_warning": row[11]
+                        },
+                        "files": []
+                        }
+                row_file_info = {"row_filename": row[0], "row_date_modified": row[2]}
+                duplicates_dict[hash_value]["files"].append(row_file_info)
+
+        # deduplicate md5_list and remove column header from list
+        hash_list = sorted(list(OrderedDict.fromkeys(duplicates_dict)))
         hash_list.remove("Checksum")
         # for each hash in md5_list, print header, file info, and list of matching files
         for hash_value in hash_list:
             html.write(
                 "\n<p>Files matching hash <strong>{}</strong>:</p>".format(hash_value)
             )
-            # Return to beginning of CSV file, look for first file with
-            # matching hash, print its info for the group, and break.
-            _return_csv_reader_to_start_of_file(in_file)
-            for row in r:
-                if row[4] == hash_value:
-                    row_size = row[1]
-                    row_size_readable = convert_size(int(row_size))
-                    row_errors = row[3]
-                    row_id = row[6]
-                    row_format = row[7]
-                    row_format_version = row[8]
-                    row_mime = row[9]
-                    row_basis = row[10]
-                    row_warning = row[11]
-
-                    html.write("\n<ul>")
-                    if " bytes" in row_size_readable:
-                        html.write(
-                            "\n<li><strong>Size:</strong> {} bytes</li>".format(
-                                row_size
-                            )
-                        )
-                    else:
-                        html.write(
-                            "\n<li><strong>Size:</strong> {bytes} bytes ({readable})</li>".format(
-                                bytes=row_size, readable=row_size_readable
-                            )
-                        )
-                    html.write(
-                        "\n<li><strong>ID:</strong> {}</li>".format(
-                            add_pronom_link_for_puids(row_id)
-                        )
+            # Print info for the group
+            hash_info = duplicates_dict[hash_value]["info"]
+            row_size_readable = convert_size(int(hash_info["row_size"]))
+            html.write("\n<ul>")
+            if " bytes" in row_size_readable:
+                html.write(
+                    "\n<li><strong>Size:</strong> {} bytes</li>".format(
+                        hash_info["row_size"]
                     )
-                    html.write(
-                        "\n<li><strong>Format:</strong> {}</li>".format(row_format)
+                )
+            else:
+                html.write(
+                    "\n<li><strong>Size:</strong> {bytes} bytes ({readable})</li>".format(
+                        bytes=hash_info["row_size"], readable=row_size_readable
                     )
-                    if row_format_version:
-                        html.write(
-                            "\n<li><strong>Format version:</strong> {}</li>".format(
-                                row_format_version
-                            )
-                        )
-                    if row_mime:
-                        html.write(
-                            "\n<li><strong>MIME type:</strong> {}</li>".format(row_mime)
-                        )
-                    if row_basis:
-                        html.write(
-                            "\n<li><strong>Basis for ID:</strong> {}</li>".format(
-                                row_basis
-                            )
-                        )
-                    if row_warning:
-                        html.write(
-                            "\n<li><strong>Warning:</strong> {}</li>".format(
-                                row_warning
-                            )
-                        )
-                    if row_errors:
-                        html.write(
-                            "\n<li><strong>Errors:</strong> {}</li>".format(row_errors)
-                        )
-                    html.write("\n</ul>")
+                )
+            html.write(
+                "\n<li><strong>ID:</strong> {}</li>".format(
+                    add_pronom_link_for_puids(hash_info["row_id"])
+                )
+            )
+            html.write(
+                "\n<li><strong>Format:</strong> {}</li>".format(hash_info["row_format"])
+            )
+            if hash_info["row_format_version"]:
+                html.write(
+                    "\n<li><strong>Format version:</strong> {}</li>".format(
+                        hash_info["row_format_version"]
+                    )
+                )
+            if hash_info["row_mime"]:
+                html.write(
+                    "\n<li><strong>MIME type:</strong> {}</li>".format(hash_info["row_mime"])
+                )
+            if hash_info["row_basis"]:
+                html.write(
+                    "\n<li><strong>Basis for ID:</strong> {}</li>".format(
+                        hash_info["row_basis"]
+                    )
+                )
+            if hash_info["row_warning"]:
+                html.write(
+                    "\n<li><strong>Warning:</strong> {}</li>".format(
+                        hash_info["row_warning"]
+                    )
+                )
+            if hash_info["row_errors"]:
+                html.write(
+                    "\n<li><strong>Errors:</strong> {}</li>".format(hash_info["row_errors"])
+                )
+            html.write("\n</ul>")
 
-                    break
-
-            # Return to beginning of CSV file again and write table of
-            # matching files (columns: filename, modified date).
-            _return_csv_reader_to_start_of_file(in_file)
+            # Write table of matching files (columns: filename, modified date)
             html.write("\n<table>")
             html.write("\n<thead>")
             html.write("\n<tr>")
@@ -832,15 +834,12 @@ def write_html_report_section(header, path, file_delimiter, html):
             html.write("\n</tr>")
             html.write("\n</thead>")
             html.write("\n<tbody>")
-            for row in r:
-                if row[4] == hash_value:
-                    row_filename = row[0]
-                    row_date_modified = row[2]
-                    # write data
-                    html.write("\n<tr>")
-                    html.write("\n<td>" + row_filename + "</td>")
-                    html.write("\n<td>" + row_date_modified + "</td>")
-                    html.write("\n</tr>")
+            for file_info in duplicates_dict[hash_value]["files"]:
+                # write data
+                html.write("\n<tr>")
+                html.write("\n<td>" + file_info["row_filename"] + "</td>")
+                html.write("\n<td>" + file_info["row_date_modified"] + "</td>")
+                html.write("\n</tr>")
             html.write("\n</tbody>")
             html.write("\n</table>")
             html.write("<br>")
