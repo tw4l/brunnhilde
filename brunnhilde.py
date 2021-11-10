@@ -187,12 +187,22 @@ def run_clamav(args, source_dir):
     log_info("Running virus scan.", time_warning=True)
     virus_log = os.path.join(log_dir, "viruscheck-log.txt")
     if args.largefiles:
-        clamav_command = (
-            'clamscan -i -r "%s" --max-scansize=0 --max-filesize=0 | tee "%s"'
-            % (source_dir, virus_log)
-        )
+        if sys.platform.startswith("win"):
+            clamav_command = (
+                'clamscan -i -r "%s" --max-scansize=0 --max-filesize=0 > "%s"'
+                % (source_dir, virus_log)
+            )
+        else:
+            clamav_command = (
+                'clamscan -i -r "%s" --max-scansize=0 --max-filesize=0 | tee "%s"
+                % (source_dir, virus_log)
+            )
+            
     else:
-        clamav_command = 'clamscan -i -r "%s" | tee "%s"' % (source_dir, virus_log)
+        if sys.platform.startswith("win"):
+            clamav_command = 'clamscan -i -r "%s" > "%s"' % (source_dir, virus_log)
+        else:
+            clamav_command = 'clamscan -i -r "%s" | tee "%s"' % (source_dir, virus_log)
     subprocess.call(clamav_command, shell=True)
     # add timestamp
     target = open(virus_log, "a")
@@ -1339,7 +1349,7 @@ def main():
         # Use the carved_files directory as source for analysis moving forward
         source = tempdir
 
-    if not args.noclam and not sys.platform.startswith("win"):
+    if not args.noclam:
         run_clamav(args, source)
 
     process_content(
