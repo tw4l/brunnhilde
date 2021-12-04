@@ -194,7 +194,7 @@ def run_clamav(args, source_dir):
             )
         else:
             clamav_command = (
-                'clamscan -i -r "%s" --max-scansize=0 --max-filesize=0 | tee "%s"
+                'clamscan -i -r "%s" --max-scansize=0 --max-filesize=0 | tee "%s"'
                 % (source_dir, virus_log)
             )
             
