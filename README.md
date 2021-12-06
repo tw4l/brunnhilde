@@ -39,7 +39,9 @@ Brunnhilde and all of its dependencies are already installed in BitCurator versi
 
 Brunnhilde minimally requires that Python 2 or 3 and Siegfried are installed on your system to characterize directories of content. Characterizing disk images introduces additional dependencies. For more information, see [Dependencies](https://github.com/tw4l/brunnhilde#dependencies).  
 
-`sudo pip install brunnhilde`  
+`sudo pip install brunnhilde`
+
+If using macOS, you may have to run `sudo pip3 install brunnhilde`
 
 Once installed, you can call brunnhilde with just `brunnhilde.py [arguments]`.  
 
