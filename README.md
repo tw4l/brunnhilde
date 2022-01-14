@@ -57,9 +57,10 @@ usage: brunnhilde.py [-h] [-a] [-b] [--ssn_mode SSN_MODE] [--regex REGEX] [-d]
                      [--hfs] [--hfs_resforks] [--hfs_partition HFS_PARTITION]
                      [--hfs_fsroot HFS_FSROOT] [--tsk_imgtype TSK_IMGTYPE]
                      [--tsk_fstype TSK_FSTYPE]
-                     [--tsk_sector_offset TSK_SECTOR_OFFSET] [--hash HASH] [-k]
-                     [-l] [-n] [-r] [-t] [-v] [-V] [-w] [-z] [--csv CSV]
-                     [--stdin] [-o]
+                     [--tsk_sector_offset TSK_SECTOR_OFFSET] [--hash HASH]
+                     [-k] [-l] [-n] [-r] [-t] [-v] [-V] [-w] [-z]
+                     [--save_assets SAVE_ASSETS] [--load_assets LOAD_ASSETS]
+                     [--csv CSV] [--stdin] [-o] [--in-memory-db]
                      source destination [basename]
 
 positional arguments:
@@ -78,25 +79,25 @@ optional arguments:
   -b, --bulkextractor   Run Bulk Extractor on source
   --ssn_mode SSN_MODE   Specify ssn_mode for Bulk Extractor (0, 1, or 2)
   --regex REGEX         Specify path to regex file
-  -d, --diskimage       Use disk image instead of dir as input (Linux and macOS
-                        only)
+  -d, --diskimage       Use disk image instead of dir as input (Linux and
+                        macOS only)
   --hfs                 Use for raw disk images of HFS disks
   --hfs_resforks, --resforks
-                        HFS option: Extract AppleDouble resource forks from HFS
-                        disks
+                        HFS option: Extract AppleDouble resource forks from
+                        HFS disks
   --hfs_partition HFS_PARTITION
-                        HFS option: Specify partition number as integer for unhfs
-                        to extract (e.g. --hfs_partition 1)
+                        HFS option: Specify partition number as integer for
+                        unhfs to extract (e.g. --hfs_partition 1)
   --hfs_fsroot HFS_FSROOT
-                        HFS option: Specify POSIX path (file or dir) in the HFS
-                        file system for unhfs to extract (e.g. --hfs_fsroot
-                        /Users/tessa/backup/)
+                        HFS option: Specify POSIX path (file or dir) in the
+                        HFS file system for unhfs to extract (e.g.
+                        --hfs_fsroot /Users/tessa/backup/)
   --tsk_imgtype TSK_IMGTYPE
-                        TSK option: Specify format of image type for tsk_recover.
-                        See tsk_recover man page for details
+                        TSK option: Specify format of image type for
+                        tsk_recover. See tsk_recover man page for details
   --tsk_fstype TSK_FSTYPE
-                        TSK option: Specify file system type for tsk_recover. See
-                        tsk_recover man page for details
+                        TSK option: Specify file system type for tsk_recover.
+                        See tsk_recover man page for details
   --tsk_sector_offset TSK_SECTOR_OFFSET
                         TSK option: Sector offset for particular volume for
                         tsk_recover to recover
@@ -107,16 +108,25 @@ optional arguments:
   -r, --removefiles     Delete 'carved_files' directory when done (disk image
                         input only)
   -t, --throttle        Pause for 1s between Siegfried scans
-  -v, --verbosesf       Log verbose Siegfried output to terminal while processing
+  -v, --verbosesf       Log verbose Siegfried output to terminal while
+                        processing
   -V, --version         Display Brunnhilde version
   -w, --warnings, --showwarnings
                         Add Siegfried warnings to HTML report
   -z, --scanarchives    Decompress and scan zip, tar, gzip, warc, arc with
                         Siegfried
-  -o, --overwrite       Overwrite reports directory if it already exists
-  --csv CSV             Path to Siegfried CSV file to read as input (directories only)
+  --save_assets SAVE_ASSETS
+                        DEPRECATED. Non-functional in Brunnhilde 1.9.1+ but
+                        retained for API stability
+  --load_assets LOAD_ASSETS
+                        DEPRECATED. Non-functional in Brunnhilde 1.9.1+ but
+                        retained for API stability
+  --csv CSV             Path to Siegfried CSV file to read as input
+                        (directories only)
   --stdin               Read Siegfried CSV from piped stdin (directories only)
-
+  -o, --overwrite       Overwrite reports directory if it already exists
+  --in-memory-db        Use in-memory sqlite database rather than writing it
+                        to disk
 ```  
   
 For file paths containing spaces in directory names, enclose the entire path in single or double quotes or make sure spaces are escaped properly (e.g. `CCA\ Finding\ Aid\ Demo\`).  
@@ -151,7 +161,11 @@ Some examples:
 
 `brunnhilde.py -nz . /Users/twalsh/Desktop/ARCH123456` - *results in new directory "ARCH123456" on Mac desktop containing various reports on current working directory (-n skips ClamAV virus scan).*
 
-### Virus scanning  
+### SQLite database
+
+By default, Brunnhilde will write a sqlite database to the output directory. To instead have Brunnhilde create and use an in-memory database in RAM, pass `--in-memory-db`.
+
+### Virus scanning
 
 By default, Brunnhilde will use ClamAV to scan the contents of a directory or files in a disk image. Findings are written to a log and to the terminal. If any threats are found, Brunnhilde will print a warning to the terminal and direct the user to the ClamAV log file.  
 
