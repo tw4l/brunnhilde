@@ -1185,6 +1185,11 @@ def _make_parser():
         help="Overwrite reports directory if it already exists",
         action="store_true",
     )
+    parser.add_argument(
+        "--in-memory-db",
+        help="Use in-memory sqlite database rather than writing it to disk",
+        action="store_true"
+    )
     parser.add_argument("source", help="Path to source directory or disk image")
     parser.add_argument("destination", help="Path to destination for reports")
     parser.add_argument(
@@ -1319,6 +1324,8 @@ def main():
 
     # Open database connection and cursor
     db = os.path.join(report_dir, "siegfried.sqlite")
+    if args.in_memory_db:
+        db = ":memory:"
     conn = sqlite3.connect(db)
     conn.text_factory = str  # allows utf-8 data to be stored
     cursor = conn.cursor()
@@ -1367,8 +1374,8 @@ def main():
     cursor.close()
     conn.close()
 
-    # Remove sqlite db unless user elected to keep it
-    if not args.keepsqlite:
+    # Remove sqlite db
+    if not args.in_memory_db and not args.keepsqlite:
         os.remove(os.path.join(report_dir, "siegfried.sqlite"))
 
     log_info(
