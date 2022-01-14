@@ -2,8 +2,6 @@
 
 ### Version: Brunnhilde 1.9.3
 
-[![Build Status](https://travis-ci.org/tw4l/brunnhilde.svg?branch=master)](https://travis-ci.org/tw4l/brunnhilde)
-
 Generates aggregate reports of files in a directory or disk image based on input from Richard Lehane's [Siegfried](http://www.itforarchivists.com/siegfried).  
 
 For the graphical user interface (GUI) version of Brunnhilde, see [Brunnhilde GUI](https://github.com/tw4l/brunnhilde-gui).   

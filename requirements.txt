@@ -1,1 +1,1 @@
-requests
+-r requirements/base.txt

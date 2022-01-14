@@ -1,0 +1,82 @@
+---
+name: "Test"
+on:
+  pull_request:
+  push:
+jobs:
+  test:
+    runs-on: "ubuntu-18.04"
+    strategy:
+      matrix:
+        python-version: [3.6, 3.7, 3.8, 3.9]
+    steps:
+      - name: Check out repository
+        uses: "actions/checkout@v2"
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: "actions/setup-python@v2"
+        with:
+          python-version: "${{ matrix.python-version }}"
+      - name: Install homebrew
+        run: |
+          /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+        shell: bash
+      - name: Install siegfried
+        run: |
+          brew install richardlehane/digipres/siegfried
+        shell: bash
+      - name: Install ClamAV
+        run: |
+          sudo apt-get install clamav
+        shell: bash
+      - name: Install tree
+        run: |
+          sudo apt-get install tree
+        shell: bash
+      - name: Install disktype
+        run: |
+          sudo apt-get install disktype
+        shell: bash
+      - name: Install md5deep
+        run: |
+          sudo apt-get install -y md5deep
+        shell: bash
+      - name: Install sleuthkit
+        run: |
+          brew install sleuthkit
+        shell: bash
+      - name: Install bulk_extractor
+        run: |
+          sudo add-apt-repository ppa:ubuntu-toolchain-r/test
+          sudo apt-get update && sudo apt-get install -y \
+            git \
+            g++-7 \
+            libgnome-keyring-dev \
+            icnsutils \
+            graphicsmagick \
+            xz-utils \
+            libewf-dev \
+            libssl-dev \
+            libsqlite3-dev \
+            libboost-dev \
+            libicu-dev \
+            libtool
+          git clone --recursive https://github.com/tw4l/bulk_extractor && cd bulk_extractor && chmod 755 bootstrap.sh && ./bootstrap.sh && ./configure && make && sudo make install && cd ..
+        shell: bash
+      - name: Get pip cache dir
+        id: "pip-cache"
+        run: |
+          echo "::set-output name=dir::$(pip cache dir)"
+      - name: Cache pip packages
+        uses: "actions/cache@v2"
+        with:
+          path: "${{ steps.pip-cache.outputs.dir }}"
+          key: "${{ runner.os }}-pip-${{ hashFiles('**/base.txt','**/test.txt') }}"
+          restore-keys: |
+            ${{ runner.os }}-pip-
+      - name: Install pip requirements
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements/test.txt
+      - name: Run tests
+        run: |
+          python test.py
