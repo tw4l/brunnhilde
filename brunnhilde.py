@@ -197,7 +197,7 @@ def run_clamav(args, source_dir):
                 'clamscan -i -r "%s" --max-scansize=0 --max-filesize=0 | tee "%s"'
                 % (source_dir, virus_log)
             )
-            
+
     else:
         if sys.platform.startswith("win"):
             clamav_command = 'clamscan -i -r "%s" > "%s"' % (source_dir, virus_log)
@@ -277,18 +277,11 @@ def import_csv(cursor, conn, use_hash):
     """
     # Create CSV reader
     if sys.version_info > (3, 0):
-        f = open(sf_file, "r", encoding="utf8")
+        f = open(sf_file, "r", encoding="utf8", errors="ignore")
     else:
         f = open(sf_file, "rb")
-    try:
-        reader = csv.reader(
-            x.replace("\0", "") for x in f
-        )  # replace null bytes with empty strings on read
-    except UnicodeDecodeError:
-        f = (x.encode("utf-8").strip() for x in f)  # skip non-utf8 encodable characters
-        reader = csv.reader(
-            x.replace("\0", "") for x in f
-        )  # replace null bytes with empty strings on read
+
+    reader = csv.reader(f)
 
     # Read CSV into database
     header = True
@@ -324,7 +317,7 @@ def import_csv(cursor, conn, use_hash):
 
 
 def create_html_report(
-    args, source_dir, scan_started, cursor, html, siegfried_version, use_hash,
+    args, source_dir, scan_started, cursor, html, siegfried_version, use_hash
 ):
     """Get aggregate statistics and write to html report"""
     # Gather stats from database.
@@ -360,7 +353,9 @@ def create_html_report(
     )  # unidentified files
     unidentified_files = cursor.fetchone()[0]
 
-    year_sql = "SELECT DISTINCT SUBSTR(modified, 1, 4) as 'year' FROM siegfried;"  # min and max year
+    year_sql = (
+        "SELECT DISTINCT SUBSTR(modified, 1, 4) as 'year' FROM siegfried;"
+    )  # min and max year
     year_path = os.path.join(csv_dir, "uniqueyears.csv")
     # if python3, specify newline to prevent extra csv line in windows
     # else, open and read csv in bytes mode
@@ -769,10 +764,10 @@ def write_html_report_section(header, path, file_delimiter, html):
                             "row_format_version": row[8],
                             "row_mime": row[9],
                             "row_basis": row[10],
-                            "row_warning": row[11]
+                            "row_warning": row[11],
                         },
-                        "files": []
-                        }
+                        "files": [],
+                    }
                 row_file_info = {"row_filename": row[0], "row_date_modified": row[2]}
                 duplicates_dict[hash_value]["files"].append(row_file_info)
 
@@ -816,7 +811,9 @@ def write_html_report_section(header, path, file_delimiter, html):
                 )
             if hash_info["row_mime"]:
                 html.write(
-                    "\n<li><strong>MIME type:</strong> {}</li>".format(hash_info["row_mime"])
+                    "\n<li><strong>MIME type:</strong> {}</li>".format(
+                        hash_info["row_mime"]
+                    )
                 )
             if hash_info["row_basis"]:
                 html.write(
@@ -832,7 +829,9 @@ def write_html_report_section(header, path, file_delimiter, html):
                 )
             if hash_info["row_errors"]:
                 html.write(
-                    "\n<li><strong>Errors:</strong> {}</li>".format(hash_info["row_errors"])
+                    "\n<li><strong>Errors:</strong> {}</li>".format(
+                        hash_info["row_errors"]
+                    )
                 )
             html.write("\n</ul>")
 
@@ -941,14 +940,14 @@ def accept_or_run_siegfried(args, source_dir, use_hash):
 
 
 def process_content(
-    args, source_dir, cursor, conn, html, siegfried_version, use_hash, ssn_mode,
+    args, source_dir, cursor, conn, html, siegfried_version, use_hash, ssn_mode
 ):
     """Run through main processing flow on specified directory"""
     scan_started = str(datetime.datetime.now())
     accept_or_run_siegfried(args, source_dir, use_hash)
     use_hash = import_csv(cursor, conn, use_hash)
     create_html_report(
-        args, source_dir, scan_started, cursor, html, siegfried_version, use_hash,
+        args, source_dir, scan_started, cursor, html, siegfried_version, use_hash
     )
     generate_reports(args, cursor, html, use_hash)
     if args.bulkextractor:
@@ -1161,12 +1160,12 @@ def _make_parser():
     parser.add_argument(
         "--save_assets",
         help="DEPRECATED. Non-functional in Brunnhilde 1.9.1+ but retained for API stability",
-        action="store"
+        action="store",
     )
     parser.add_argument(
         "--load_assets",
         help="DEPRECATED. Non-functional in Brunnhilde 1.9.1+ but retained for API stability",
-        action="store"
+        action="store",
     )
     parser.add_argument(
         "--csv",
@@ -1188,7 +1187,7 @@ def _make_parser():
     parser.add_argument(
         "--in-memory-db",
         help="Use in-memory sqlite database rather than writing it to disk",
-        action="store_true"
+        action="store_true",
     )
     parser.add_argument("source", help="Path to source directory or disk image")
     parser.add_argument("destination", help="Path to destination for reports")
@@ -1359,7 +1358,7 @@ def main():
         run_clamav(args, source)
 
     process_content(
-        args, source, cursor, conn, html, siegfried_version, use_hash, ssn_mode,
+        args, source, cursor, conn, html, siegfried_version, use_hash, ssn_mode
     )
 
     # Delete carved_files directory if user elected not to keep it
