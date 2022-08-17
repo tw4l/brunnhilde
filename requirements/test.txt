@@ -1,4 +1,2 @@
--r base.txt
-
 flake8
 pytest

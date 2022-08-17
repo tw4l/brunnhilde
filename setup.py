@@ -11,7 +11,7 @@ setup(
     description="A Siegfried-based digital archives reporting tool for directories and disk images",
     keywords="archives reporting characterization identification diskimages",
     platforms=["POSIX", "Windows"],
-    install_requires=["requests"],
+    install_requires=[],
     test_suite="test",
     classifiers=[
         "Development Status :: 5 - Production/Stable",

@@ -28,14 +28,13 @@ import logging
 import math
 import os
 import re
-import requests
 import shutil
 import sqlite3
 import subprocess
 import sys
 
 
-BRUNNHILDE_VERSION = "brunnhilde 1.9.4"
+BRUNNHILDE_VERSION = "brunnhilde 1.9.5"
 
 CSS = """
 body {
