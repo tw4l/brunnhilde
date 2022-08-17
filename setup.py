@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name="brunnhilde",
-    version="1.9.4",
+    version="1.9.5",
     url="https://github.com/tw4l/brunnhilde",
     author="Tessa Walsh",
     author_email="tessa@bitarchivist.net",
