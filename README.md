@@ -1,6 +1,6 @@
 ## Brunnhilde - Siegfried-based characterization tool for directories and disk images
 
-### Version: Brunnhilde 1.9.5
+### Version: Brunnhilde 1.9.6
 
 Generates aggregate reports of files in a directory or disk image based on input from Richard Lehane's [Siegfried](http://www.itforarchivists.com/siegfried).  
 
