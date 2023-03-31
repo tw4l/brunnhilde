@@ -34,7 +34,7 @@ import subprocess
 import sys
 
 
-BRUNNHILDE_VERSION = "brunnhilde 1.9.5"
+BRUNNHILDE_VERSION = "brunnhilde 1.9.6"
 
 CSS = """
 body {
@@ -280,36 +280,44 @@ def import_csv(cursor, conn, use_hash):
     else:
         f = open(sf_file, "rb")
 
-    reader = csv.reader(f)
+    reader = csv.DictReader(f)
 
-    # Read CSV into database
-    header = True
+    HASH_CHOICES = ("md5", "sha1", "sha256", "sha512", "crc")
+    hash_algorithm_used = None
+
+    # Drop table if exists
+    sql = "DROP TABLE IF EXISTS siegfried"
+    cursor.execute(sql)
+
+    # Create table
+    sql = "CREATE TABLE siegfried (filename text, filesize text, modified text, errors text, hash text, namespace text, id text, format text, version text, mime text, basis text, warning text, class text)"
+    cursor.execute(sql)
+
     for row in reader:
-        if header:
-            header = False  # gather column names from first row of csv
-            sql = "DROP TABLE IF EXISTS siegfried"
-            cursor.execute(sql)
+        if hash_algorithm_used is None:
+            for hash_algorithm in HASH_CHOICES:
+                if row.get(hash_algorithm):
+                    use_hash = True
+                    hash_algorithm_used = hash_algorithm
 
-            # If Siegfried CSV has 'hash' column, set use_hash to true
-            NUMBER_OF_COLUMNS_WITH_HASH = 12
-            use_hash = False
-            if len(row) == NUMBER_OF_COLUMNS_WITH_HASH:
-                use_hash = True
+        sql = "INSERT INTO siegfried (filename, filesize, modified, errors, hash, namespace, id, format, version, mime, basis, warning, class) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?);"
+        data = (
+            row.get("filename"),
+            row.get("filesize"),
+            row.get("modified"),
+            row.get("errors"),
+            row.get(hash_algorithm_used),
+            row.get("namespace"),
+            row.get("id"),
+            row.get("format"),
+            row.get("version"),
+            row.get("mime"),
+            row.get("basis"),
+            row.get("warning"),
+            row.get("class")
+        )
+        cursor.execute(sql, data)
 
-            sql = "CREATE TABLE siegfried (filename text, filesize text, modified text, errors text, namespace text, id text, format text, version text, mime text, basis text, warning text)"
-            if use_hash:
-                sql = "CREATE TABLE siegfried (filename text, filesize text, modified text, errors text, hash text, namespace text, id text, format text, version text, mime text, basis text, warning text)"
-
-            cursor.execute(sql)
-
-            insertsql = "INSERT INTO siegfried VALUES (%s)" % (
-                ", ".join(["?" for column in row])
-            )
-            rowlen = len(row)
-        else:
-            # skip lines that don't have right number of columns
-            if len(row) == rowlen:
-                cursor.execute(insertsql, row)
     conn.commit()
     f.close()
     return use_hash
