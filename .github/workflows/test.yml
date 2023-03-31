@@ -3,6 +3,10 @@ name: "Test"
 on:
   pull_request:
   push:
+
+env:
+  ACTIONS_ALLOW_UNSECURE_COMMANDS: True
+
 jobs:
   test:
     runs-on: "ubuntu-18.04"
@@ -18,50 +22,35 @@ jobs:
           python-version: "${{ matrix.python-version }}"
       - name: Install homebrew
         run: |
-          /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-        shell: bash
+          /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
+          test -d ~/.linuxbrew && eval $(~/.linuxbrew/bin/brew shellenv)
+          test -d /home/linuxbrew/.linuxbrew && eval $(/home/linuxbrew/.linuxbrew/bin/brew shellenv)
+          echo "eval \$($(brew --prefix)/bin/brew shellenv)" >>~/.profile
+          echo "::add-path::/home/linuxbrew/.linuxbrew/bin"
+          brew --version
       - name: Install siegfried
         run: |
           brew install richardlehane/digipres/siegfried
-        shell: bash
       - name: Install ClamAV
         run: |
-          sudo apt-get install clamav
-        shell: bash
+          sudo apt-get update && sudo apt-get install clamav
+          sudo systemctl stop clamav-freshclam.service
+          sudo freshclam
       - name: Install tree
         run: |
           sudo apt-get install tree
-        shell: bash
       - name: Install disktype
         run: |
-          sudo apt-get install disktype
-        shell: bash
+          brew install disktype
       - name: Install md5deep
         run: |
-          sudo apt-get install -y md5deep
-        shell: bash
+          brew install md5deep
       - name: Install sleuthkit
         run: |
           brew install sleuthkit
-        shell: bash
       - name: Install bulk_extractor
         run: |
-          sudo add-apt-repository ppa:ubuntu-toolchain-r/test
-          sudo apt-get update && sudo apt-get install -y \
-            git \
-            g++-7 \
-            libgnome-keyring-dev \
-            icnsutils \
-            graphicsmagick \
-            xz-utils \
-            libewf-dev \
-            libssl-dev \
-            libsqlite3-dev \
-            libboost-dev \
-            libicu-dev \
-            libtool
-          git clone --recursive https://github.com/tw4l/bulk_extractor && cd bulk_extractor && chmod 755 bootstrap.sh && ./bootstrap.sh && ./configure && make && sudo make install && cd ..
-        shell: bash
+          brew install bulk_extractor
       - name: Get pip cache dir
         id: "pip-cache"
         run: |
