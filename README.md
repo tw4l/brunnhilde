@@ -76,6 +76,7 @@ optional arguments:
                         (recovers all files by default)
   -b, --bulkextractor   Run Bulk Extractor on source
   --ssn_mode SSN_MODE   Specify ssn_mode for Bulk Extractor (0, 1, or 2)
+  --disable_carvers     Disable Bulk Extractor file carvers
   --regex REGEX         Specify path to regex file
   -d, --diskimage       Use disk image instead of dir as input (Linux and
                         macOS only)
@@ -216,6 +217,8 @@ SSN recognition: you are now able to specify one of three SSN recognition modes:
 -S ssn_mode=1 No “SSN” required, but dashes are required.  
 -S ssn_mode=2 No dashes required. Allow any 9-digit number that matches SSN allocation range.  
 ```
+
+In Brunnhilde 1.9.7+, pass "--disable_carvers" instruct bulk_extractor to disable file carving.
 
 ### Using disk images as input  
 
