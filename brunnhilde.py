@@ -240,6 +240,28 @@ def run_bulk_extractor(args, source_dir, ssn_mode):
     if args.regex:
         cmd.insert(1, "-F")
         cmd.insert(2, args.regex)
+
+    carve_mode_flags = [
+        "evtx_carved_carve_mode=0",
+        "jpeg_carve_mode=0",
+        "kml_carved_carve_mode=0",
+        "ntfsindx_carved_carve_mode=0",
+        "ntfslogfile_carved_carve_mode=0",
+        "ntfsmft_carved_carve_mode=0",
+        "ntfsusn_carved_carve_mode=0",
+        "rar_carve_mode=0",
+        "sqlite_carved_carve_mode=0",
+        "unrar_carved_carve_mode=0",
+        "utmp_carved_carve_mode=0",
+        "vcard_carve_mode=0",
+        "winpe_carved_carve_mode=0",
+        "zip_carve_mode=0"
+    ]
+    if args.disable_carvers:
+        for carve_flag in carve_mode_flags:
+            cmd.insert(3, "-S")
+            cmd.insert(4, carve_flag)
+
     try:
         if sys.version_info > (3, 0):
             log_file = open(bulk_extractor_log, "w", encoding="utf-8")
@@ -1064,6 +1086,11 @@ def _make_parser():
         help="Specify ssn_mode for Bulk Extractor (0, 1, or 2)",
         action="store",
         type=int,
+    )
+    parser.add_argument(
+        "--disable_carvers",
+        help="Disable Bulk Extractor file carvers",
+        action="store_true",
     )
     parser.add_argument("--regex", help="Specify path to regex file", action="store")
     parser.add_argument(
