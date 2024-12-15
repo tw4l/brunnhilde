@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name="brunnhilde",
-    version="1.9.6",
+    version="1.9.7",
     url="https://github.com/tw4l/brunnhilde",
     author="Tessa Walsh",
     author_email="tessa@bitarchivist.net",
@@ -28,6 +28,9 @@ setup(
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
         "Topic :: System :: Archiving",
         "Topic :: System :: Filesystems",
         "Topic :: Utilities",
