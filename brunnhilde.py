@@ -21,7 +21,7 @@ from __future__ import print_function
 import argparse
 from collections import OrderedDict
 import csv
-import datetime
+from datetime import datetime
 import errno
 from itertools import islice
 import logging
@@ -182,7 +182,7 @@ def run_siegfried(args, source_dir, use_hash):
 
 def run_clamav(args, source_dir):
     """Run ClamAV on directory"""
-    timestamp = str(datetime.datetime.now())
+    timestamp = str(datetime.now())
     log_info("Running virus scan.", time_warning=True)
     virus_log = os.path.join(log_dir, "viruscheck-log.txt")
     if args.largefiles:
@@ -302,19 +302,19 @@ def import_csv(cursor, conn, use_hash):
 
         sql = "INSERT INTO siegfried (filename, filesize, modified, errors, hash, namespace, id, format, version, mime, basis, warning, class) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?);"
         data = (
-            row.get("filename"),
-            row.get("filesize"),
-            row.get("modified"),
-            row.get("errors"),
-            row.get(hash_algorithm_used),
-            row.get("namespace"),
-            row.get("id"),
-            row.get("format"),
-            row.get("version"),
-            row.get("mime"),
-            row.get("basis"),
-            row.get("warning"),
-            row.get("class")
+            row.get("filename", ""),
+            row.get("filesize", ""),
+            row.get("modified", ""),
+            row.get("errors", ""),
+            row.get(hash_algorithm_used, ""),
+            row.get("namespace", ""),
+            row.get("id", ""),
+            row.get("format", ""),
+            row.get("version", ""),
+            row.get("mime", ""),
+            row.get("basis", ""),
+            row.get("warning", ""),
+            row.get("class", ""),
         )
         cursor.execute(sql, data)
 
@@ -384,7 +384,17 @@ def create_html_report(
     years = []
     for row in r:
         if row:
-            years.append(row[0])
+            year = row[0]
+
+            # Validate year
+            if len(year) != 4:
+                continue
+            try:
+                int(year)
+            except TypeError:
+                continue
+
+            years.append(year)
     if not years:
         begin_date = "N/A"
         end_date = "N/A"
@@ -419,7 +429,15 @@ def create_html_report(
     dates = []
     for row in r:
         if row:
-            dates.append(row[0])
+            date = row[0]
+
+            # Validate date
+            try:
+                datetime.fromisoformat(date)
+            except TypeError:
+                continue
+
+            dates.append(date)
     if not dates:
         earliest_date = "N/A"
         latest_date = "N/A"
@@ -950,7 +968,7 @@ def process_content(
     args, source_dir, cursor, conn, html, siegfried_version, use_hash, ssn_mode
 ):
     """Run through main processing flow on specified directory"""
-    scan_started = str(datetime.datetime.now())
+    scan_started = str(datetime.now())
     accept_or_run_siegfried(args, source_dir, use_hash)
     use_hash = import_csv(cursor, conn, use_hash)
     create_html_report(
