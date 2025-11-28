@@ -34,7 +34,7 @@ import subprocess
 import sys
 
 
-BRUNNHILDE_VERSION = "brunnhilde 1.9.6"
+BRUNNHILDE_VERSION = "brunnhilde 1.9.7"
 
 CSS = """
 body {
