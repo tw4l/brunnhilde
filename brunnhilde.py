@@ -806,7 +806,7 @@ def write_html_report_section(header, path, file_delimiter, html):
             )
             # Print info for the group
             hash_info = duplicates_dict[hash_value]["info"]
-            row_size_readable = convert_size(int(hash_info["row_size"]))
+            row_size_readable = convert_size(int(hash_info.get("row_size", "0")))
             html.write("\n<ul>")
             if " bytes" in row_size_readable:
                 html.write(
