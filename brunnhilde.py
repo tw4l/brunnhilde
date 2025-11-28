@@ -806,56 +806,57 @@ def write_html_report_section(header, path, file_delimiter, html):
             )
             # Print info for the group
             hash_info = duplicates_dict[hash_value]["info"]
-            row_size_readable = convert_size(int(hash_info.get("row_size", "0")))
+            row_size = hash_info.get("row_size", "0")
+            row_size_readable = convert_size(int(row_size))
             html.write("\n<ul>")
             if " bytes" in row_size_readable:
                 html.write(
-                    "\n<li><strong>Size:</strong> {} bytes</li>".format(
-                        hash_info["row_size"]
-                    )
+                    "\n<li><strong>Size:</strong> {} bytes</li>".format(row_size)
                 )
             else:
                 html.write(
                     "\n<li><strong>Size:</strong> {bytes} bytes ({readable})</li>".format(
-                        bytes=hash_info["row_size"], readable=row_size_readable
+                        bytes=row_size, readable=row_size_readable
                     )
                 )
             html.write(
                 "\n<li><strong>ID:</strong> {}</li>".format(
-                    add_pronom_link_for_puids(hash_info["row_id"])
+                    add_pronom_link_for_puids(hash_info.get("row_id"))
                 )
             )
             html.write(
-                "\n<li><strong>Format:</strong> {}</li>".format(hash_info["row_format"])
+                "\n<li><strong>Format:</strong> {}</li>".format(
+                    hash_info.get("row_format", "None")
+                )
             )
-            if hash_info["row_format_version"]:
+            if hash_info.get("row_format_version"):
                 html.write(
                     "\n<li><strong>Format version:</strong> {}</li>".format(
-                        hash_info["row_format_version"]
+                        hash_info.get("row_format_version")
                     )
                 )
-            if hash_info["row_mime"]:
+            if hash_info.get("row_mime"):
                 html.write(
                     "\n<li><strong>MIME type:</strong> {}</li>".format(
-                        hash_info["row_mime"]
+                        hash_info.get("row_mime")
                     )
                 )
-            if hash_info["row_basis"]:
+            if hash_info.get("row_basis"):
                 html.write(
                     "\n<li><strong>Basis for ID:</strong> {}</li>".format(
-                        hash_info["row_basis"]
+                        hash_info.get("row_basis")
                     )
                 )
-            if hash_info["row_warning"]:
+            if hash_info.get("row_warning"):
                 html.write(
                     "\n<li><strong>Warning:</strong> {}</li>".format(
-                        hash_info["row_warning"]
+                        hash_info.get("row_warning")
                     )
                 )
-            if hash_info["row_errors"]:
+            if hash_info.get("row_errors"):
                 html.write(
                     "\n<li><strong>Errors:</strong> {}</li>".format(
-                        hash_info["row_errors"]
+                        hash_info.get("row_errors")
                     )
                 )
             html.write("\n</ul>")
@@ -871,8 +872,8 @@ def write_html_report_section(header, path, file_delimiter, html):
             for file_info in duplicates_dict[hash_value]["files"]:
                 # write data
                 html.write("\n<tr>")
-                html.write("\n<td>" + file_info["row_filename"] + "</td>")
-                html.write("\n<td>" + file_info["row_date_modified"] + "</td>")
+                html.write("\n<td>" + file_info.get("row_filename", "") + "</td>")
+                html.write("\n<td>" + file_info.get("row_date_modified", "") + "</td>")
                 html.write("\n</tr>")
             html.write("\n</tbody>")
             html.write("\n</table>")
