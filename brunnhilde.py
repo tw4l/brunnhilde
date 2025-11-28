@@ -21,7 +21,7 @@ from __future__ import print_function
 import argparse
 from collections import OrderedDict
 import csv
-import datetime
+from datetime import datetime
 import errno
 from itertools import islice
 import logging
@@ -34,7 +34,7 @@ import subprocess
 import sys
 
 
-BRUNNHILDE_VERSION = "brunnhilde 1.9.6"
+BRUNNHILDE_VERSION = "brunnhilde 1.9.7"
 
 CSS = """
 body {
@@ -182,7 +182,7 @@ def run_siegfried(args, source_dir, use_hash):
 
 def run_clamav(args, source_dir):
     """Run ClamAV on directory"""
-    timestamp = str(datetime.datetime.now())
+    timestamp = str(datetime.now())
     log_info("Running virus scan.", time_warning=True)
     virus_log = os.path.join(log_dir, "viruscheck-log.txt")
     if args.largefiles:
@@ -302,19 +302,19 @@ def import_csv(cursor, conn, use_hash):
 
         sql = "INSERT INTO siegfried (filename, filesize, modified, errors, hash, namespace, id, format, version, mime, basis, warning, class) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?);"
         data = (
-            row.get("filename"),
-            row.get("filesize"),
-            row.get("modified"),
-            row.get("errors"),
-            row.get(hash_algorithm_used),
-            row.get("namespace"),
-            row.get("id"),
-            row.get("format"),
-            row.get("version"),
-            row.get("mime"),
-            row.get("basis"),
-            row.get("warning"),
-            row.get("class")
+            row.get("filename", ""),
+            row.get("filesize", ""),
+            row.get("modified", ""),
+            row.get("errors", ""),
+            row.get(hash_algorithm_used, ""),
+            row.get("namespace", ""),
+            row.get("id", ""),
+            row.get("format", ""),
+            row.get("version", ""),
+            row.get("mime", ""),
+            row.get("basis", ""),
+            row.get("warning", ""),
+            row.get("class", ""),
         )
         cursor.execute(sql, data)
 
@@ -384,7 +384,17 @@ def create_html_report(
     years = []
     for row in r:
         if row:
-            years.append(row[0])
+            year = row[0]
+
+            # Validate year
+            if len(year) != 4:
+                continue
+            try:
+                int(year)
+            except TypeError:
+                continue
+
+            years.append(year)
     if not years:
         begin_date = "N/A"
         end_date = "N/A"
@@ -419,7 +429,15 @@ def create_html_report(
     dates = []
     for row in r:
         if row:
-            dates.append(row[0])
+            date = row[0]
+
+            # Validate date
+            try:
+                datetime.fromisoformat(date)
+            except TypeError:
+                continue
+
+            dates.append(date)
     if not dates:
         earliest_date = "N/A"
         latest_date = "N/A"
@@ -788,56 +806,57 @@ def write_html_report_section(header, path, file_delimiter, html):
             )
             # Print info for the group
             hash_info = duplicates_dict[hash_value]["info"]
-            row_size_readable = convert_size(int(hash_info["row_size"]))
+            row_size = hash_info.get("row_size", "0")
+            row_size_readable = convert_size(int(row_size))
             html.write("\n<ul>")
             if " bytes" in row_size_readable:
                 html.write(
-                    "\n<li><strong>Size:</strong> {} bytes</li>".format(
-                        hash_info["row_size"]
-                    )
+                    "\n<li><strong>Size:</strong> {} bytes</li>".format(row_size)
                 )
             else:
                 html.write(
                     "\n<li><strong>Size:</strong> {bytes} bytes ({readable})</li>".format(
-                        bytes=hash_info["row_size"], readable=row_size_readable
+                        bytes=row_size, readable=row_size_readable
                     )
                 )
             html.write(
                 "\n<li><strong>ID:</strong> {}</li>".format(
-                    add_pronom_link_for_puids(hash_info["row_id"])
+                    add_pronom_link_for_puids(hash_info.get("row_id"))
                 )
             )
             html.write(
-                "\n<li><strong>Format:</strong> {}</li>".format(hash_info["row_format"])
+                "\n<li><strong>Format:</strong> {}</li>".format(
+                    hash_info.get("row_format", "None")
+                )
             )
-            if hash_info["row_format_version"]:
+            if hash_info.get("row_format_version"):
                 html.write(
                     "\n<li><strong>Format version:</strong> {}</li>".format(
-                        hash_info["row_format_version"]
+                        hash_info.get("row_format_version")
                     )
                 )
-            if hash_info["row_mime"]:
+            if hash_info.get("row_mime"):
                 html.write(
                     "\n<li><strong>MIME type:</strong> {}</li>".format(
-                        hash_info["row_mime"]
+                        hash_info.get("row_mime")
                     )
                 )
-            if hash_info["row_basis"]:
+            if hash_info.get("row_basis"):
                 html.write(
                     "\n<li><strong>Basis for ID:</strong> {}</li>".format(
-                        hash_info["row_basis"]
+                        hash_info.get("row_basis")
                     )
                 )
-            if hash_info["row_warning"]:
+            if hash_info.get("row_warning"):
                 html.write(
                     "\n<li><strong>Warning:</strong> {}</li>".format(
-                        hash_info["row_warning"]
+                        hash_info.get("row_warning")
                     )
                 )
-            if hash_info["row_errors"]:
+            if hash_info.get("row_errors"):
                 html.write(
                     "\n<li><strong>Errors:</strong> {}</li>".format(
-                        hash_info["row_errors"]
+                        hash_info.get("row_errors")
                     )
                 )
             html.write("\n</ul>")
@@ -853,8 +872,8 @@ def write_html_report_section(header, path, file_delimiter, html):
             for file_info in duplicates_dict[hash_value]["files"]:
                 # write data
                 html.write("\n<tr>")
-                html.write("\n<td>" + file_info["row_filename"] + "</td>")
-                html.write("\n<td>" + file_info["row_date_modified"] + "</td>")
+                html.write("\n<td>" + file_info.get("row_filename", "") + "</td>")
+                html.write("\n<td>" + file_info.get("row_date_modified", "") + "</td>")
                 html.write("\n</tr>")
             html.write("\n</tbody>")
             html.write("\n</table>")
@@ -950,7 +969,7 @@ def process_content(
     args, source_dir, cursor, conn, html, siegfried_version, use_hash, ssn_mode
 ):
     """Run through main processing flow on specified directory"""
-    scan_started = str(datetime.datetime.now())
+    scan_started = str(datetime.now())
     accept_or_run_siegfried(args, source_dir, use_hash)
     use_hash = import_csv(cursor, conn, use_hash)
     create_html_report(
